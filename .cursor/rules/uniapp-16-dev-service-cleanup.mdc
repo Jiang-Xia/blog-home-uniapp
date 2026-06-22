@@ -1,0 +1,24 @@
+---
+description: blog-home-uniapp 开发服务结束后必须关闭，避免 9000 端口占用
+alwaysApply: true
+---
+
+# 开发服务清理（blog-home-uniapp）
+
+Agent 为验证启动 `pnpm dev` / `pnpm dev:mp` 等命令后，**结束前必须关闭**对应进程。
+
+## 默认端口
+
+| 命令 | 端口 / 说明 |
+|------|-------------|
+| `pnpm dev` / `pnpm dev:h5` | **9000**（H5） |
+| `pnpm dev:mp` | 微信开发者工具 + Vite 构建进程 |
+
+## Windows 清理示例
+
+```powershell
+netstat -ano | findstr :9000
+Stop-Process -Id <PID> -Force
+```
+
+勿停止 MySQL（3306）、Redis（6379）。

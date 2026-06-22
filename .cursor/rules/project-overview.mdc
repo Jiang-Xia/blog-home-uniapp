@@ -1,0 +1,36 @@
+---
+alwaysApply: true
+---
+# blog-home-uniapp 项目概览
+
+博客移动端前台，基于 **uni-app + Vue3 + TypeScript + Vite5 + UnoCSS**（unibest 脚手架），与 blog-home-nuxt 页面域对齐。
+
+## 项目特点
+- 支持 H5、微信小程序、APP 多平台
+- 约定式路由、layout 布局、请求封装、登录拦截、自定义 TabBar
+- 无需依赖 HBuilderX，支持命令行开发
+- 联调后端：blog-server（默认 `http://localhost:5000/api/v1`）
+
+## 核心配置文件
+- [package.json](mdc:package.json) - 依赖与脚本
+- [vite.config.ts](mdc:vite.config.ts) - Vite 构建
+- [pages.config.ts](mdc:pages.config.ts) - 页面路由
+- [manifest.config.ts](mdc:manifest.config.ts) - 应用清单
+- [commitlint.config.js](mdc:commitlint.config.js) - 提交信息（中文 subject）
+- [eslint.config.mjs](mdc:eslint.config.mjs) - ESLint
+
+## 主要目录
+- `src/pages/` - 主包页面
+- `src/api/`、`src/http/` - 接口与请求
+- `src/store/` - Pinia 状态
+- `src/tabbar/` - 底部导航
+- `env/` - 环境变量
+
+## 开发命令
+- `pnpm dev` - H5（端口 9000）
+- `pnpm dev:mp` - 微信小程序
+- `pnpm dev:app` - App
+- `pnpm lint:fix` - ESLint 修复
+
+## Git 提交
+Conventional Commits + **中文 subject**，见 [uniapp-18-commit-message.mdc](mdc:.cursor/rules/uniapp-18-commit-message.mdc)。
