@@ -1,30 +1,64 @@
 import { getAllPages } from '@/utils'
+import {
+  ROUTE_ARTICLE_EDIT,
+  ROUTE_LOGIN,
+  ROUTE_PROFILE,
+  ROUTE_REGISTER,
+  ROUTE_RPG_FULL,
+  ROUTE_RPG_GUIDE,
+} from './routes'
+
+export {
+  ROUTE_ABOUT,
+  ROUTE_ARCHIVES,
+  ROUTE_ARTICLE_EDIT,
+  ROUTE_CATEGORY_LIST,
+  ROUTE_DETAIL,
+  ROUTE_EXPLORE,
+  ROUTE_FEATURES,
+  ROUTE_HOME,
+  ROUTE_LINKS,
+  ROUTE_LOGIN,
+  ROUTE_ME,
+  ROUTE_MSGBOARD,
+  ROUTE_NOT_FOUND,
+  ROUTE_PROFILE,
+  ROUTE_PROJECTS,
+  ROUTE_REGISTER,
+  ROUTE_RPG_ENTRY,
+  ROUTE_RPG_FULL,
+  ROUTE_RPG_GUIDE,
+  ROUTE_SEARCH,
+  ROUTE_TAG_LIST,
+  ROUTE_TOOL_INDEX,
+  ROUTE_USER_PUBLIC,
+} from './routes'
 
 export const LOGIN_STRATEGY_MAP = {
-  DEFAULT_NO_NEED_LOGIN: 0, // 黑名单策略，默认可以进入APP
-  DEFAULT_NEED_LOGIN: 1, // 白名单策略，默认不可以进入APP，需要强制登录
+  DEFAULT_NO_NEED_LOGIN: 0,
+  DEFAULT_NEED_LOGIN: 1,
 }
-// TODO: 1/3 登录策略，默认使用`无需登录策略`，即默认不需要登录就可以访问
 export const LOGIN_STRATEGY = LOGIN_STRATEGY_MAP.DEFAULT_NO_NEED_LOGIN
 export const isNeedLoginMode = LOGIN_STRATEGY === LOGIN_STRATEGY_MAP.DEFAULT_NEED_LOGIN
 
-export const LOGIN_PAGE = '/pages/auth/login'
-export const REGISTER_PAGE = '/pages/auth/register'
+export const LOGIN_PAGE = ROUTE_LOGIN
+export const REGISTER_PAGE = ROUTE_REGISTER
 
 export const LOGIN_PAGE_LIST = [LOGIN_PAGE, REGISTER_PAGE]
 
-// 在 definePage 里面配置了 excludeLoginPath 的页面，功能与 EXCLUDE_LOGIN_PATH_LIST 相同
 export const excludeLoginPathList = getAllPages('excludeLoginPath').map(page => page.path)
 
-// 排除在外的列表，白名单策略指白名单列表，黑名单策略指黑名单列表
-// TODO: 2/3 在 definePage 配置 excludeLoginPath，或者在下面配置 EXCLUDE_LOGIN_PATH_LIST
-export const EXCLUDE_LOGIN_PATH_LIST = [
-  '/pages/xxx/index', // 示例值
-  '/pages-sub/xxx/index', // 示例值
-  ...excludeLoginPathList, // 都是以 / 开头的 path
+/** 黑名单：需登录才能访问的页面（默认无需登录策略下） */
+export const NEED_LOGIN_PATH_LIST = [
+  ROUTE_PROFILE,
+  ROUTE_ARTICLE_EDIT,
+  ROUTE_RPG_FULL,
+  ROUTE_RPG_GUIDE,
 ]
 
-// 在小程序里面是否使用H5的登录页，默认为 false
-// 如果为 true 则复用 h5 的登录逻辑
-// TODO: 3/3 确定自己的登录页是否需要在小程序里面使用
+export const EXCLUDE_LOGIN_PATH_LIST = [
+  ...NEED_LOGIN_PATH_LIST,
+  ...excludeLoginPathList,
+]
+
 export const LOGIN_PAGE_ENABLE_IN_MP = false

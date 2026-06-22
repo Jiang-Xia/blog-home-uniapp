@@ -1,53 +1,54 @@
 <script lang="ts" setup>
-defineOptions({
-  name: 'Home',
-})
+import { getArticleList } from '@/api/article'
+import type { ArticleItem } from '@/api/article'
+import ArticleCard from '@/components/article-card/article-card.vue'
+import { ROUTE_SEARCH } from '@/router/routes'
+
 definePage({
-  // 使用 type: "home" 属性设置首页，其他页面不需要设置，默认为page
   type: 'home',
-  style: {
-    // 'custom' 表示开启自定义导航栏，默认 'default'
-    navigationStyle: 'custom',
-    navigationBarTitleText: '首页',
-  },
+  style: { navigationBarTitleText: 'Blog Home' },
 })
 
-const description = ref(
-  'unibest 是一个集成了多种工具和技术的 uniapp 开发模板，由 uniapp + Vue3 + Ts + Vite5 + UnoCss + VSCode 构建，模板具有代码提示、自动格式化、统一配置、代码片段等功能，并内置了许多常用的基本组件和基本功能，让你编写 uniapp 拥有 best 体验。',
-)
-console.log('index/index 首页打印了')
+const articleList = ref<ArticleItem[]>([])
+const pagingRef = ref<{ complete: (list: ArticleItem[]) => void, completeByTotal?: (list: ArticleItem[], total: number) => void } | null>(null)
 
-onLoad(() => {
-  console.log('测试 uni API 自动引入: onLoad')
-})
+async function queryList(pageNo: number, pageSize: number) {
+  try {
+    const res = await getArticleList({
+      page: pageNo,
+      pageSize,
+      client: true,
+      sort: 'DESC',
+      category: '',
+      tags: [],
+      title: '',
+      description: '',
+      content: '',
+    })
+    const list = res?.list ?? []
+    const total = res?.pagination?.total ?? list.length
+    pagingRef.value?.completeByTotal?.(list, total) ?? pagingRef.value?.complete(list)
+  }
+  catch {
+    pagingRef.value?.complete([])
+  }
+}
+
+function goSearch() {
+  uni.navigateTo({ url: ROUTE_SEARCH })
+}
 </script>
 
 <template>
-  <view class="bg-white px-4 pt-safe">
-    <view class="mt-10">
-      <image src="/static/logo.svg" alt="" class="mx-auto block h-28 w-28" />
+  <z-paging ref="pagingRef" v-model="articleList" @query="queryList">
+    <template #top>
+      <view class="flex items-center justify-between bg-white px-4 py-3">
+        <text class="text-lg font-bold">Blog Home</text>
+        <text class="text-sm text-blue-600" @click="goSearch">搜索</text>
+      </view>
+    </template>
+    <view class="px-3 py-2">
+      <ArticleCard v-for="item in articleList" :key="item.id" :item="item" />
     </view>
-    <view class="mt-4 text-center text-4xl text-[#d14328]">
-      unibest
-    </view>
-    <view class="mb-8 mt-2 text-center text-2xl">
-      最好用的 uniapp 开发模板
-    </view>
-
-    <view class="m-auto mb-2 max-w-100 text-justify indent text-4">
-      {{ description }}
-    </view>
-    <view class="mt-4 text-center">
-      作者：
-      <text class="text-green-500">
-        菲鸽
-      </text>
-    </view>
-    <view class="mt-4 text-center">
-      官网地址：
-      <text class="text-green-500">
-        https://unibest.tech
-      </text>
-    </view>
-  </view>
+  </z-paging>
 </template>

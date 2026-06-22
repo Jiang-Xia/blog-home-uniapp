@@ -71,6 +71,9 @@ blog-home-uniapp/
 ├── env/                  # 环境变量（.env.*）
 ├── src/
 │   ├── pages/            # 主包页面（约定式路由）
+│   ├── pages-blog/       # 分包：阅读 / 用户内容
+│   ├── pages-rpg/        # 分包：RPG 冒险
+│   ├── pages-tool/       # 分包：实用工具
 │   ├── api/              # 接口封装
 │   ├── http/             # 请求层
 │   ├── store/            # Pinia
@@ -82,6 +85,72 @@ blog-home-uniapp/
 ├── eslint.config.mjs     # ESLint 扁平配置
 └── commitlint.config.js  # 提交信息校验
 ```
+
+## 分包与 TabBar
+
+| 分包 root | 说明 | 代表页面 |
+| --- | --- | --- |
+| `src/pages/` | 主包（冷启动 + TabBar） | index、detail、search、explore、rpg/entry、me、auth、about |
+| `src/pages-blog/` | 阅读 / 用户（按需加载） | archives、user/profile |
+| `src/pages-rpg/` | RPG 冒险（按需加载） | index、guide |
+
+**TabBar（4 项）**：首页 · 发现 · 冒险（entry 壳页）· 我的。完整 RPG 在 `pages-rpg/index/index`，由 entry 页 `navigateTo` 进入。
+
+**与 blog-home-nuxt 路径对照**：
+
+| uniapp | Nuxt |
+| --- | --- |
+| `/pages/index/index` | `/` |
+| `/pages/detail/detail?id=` | `/detail/:id` |
+| `/pages/search/search` | `/search` |
+| `/pages/explore/explore` | `/explore` |
+| `/pages/rpg/entry` | Tab 入口（Web 无对应） |
+| `/pages-rpg/index/index` | `/rpg` |
+| `/pages-blog/user/profile` | `/user/profile` |
+| `/pages-blog/archives/index` | `/archives` |
+| `/pages-blog/projects/index` | `/projects` |
+| `/pages-blog/features/index` | `/features` |
+| `/pages/404/index` | 404 页 |
+
+## 常用页面
+
+| 路径 | 说明 |
+| --- | --- |
+| `/pages/index/index` | 首页文章列表 |
+| `/pages/detail/detail?id=` | 文章详情（目录、代码高亮、打赏） |
+| `/pages/search/search` | 搜索 |
+| `/pages/explore/explore` | 发现快捷入口 |
+| `/pages/auth/login` | 登录 |
+| `/pages/auth/register` | 注册 |
+| `/pages/me/me` | 我的 |
+| `/pages/rpg/entry` | RPG Tab 入口 |
+| `/pages-rpg/index/index` | 冒险中心（五 Tab） |
+| `/pages-rpg/guide/index` | RPG 玩法说明 |
+| `/pages-blog/archives/index` | 文章归档 |
+| `/pages-blog/tag/list?id=` | 标签文章 |
+| `/pages-blog/category/list?id=` | 分类文章 |
+| `/pages-blog/user/profile` | 个人中心 |
+| `/pages-blog/user/article/edit` | 写文章 / 编辑 |
+| `/pages-blog/user/public?uid=` | 公开主页 |
+| `/pages-blog/msgboard/index` | 留言板（楼中楼、管理员删除） |
+| `/pages-blog/projects/index` | 项目展示 |
+| `/pages-blog/features/index` | 系统特性 |
+| `/pages/404/index` | 404 页面不存在 |
+| `/pages-blog/links/index` | 友链 |
+| `/pages-blog/open-source/index` | 开源与合作 |
+| `/pages-tool/index/index` | 工具箱 |
+| `/pages-tool/codes/index` | 编码转换 |
+| `/pages-tool/rsa/index` | RSA 加解密 |
+| `/pages-tool/crypto/index` | 对称加密（AES/DES） |
+| `/pages-tool/sm/index` | 国密 SM2 |
+| `/pages-tool/qrcode/index` | 二维码生成 |
+| `/pages-tool/ai-summary/index` | AI 文章摘要 |
+| `/pages-tool/watermark/index` | 批量水印（H5） |
+| `/pages-tool/h5-web/index` | Web 工具跳转（光影边框/WebRTC 等） |
+| `/pages-tool/pdf/index` | PDF 预览（H5） |
+| `/pages/about/about` | 关于 |
+
+路由常量见 `src/router/routes.ts`；发现页卡片见 `src/config/quick-entries.ts`。
 
 ## Git 提交规范
 

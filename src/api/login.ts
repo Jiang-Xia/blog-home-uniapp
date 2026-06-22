@@ -1,85 +1,114 @@
-import type { IAuthLoginRes, ICaptcha, IDoubleTokenRes, IUpdateInfo, IUpdatePassword, IUserInfoRes } from './types/login'
+/**
+ * 用户认证 API（对齐 blog-server / blog-home-nuxt）
+ */
+import type { IAuthLoginRes, ICaptcha, ILoginForm, ILoginResult, IRegisterForm, IUserInfoRes } from './types/login'
 import { http } from '@/http/http'
+import { getEnvBaseUrl } from '@/utils'
+import { normalizeLoginPayload, pickAccessToken, pickRefreshToken } from '@/utils/auth-token'
+import { mapServerUser } from '@/utils/user-map'
 
-/**
- * 登录表单
- */
-export interface ILoginForm {
-  username: string
-  password: string
+/** accessToken 有效期 0.5h，refreshToken 7d（与 server certificate 一致） */
+export const ACCESS_TOKEN_EXPIRES = 30 * 60
+export const REFRESH_TOKEN_EXPIRES = 7 * 24 * 3600
+
+export function toTokenInfo(data: unknown): IAuthLoginRes {
+  const payload = normalizeLoginPayload(data)
+  const accessToken = pickAccessToken(payload)
+  const refreshToken = pickRefreshToken(payload)
+  if (!accessToken)
+    throw new Error('登录响应缺少 accessToken')
+  return {
+    accessToken,
+    refreshToken,
+    accessExpiresIn: ACCESS_TOKEN_EXPIRES,
+    refreshExpiresIn: REFRESH_TOKEN_EXPIRES,
+  }
 }
 
-/**
- * 获取验证码
- * @returns ICaptcha 验证码
- */
-export function getCode() {
-  return http.get<ICaptcha>('/user/getCode')
+/** 图形验证码 GET /user/authCode */
+export function getAuthCode() {
+  return http.get<ICaptcha>('/user/authCode', { t: Date.now() })
 }
 
-/**
- * 用户登录
- * @param loginForm 登录表单
- */
+/** 账号登录 POST /user/login */
 export function login(loginForm: ILoginForm) {
-  return http.post<IAuthLoginRes>('/auth/login', loginForm)
+  return http.post<ILoginResult>('/user/login', {
+    loginType: 'account',
+    username: loginForm.username,
+    password: loginForm.password,
+    authCode: loginForm.authCode,
+    captchaId: loginForm.captchaId,
+  })
 }
 
-/**
- * 刷新token
- * @param refreshToken 刷新token
- */
-export function refreshToken(refreshToken: string) {
-  return http.post<IDoubleTokenRes>('/auth/refreshToken', { refreshToken })
+/** 邮箱登录 POST /user/email/login */
+export function emailLogin(params: { email: string, verificationCode: string }) {
+  return http.post<ILoginResult>('/user/email/login', {
+    loginType: 'email',
+    ...params,
+  })
 }
 
-/**
- * 获取用户信息
- */
-export function getUserInfo() {
-  return http.get<IUserInfoRes>('/user/info')
+/** 刷新 token GET /user/refresh */
+export function refreshToken(refreshTokenValue: string) {
+  return http.get<{
+    accessToken: string
+    refreshToken: string
+    user?: Record<string, unknown>
+  }>('/user/refresh', { token: refreshTokenValue })
 }
 
-/**
- * 退出登录
- */
+/** 用户信息 GET /user/info */
+export async function getUserInfo() {
+  const data = await http.get<Record<string, unknown>>('/user/info')
+  return mapServerUser(data) as IUserInfoRes
+}
+
+/** 退出（本地清除为主，server 无专用 logout 时可忽略错误） */
 export function logout() {
-  return http.get<void>('/auth/logout')
+  return Promise.resolve()
 }
 
-/**
- * 修改用户信息
- */
-export function updateInfo(data: IUpdateInfo) {
-  return http.post('/user/updateInfo', data)
+/** 账号注册 POST /user/register */
+export function register(form: IRegisterForm) {
+  return http.post<void>('/user/register', form)
 }
 
-/**
- * 修改用户密码
- */
-export function updateUserPassword(data: IUpdatePassword) {
-  return http.post('/user/updatePassword', data)
+/** 发送邮箱验证码 POST /user/email/sendCode */
+export function sendEmailCode(email: string, type: 'login' | 'register' = 'register') {
+  return http.post<void>('/user/email/sendCode', { email, type })
 }
 
-/**
- * 获取微信登录凭证
- * @returns Promise 包含微信登录凭证(code)
- */
+/** 邮箱注册 POST /user/email/register */
+export function emailRegister(form: Record<string, unknown>) {
+  return http.post<void>('/user/email/register', form)
+}
+
+/** 微信登录凭证（仅小程序/App） */
 export function getWxCode() {
   return new Promise<UniApp.LoginRes>((resolve, reject) => {
     uni.login({
       provider: 'weixin',
       success: res => resolve(res),
-      fail: err => reject(new Error(err)),
+      fail: err => reject(new Error(String(err))),
     })
   })
 }
 
-/**
- * 微信登录
- * @param params 微信登录参数，包含code
- * @returns Promise 包含登录结果
- */
-export function wxLogin(data: { code: string }) {
-  return http.post<IAuthLoginRes>('/auth/wxLogin', data)
+/** 微信小程序登录 POST /user/auth/wechat/miniprogram */
+export function wxLogin(codeRes: UniApp.LoginRes): Promise<ILoginResult> {
+  const code = typeof codeRes === 'object' && codeRes?.code ? codeRes.code : String(codeRes)
+  return http.post<ILoginResult>('/user/auth/wechat/miniprogram', { code })
 }
+
+/** GitHub OAuth 跳转地址（H5 整页跳转至 server 授权） */
+export function getGithubOAuthUrl() {
+  return `${getEnvBaseUrl()}/user/auth/github`
+}
+
+/** OAuth 回调 ticket 兑换 POST /user/auth/ticket/exchange */
+export function exchangeOAuthTicket(ticket: string) {
+  return http.post<ILoginResult>('/user/auth/ticket/exchange', { ticket })
+}
+
+export type { ILoginForm }

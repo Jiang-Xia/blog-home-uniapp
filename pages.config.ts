@@ -18,6 +18,20 @@ export default defineUniPages({
       '^wd-(.*)': '@wot-ui/ui/components/wd-$1/wd-$1.vue',
     },
   },
+  preloadRule: {
+    'pages/rpg/entry': {
+      network: 'all',
+      packages: ['pages-rpg'],
+    },
+    'pages/me/me': {
+      network: 'all',
+      packages: ['pages-blog'],
+    },
+    'pages/explore/explore': {
+      network: 'wifi',
+      packages: ['pages-blog'],
+    },
+  },
   // tabbar 的配置统一在 “./src/tabbar/config.ts” 文件中
   tabBar: tabBar as any,
 })

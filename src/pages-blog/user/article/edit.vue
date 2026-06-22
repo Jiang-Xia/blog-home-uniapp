@@ -1,0 +1,269 @@
+<script lang="ts" setup>
+/**
+ * 用户文章编辑页（新建/编辑）
+ * - H5 md-editor 正文；封面 uni.uploadFile
+ * - 本地草稿 uni.storage debounce 3s（新建默认可恢复）
+ */
+import { createArticle, editArticle, getArticleInfo, parseArticleDetail } from '@/api/article'
+import { getAllCategory } from '@/api/category'
+import { uploadCover } from '@/api/resources'
+import { getAllTag } from '@/api/tag'
+import MarkdownEditor from '@/components/markdown-editor/markdown-editor.vue'
+import { ROUTE_DETAIL, ROUTE_PROFILE } from '@/router/routes'
+import { useTokenStore } from '@/store/token'
+import { debounce } from '@/utils/debounce'
+import { resolveStaticUrl } from '@/utils/static-url'
+
+definePage({
+  style: { navigationBarTitleText: '编辑文章' },
+})
+
+const tokenStore = useTokenStore()
+const articleId = ref('')
+const isEdit = computed(() => !!articleId.value)
+const loading = ref(false)
+const submitting = ref(false)
+const draftRestored = ref(false)
+const categories = ref<any[]>([])
+const tags = ref<any[]>([])
+
+const form = reactive({
+  title: '',
+  description: '',
+  content: '**写下你的灵感~**',
+  category: '',
+  cover: '',
+  tags: [] as number[],
+  status: 'publish' as 'publish' | 'draft',
+})
+
+/** 草稿 storage key；新建与编辑分 key */
+const draftStorageKey = computed(() => `draft:${articleId.value || 'new'}`)
+
+const coverDisplayUrl = computed(() => resolveStaticUrl(form.cover))
+
+/** debounce 3s 写入本地草稿，防止意外丢失 */
+const saveDraftToLocal = debounce(() => {
+  if (submitting.value)
+    return
+  uni.setStorageSync(draftStorageKey.value, JSON.stringify({ ...form, savedAt: Date.now() }))
+}, 3000)
+
+/** 清除本地草稿（发布/保存成功后） */
+function clearLocalDraft() {
+  uni.removeStorageSync(draftStorageKey.value)
+}
+
+/** 新建文章时尝试恢复草稿 */
+function tryRestoreDraft() {
+  if (isEdit.value)
+    return
+  try {
+    const raw = uni.getStorageSync(draftStorageKey.value)
+    if (!raw)
+      return
+    const draft = typeof raw === 'string' ? JSON.parse(raw) : raw
+    if (draft.title || draft.content) {
+      Object.assign(form, {
+        title: draft.title ?? '',
+        description: draft.description ?? '',
+        content: draft.content ?? form.content,
+        category: draft.category ?? '',
+        cover: draft.cover ?? '',
+        tags: Array.isArray(draft.tags) ? draft.tags : [],
+        status: draft.status ?? 'publish',
+      })
+      draftRestored.value = true
+    }
+  }
+  catch {
+    // ignore invalid draft
+  }
+}
+
+watch(form, () => saveDraftToLocal(), { deep: true })
+
+onLoad(async (query) => {
+  if (!tokenStore.hasLogin) {
+    uni.navigateTo({ url: '/pages/auth/login' })
+    return
+  }
+  articleId.value = String(query?.id ?? '')
+  uni.setNavigationBarTitle({ title: isEdit.value ? '编辑文章' : '写文章' })
+  loading.value = true
+  try {
+    const [catList, tagList] = await Promise.all([getAllCategory(), getAllTag()])
+    categories.value = catList ?? []
+    tags.value = tagList ?? []
+    if (isEdit.value) {
+      const raw = await getArticleInfo({ id: articleId.value })
+      const { info } = parseArticleDetail(raw)
+      if (info) {
+        form.title = String(info.title ?? '')
+        form.description = String(info.description ?? '')
+        form.content = String(info.content ?? '')
+        form.cover = String(info.cover ?? '')
+        form.category = String((info.category as any)?.id ?? info.category ?? '')
+        form.tags = Array.isArray(info.tags) ? info.tags.map((t: any) => t.id) : []
+        form.status = (info.status as 'publish' | 'draft') || 'publish'
+      }
+    }
+    else {
+      tryRestoreDraft()
+    }
+  }
+  finally {
+    loading.value = false
+  }
+})
+
+function onCategoryChange(e: { detail: { value: number } }) {
+  form.category = String(categories.value[e.detail.value]?.id ?? '')
+}
+
+/** 选择并上传封面 */
+async function pickCover() {
+  uni.chooseImage({
+    count: 1,
+    success: async (res) => {
+      const path = res.tempFilePaths[0]
+      if (!path)
+        return
+      uni.showLoading({ title: '上传中' })
+      try {
+        form.cover = await uploadCover(path)
+        uni.showToast({ title: '封面上传成功', icon: 'success' })
+      }
+      catch {
+        uni.showToast({ title: '上传失败', icon: 'none' })
+      }
+      finally {
+        uni.hideLoading()
+      }
+    },
+  })
+}
+
+function toggleTag(id: number) {
+  const idx = form.tags.indexOf(id)
+  if (idx >= 0)
+    form.tags.splice(idx, 1)
+  else
+    form.tags.push(id)
+}
+
+/** 提交创建/更新；成功后清除草稿 */
+async function submit() {
+  if (!form.title.trim()) {
+    uni.showToast({ title: '请填写标题', icon: 'none' })
+    return
+  }
+  submitting.value = true
+  saveDraftToLocal.cancel()
+  try {
+    const params: Record<string, unknown> = {
+      title: form.title.trim(),
+      description: form.description.trim(),
+      content: form.content,
+      contentHtml: '',
+      category: form.category,
+      cover: form.cover,
+      tags: form.tags,
+      status: form.status,
+    }
+    if (isEdit.value) {
+      params.id = Number(articleId.value)
+      await editArticle(params)
+      clearLocalDraft()
+      uni.showToast({ title: '更新成功', icon: 'success' })
+      setTimeout(() => {
+        uni.navigateTo({ url: `${ROUTE_DETAIL}?id=${articleId.value}` })
+      }, 500)
+    }
+    else {
+      const created = await createArticle(params)
+      clearLocalDraft()
+      const newId = created?.id ?? created?.info?.id
+      uni.showToast({ title: '创建成功', icon: 'success' })
+      setTimeout(() => {
+        if (newId)
+          uni.navigateTo({ url: `${ROUTE_DETAIL}?id=${newId}` })
+        else
+          uni.navigateTo({ url: ROUTE_PROFILE })
+      }, 500)
+    }
+  }
+  finally {
+    submitting.value = false
+  }
+}
+</script>
+
+<template>
+  <view v-if="loading" class="p-8 text-center text-gray-400">
+    加载中...
+  </view>
+  <scroll-view v-else scroll-y class="edit-page">
+    <view class="p-4">
+      <view v-if="draftRestored" class="mb-3 rounded bg-amber-50 px-3 py-2 text-xs text-amber-700">
+        已恢复本地草稿
+      </view>
+      <wd-input v-model="form.title" label="标题" placeholder="文章标题" />
+      <wd-input v-model="form.description" label="摘要" placeholder="简短描述" class="mt-3" />
+      <view class="mt-3">
+        <text class="mb-1 block text-sm text-gray-600">封面</text>
+        <image v-if="form.cover" :src="coverDisplayUrl" mode="aspectFill" class="mb-2 h-32 w-full rounded-lg" />
+        <wd-button size="small" @click="pickCover">
+          选择封面
+        </wd-button>
+      </view>
+      <view class="mt-3">
+        <text class="mb-1 block text-sm text-gray-600">分类</text>
+        <picker :range="categories" range-key="name" @change="onCategoryChange">
+          <view class="border border-gray-200 rounded px-3 py-2 text-sm">
+            {{ categories.find(c => String(c.id) === form.category)?.name || '选择分类' }}
+          </view>
+        </picker>
+      </view>
+      <view class="mt-3">
+        <text class="mb-1 block text-sm text-gray-600">标签</text>
+        <view class="flex flex-wrap gap-2">
+          <text
+            v-for="tag in tags"
+            :key="tag.id"
+            class="rounded px-2 py-1 text-xs"
+            :class="form.tags.includes(tag.id) ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'"
+            @click="toggleTag(tag.id)"
+          >
+            {{ tag.name }}
+          </text>
+        </view>
+      </view>
+      <view class="mt-3">
+        <text class="mb-1 block text-sm text-gray-600">正文（Markdown）</text>
+        <MarkdownEditor v-model="form.content" />
+      </view>
+      <view class="mt-3">
+        <text class="mb-1 block text-sm text-gray-600">状态</text>
+        <view class="flex gap-2">
+          <wd-button size="small" :type="form.status === 'publish' ? 'primary' : undefined" @click="form.status = 'publish'">
+            发布
+          </wd-button>
+          <wd-button size="small" :type="form.status === 'draft' ? 'primary' : undefined" @click="form.status = 'draft'">
+            草稿
+          </wd-button>
+        </view>
+      </view>
+      <wd-button block class="mt-6" :loading="submitting" @click="submit">
+        {{ isEdit ? '保存更新' : '创建文章' }}
+      </wd-button>
+    </view>
+  </scroll-view>
+</template>
+
+<style scoped>
+.edit-page {
+  min-height: 100vh;
+  background: #fff;
+}
+</style>

@@ -77,6 +77,8 @@ export default defineConfig({
     'i-carbon-code',
     'i-carbon-home',
     'i-carbon-user',
+    'i-carbon-compass',
+    'i-carbon-game-console',
     'i-carbon-ibm-watson-language-translator',
     'i-carbon-menu',
   ],

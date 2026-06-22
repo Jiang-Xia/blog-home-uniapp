@@ -1,5 +1,7 @@
 <script setup lang="ts">
 // i-carbon-code
+// i-carbon-compass
+// i-carbon-game-console
 import { customTabbarEnable, needHideNativeTabbar, tabbarCacheEnable } from './config'
 import { tabbarList, tabbarStore } from './store'
 import TabbarItem from './TabbarItem.vue'

@@ -12,6 +12,11 @@ router && permission.install(router)
 
 onLaunch((options) => {
   console.log('App.vue onLaunch', options)
+  uni.onPageNotFound((res) => {
+    uni.redirectTo({
+      url: `/pages/404/index?path=${encodeURIComponent(res.path || '')}`,
+    })
+  })
 })
 onShow((options) => {
   console.log('App.vue onShow', options)

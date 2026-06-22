@@ -34,3 +34,6 @@ alwaysApply: true
 
 ## Git 提交
 Conventional Commits + **中文 subject**，见 [uniapp-18-commit-message.mdc](mdc:.cursor/rules/uniapp-18-commit-message.mdc)。
+
+## 代码注释
+新功能/复杂逻辑须中文 JSDoc 与文件头说明，见 [uniapp-20-commenting-hard-requirement.mdc](mdc:.cursor/rules/uniapp-20-commenting-hard-requirement.mdc)。

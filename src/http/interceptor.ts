@@ -1,6 +1,7 @@
 import type { CustomRequestOptions } from '@/http/types'
 import { useTokenStore } from '@/store'
 import { getEnvBaseUrl } from '@/utils'
+import { getPersistedAccessToken } from '@/utils/auth-token'
 import { stringifyQuery } from './tools/queryString'
 
 // 请求基准地址
@@ -48,9 +49,9 @@ const httpInterceptor = {
     options.header = {
       ...options.header,
     }
-    // 3. 添加 token 请求头标识
+    // 3. 添加 token 请求头（Pinia + 本地 storage 双通道，避免登录后立即请求丢 token）
     const tokenStore = useTokenStore()
-    const token = tokenStore.updateNowTime().validToken
+    const token = tokenStore.updateNowTime().validToken || getPersistedAccessToken()
 
     if (token) {
       options.header.Authorization = `Bearer ${token}`

@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
-# . "$(dirname -- "$0")/_/husky.sh"
-
-npx lint-staged --allow-empty
+# GUI 提交（Cursor/VS Code）PATH 不含 npx，勿用 npx；直接走 node_modules/.bin
+cd "$(dirname "$0")/.." || exit 1
+export PATH="$PWD/node_modules/.bin:$PATH"
+lint-staged --allow-empty
