@@ -90,8 +90,8 @@ onMounted(() => {
   })
 })
 // #endif
-const activeColor = 'var(--wot-color-theme, #1890ff)'
-const inactiveColor = '#666'
+const activeColor = '#22d3ee'
+const inactiveColor = 'rgba(255,255,255,0.45)'
 function getColorByIndex(index: number) {
   return tabbarStore.curIdx === index ? activeColor : inactiveColor
 }
@@ -99,7 +99,7 @@ function getColorByIndex(index: number) {
 
 <template>
   <view v-if="customTabbarEnable" class="h-50px pb-safe">
-    <view class="border-and-fixed bg-white" @touchmove.stop.prevent>
+    <view class="border-and-fixed bg-tech-header" @touchmove.stop.prevent>
       <view class="h-50px flex items-center">
         <view
           v-for="(item, index) in tabbarList" :key="index"
@@ -129,8 +129,9 @@ function getColorByIndex(index: number) {
   left: 0;
   right: 0;
   z-index: 1000;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--tech-border);
   box-sizing: border-box;
+  backdrop-filter: blur(12px);
 }
 // 中间鼓包的样式
 .bulge {
@@ -145,8 +146,8 @@ function getColorByIndex(index: number) {
   width: 250rpx;
   height: 250rpx;
   border-radius: 50%;
-  background-color: #fff;
-  box-shadow: inset 0 0 0 1px #fefefe;
+  background-color: rgba(17, 24, 39, 0.96);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.35);
 
   &:active {
     // opacity: 0.8;

@@ -85,7 +85,7 @@ function copySummary() {
 </script>
 
 <template>
-  <scroll-view scroll-y class="ai-page px-4 py-4">
+  <scroll-view scroll-y class="ai-page cyber-page-grid px-4 py-4">
     <view class="mb-3 flex flex-wrap gap-2">
       <wd-button
         v-for="(label, key) in styleLabels"
@@ -105,8 +105,8 @@ function copySummary() {
     <wd-button v-if="summaryText" block class="mt-2" @click="copySummary">
       复制摘要
     </wd-button>
-    <view class="mt-4 rounded bg-gray-100 p-3">
-      <text class="text-xs text-gray-500">依赖 blog-home-nuxt Nitro 代理（{{ nuxtHome }}），需配置 AI_SUMMARY_API_KEY</text>
+    <view class="cyber-glass-card mt-4 p-3">
+      <text class="text-xs text-tech-subtle">依赖 blog-home-nuxt Nitro 代理（{{ nuxtHome }}），需配置 AI_SUMMARY_API_KEY</text>
     </view>
   </scroll-view>
 </template>
@@ -114,6 +114,5 @@ function copySummary() {
 <style scoped>
 .ai-page {
   min-height: 100vh;
-  background: #fff;
 }
 </style>

@@ -28,31 +28,41 @@ function openUrl(url: string) {
 </script>
 
 <template>
-  <view class="links-page px-4 py-3">
-    <view v-if="loading" class="py-8 text-center text-gray-400">
-      加载中...
-    </view>
-    <view v-else-if="!links.length" class="py-8 text-center text-gray-400">
-      暂无友链
-    </view>
-    <view
-      v-for="link in links"
-      :key="link.id"
-      class="mb-3 flex items-center gap-3 rounded-lg bg-white p-3 shadow-sm"
-      @click="openUrl(link.url)"
-    >
-      <image v-if="link.avatar" :src="link.avatar" class="h-10 w-10 rounded-full" />
-      <view class="flex-1">
-        <text class="block font-medium">{{ link.name }}</text>
-        <text class="text-xs text-gray-500">{{ link.description }}</text>
+  <scroll-view scroll-y class="links-page cyber-page-grid">
+    <view class="px-4 py-3">
+      <cyber-section-header
+        class="mb-4"
+        label="LINKS"
+        title="友情链接"
+        subtitle="发现更多优质博客与开发者站点"
+        align="left"
+      />
+
+      <view v-if="loading" class="py-8 text-center text-tech-subtle">
+        加载中...
       </view>
+      <view v-else-if="!links.length" class="py-8 text-center text-tech-subtle">
+        暂无友链
+      </view>
+
+      <cyber-card
+        v-for="link in links"
+        :key="link.id"
+        class="mb-3 flex items-center gap-3 !p-3"
+        @click="openUrl(link.url)"
+      >
+        <image v-if="link.avatar" :src="link.avatar" class="h-10 w-10 border border-tech rounded-full" />
+        <view class="flex-1">
+          <text class="block text-tech font-medium">{{ link.name }}</text>
+          <text class="text-xs text-tech-muted">{{ link.description }}</text>
+        </view>
+      </cyber-card>
     </view>
-  </view>
+  </scroll-view>
 </template>
 
 <style scoped>
 .links-page {
-  min-height: 100vh;
-  background: #f5f5f5;
+  height: 100vh;
 }
 </style>

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { getRpgSignInfo, getRpgStatus } from '@/api/rpg'
-import { ROUTE_RPG_FULL } from '@/router/routes'
+import { ROUTE_RPG_FULL, ROUTE_RPG_GUIDE } from '@/router/routes'
 import { useTokenStore } from '@/store/token'
 import type { RpgStatus, SignInfo } from '@/types/rpg'
 
@@ -42,38 +42,65 @@ function goRpg() {
   }
   uni.navigateTo({ url: ROUTE_RPG_FULL })
 }
+
+function goGuide() {
+  uni.navigateTo({ url: ROUTE_RPG_GUIDE })
+}
 </script>
 
 <template>
-  <view class="entry-page px-4 py-6">
-    <view v-if="!tokenStore.hasLogin" class="text-center">
-      <text class="block text-gray-600">登录后即可进入冒险中心</text>
-      <wd-button class="mt-4" @click="goRpg">
-        去登录
-      </wd-button>
+  <scroll-view scroll-y class="entry-page cyber-page-grid">
+    <view class="px-4 py-6">
+      <cyber-section-header
+        label="RPG"
+        title="冒险中心"
+        subtitle="签到升级 · 任务奖励 · 抽奖开宝箱"
+      />
+
+      <view v-if="!tokenStore.hasLogin" class="mt-6 text-center">
+        <cyber-card class="!p-6">
+          <text class="block text-tech-muted">登录后即可进入冒险中心</text>
+          <cyber-button class="mt-4 inline-flex" variant="primary" @click="goRpg">
+            去登录
+          </cyber-button>
+        </cyber-card>
+      </view>
+
+      <template v-else>
+        <view v-if="loading" class="py-8 text-center text-tech-subtle">
+          加载状态...
+        </view>
+        <template v-else>
+          <cyber-card v-if="status" class="mb-4 !p-5">
+            <text class="home-hero-gradient-text block text-xl font-bold">Lv.{{ status.level }} 冒险者</text>
+            <text class="mt-2 block text-sm text-tech-muted">经验 {{ status.exp }} · 生命 {{ status.lifeValue }}</text>
+            <text class="mt-1 block text-sm text-tech-primary">💎 {{ status.currency ?? 0 }}</text>
+            <text class="mt-3 block text-xs text-tech-subtle">
+              {{ signInfo?.signedToday ? '今日已签到 ✓' : '今日尚未签到' }} · 连续 {{ status.consecutiveSignDays }} 天
+            </text>
+          </cyber-card>
+
+          <cyber-button block class="mb-3" variant="primary" @click="goRpg">
+            ⚔️ 进入冒险中心
+          </cyber-button>
+          <cyber-button block variant="secondary" @click="goGuide">
+            冒险攻略
+          </cyber-button>
+        </template>
+      </template>
     </view>
-    <template v-else>
-      <view v-if="loading" class="py-8 text-center text-gray-400">
-        加载状态...
-      </view>
-      <view v-else-if="status" class="mb-6 rounded-xl from-indigo-500 to-purple-700 bg-gradient-to-br p-5 text-white">
-        <text class="block text-xl font-bold">Lv.{{ status.level }} 冒险者</text>
-        <text class="mt-2 block text-sm">经验 {{ status.exp }} · 生命 {{ status.lifeValue }}</text>
-        <text class="mt-1 block text-sm">💎 {{ status.currency ?? 0 }}</text>
-        <text class="mt-2 block text-xs opacity-80">
-          {{ signInfo?.signedToday ? '今日已签到 ✓' : '今日尚未签到' }} · 连续 {{ status.consecutiveSignDays }} 天
-        </text>
-      </view>
-      <wd-button block @click="goRpg">
-        进入冒险中心
-      </wd-button>
-    </template>
-  </view>
+  </scroll-view>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .entry-page {
-  min-height: 100vh;
-  background: #f5f5f5;
+  height: 100vh;
+}
+
+.home-hero-gradient-text {
+  background: linear-gradient(to right, var(--tech-gradient-from), var(--tech-rpg-amber), var(--tech-gradient-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 </style>

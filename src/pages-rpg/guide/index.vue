@@ -32,18 +32,24 @@ const sections = [
 </script>
 
 <template>
-  <view class="guide-page px-4 py-4">
-    <text class="mb-4 block text-xl font-bold">RPG 冒险指南</text>
-    <view v-for="(s, i) in sections" :key="i" class="mb-4 rounded-lg bg-white p-4 shadow-sm">
-      <text class="block text-blue-600 font-medium">{{ s.title }}</text>
-      <text class="mt-2 block text-sm text-gray-600 leading-relaxed">{{ s.content }}</text>
+  <scroll-view scroll-y class="guide-page cyber-page-grid">
+    <view class="px-4 py-4">
+      <cyber-section-header
+        label="GUIDE"
+        title="RPG 冒险指南"
+        subtitle="规则说明与玩法一览"
+        align="left"
+      />
+      <cyber-card v-for="(s, i) in sections" :key="i" class="mb-4 !p-4">
+        <text class="block text-tech-primary font-medium">{{ s.title }}</text>
+        <text class="mt-2 block text-sm text-tech-muted leading-relaxed">{{ s.content }}</text>
+      </cyber-card>
     </view>
-  </view>
+  </scroll-view>
 </template>
 
 <style scoped>
 .guide-page {
-  min-height: 100vh;
-  background: #f5f5f5;
+  height: 100vh;
 }
 </style>

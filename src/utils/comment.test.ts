@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { APPROVED_COMMENT_STATUS, filterApprovedComments, parseCommentCreateStatus } from './comment'
+import { APPROVED_COMMENT_STATUS, filterApprovedComments, parseCommentCreateStatus, resolveCommentUserUid } from './comment'
 
 describe('filterApprovedComments', () => {
   it('保留 approved 与无 status 的历史数据', () => {
@@ -30,5 +30,15 @@ describe('filterApprovedComments', () => {
 describe('parseCommentCreateStatus', () => {
   it('解析 pending', () => {
     expect(parseCommentCreateStatus({ status: 'pending' })).toBe('pending')
+  })
+})
+
+describe('resolveCommentUserUid', () => {
+  it('优先 userInfo.id', () => {
+    expect(resolveCommentUserUid({ uid: 1, userInfo: { id: 42 } })).toBe(42)
+  })
+
+  it('无有效 uid 时返回 0', () => {
+    expect(resolveCommentUserUid({})).toBe(0)
   })
 })

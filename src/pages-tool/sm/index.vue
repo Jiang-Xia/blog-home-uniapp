@@ -42,7 +42,7 @@ onMounted(createKey)
 </script>
 
 <template>
-  <scroll-view scroll-y class="sm-page px-4 py-4">
+  <scroll-view scroll-y class="sm-page cyber-page-grid px-4 py-4">
     <view class="mb-3 flex gap-2">
       <wd-button size="small" :type="cipherMode === 1 ? 'primary' : undefined" @click="cipherMode = 1">
         C1C3C2
@@ -72,6 +72,5 @@ onMounted(createKey)
 <style scoped>
 .sm-page {
   min-height: 100vh;
-  background: #fff;
 }
 </style>

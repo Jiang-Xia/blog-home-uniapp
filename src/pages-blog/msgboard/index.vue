@@ -207,83 +207,91 @@ function avatarUrl(item: MsgboardNode) {
 </script>
 
 <template>
-  <scroll-view scroll-y class="msgboard-page">
+  <scroll-view scroll-y class="msgboard-page cyber-page-grid">
     <view class="p-3">
-      <view class="mb-4 rounded-lg bg-white p-4 shadow-sm">
-        <text class="mb-3 block font-medium">发表留言</text>
+      <cyber-section-header
+        class="mb-4"
+        label="MSGBOARD"
+        title="留言板"
+        subtitle="欢迎留下你的想法"
+        align="left"
+      />
+
+      <cyber-card class="mb-4 !p-4">
+        <text class="mb-3 block text-tech font-medium">发表留言</text>
         <wd-input v-model="msgForm.name" label="昵称" placeholder="您的昵称" maxlength="10" />
         <wd-input v-model="msgForm.eamil" label="邮箱" placeholder="您的邮箱" class="mt-2" maxlength="30" />
         <wd-input v-model="msgForm.address" label="主页" placeholder="您的主页 URL" class="mt-2" maxlength="30" />
         <wd-textarea v-model="msgForm.comment" label="留言" placeholder="写下你的想法..." class="mt-2" :maxlength="800" />
-        <wd-button size="small" class="mt-3" :loading="submitting" @click="submitMessage">
+        <cyber-button size="small" class="mt-3 inline-flex" variant="primary" @click="submitMessage">
           发表
-        </wd-button>
-      </view>
+        </cyber-button>
+      </cyber-card>
 
-      <view v-if="listLoading && !msgboardTree.length" class="py-8 text-center text-gray-400">
+      <view v-if="listLoading && !msgboardTree.length" class="py-8 text-center text-tech-subtle">
         加载中...
       </view>
-      <view v-else-if="!msgboardTree.length" class="rounded-lg bg-white py-12 text-center text-gray-400 shadow-sm">
-        还没有留言，来抢沙发吧~
-      </view>
+      <cyber-card v-else-if="!msgboardTree.length" class="py-12 text-center !p-4">
+        <text class="text-tech-subtle">还没有留言，来抢沙发吧~</text>
+      </cyber-card>
 
-      <view
+      <cyber-card
         v-for="item in msgboardTree"
         :key="item.id"
-        class="mb-3 rounded-lg bg-white p-4 shadow-sm"
+        class="mb-3 !p-4"
       >
         <view class="flex items-start gap-2">
-          <image :src="avatarUrl(item)" class="h-8 w-8 shrink-0 rounded-full" mode="aspectFill" />
+          <image :src="avatarUrl(item)" class="h-8 w-8 shrink-0 border border-tech rounded-full" mode="aspectFill" />
           <view class="min-w-0 flex-1">
             <view class="flex items-center justify-between">
-              <text class="text-sm font-medium">{{ item.name }}</text>
-              <text v-if="showDelBtn" class="text-xs text-red-500" @click="handleDelete(true, item)">删除</text>
+              <text class="text-sm text-tech font-medium">{{ item.name }}</text>
+              <text v-if="showDelBtn" class="text-xs text-red-400" @click="handleDelete(true, item)">删除</text>
             </view>
-            <text class="mt-1 block text-xs text-gray-400">{{ item.createAt }}</text>
-            <text class="mt-2 block text-sm text-gray-700">{{ item.comment }}</text>
-            <view class="mt-2 flex flex-wrap gap-2 text-xs text-gray-400">
-              <text @click="openReply(item)">回复</text>
+            <text class="mt-1 block text-xs text-tech-subtle">{{ item.createAt }}</text>
+            <text class="mt-2 block text-sm text-tech-muted">{{ item.comment }}</text>
+            <view class="mt-2 flex flex-wrap gap-2 text-xs text-tech-subtle">
+              <text class="text-tech-primary" @click="openReply(item)">回复</text>
               <text v-if="item.location">📍 {{ item.location }}</text>
             </view>
 
-            <view v-if="item.children?.length" class="mt-3 border-l-2 border-gray-100 pl-3">
+            <view v-if="item.children?.length" class="mt-3 border-l-2 border-tech pl-3">
               <view v-for="reply in item.children" :key="reply.id" class="mb-3">
                 <view class="flex items-start gap-2">
-                  <image :src="avatarUrl(reply)" class="h-7 w-7 shrink-0 rounded-full" mode="aspectFill" />
+                  <image :src="avatarUrl(reply)" class="h-7 w-7 shrink-0 border border-tech rounded-full" mode="aspectFill" />
                   <view class="min-w-0 flex-1">
                     <view class="flex items-center justify-between">
-                      <text class="text-xs font-medium">
+                      <text class="text-xs text-tech font-medium">
                         {{ reply.name }}
-                        <text v-if="reply.respondent" class="text-gray-400"> @ {{ reply.respondent }}</text>
+                        <text v-if="reply.respondent" class="text-tech-subtle"> @ {{ reply.respondent }}</text>
                       </text>
-                      <text v-if="showDelBtn" class="text-xs text-red-500" @click="handleDelete(false, reply)">删除</text>
+                      <text v-if="showDelBtn" class="text-xs text-red-400" @click="handleDelete(false, reply)">删除</text>
                     </view>
-                    <text class="mt-1 block text-xs text-gray-400">{{ reply.createAt }}</text>
-                    <text class="mt-1 block text-sm text-gray-600">{{ reply.comment }}</text>
-                    <text class="mt-1 inline-block text-xs text-blue-500" @click="openReply(reply)">回复</text>
+                    <text class="mt-1 block text-xs text-tech-subtle">{{ reply.createAt }}</text>
+                    <text class="mt-1 block text-sm text-tech-muted">{{ reply.comment }}</text>
+                    <text class="mt-1 inline-block text-xs text-tech-primary" @click="openReply(reply)">回复</text>
                   </view>
                 </view>
               </view>
             </view>
           </view>
         </view>
-      </view>
+      </cyber-card>
 
       <view v-if="hasMore" class="py-4 text-center">
-        <wd-button size="small" :loading="listLoading" @click="loadMoreMsgboard">
+        <cyber-button size="small" variant="secondary" @click="loadMoreMsgboard">
           {{ listLoading ? '加载中...' : '加载更多留言' }}
-        </wd-button>
+        </cyber-button>
       </view>
     </view>
 
     <wd-popup v-model="showReplyPopup" position="bottom" closable @close="closeReply">
-      <view class="reply-popup p-4">
-        <text class="mb-3 block font-medium">回复留言</text>
+      <view class="reply-popup cyber-page p-4">
+        <text class="mb-3 block text-tech font-medium">回复留言</text>
         <wd-input v-model="replyForm.name" label="名称" placeholder="你的名称" maxlength="10" />
         <wd-textarea v-model="replyForm.comment" label="内容" placeholder="写下回复..." class="mt-2" :maxlength="300" />
-        <wd-button block class="mt-4" :loading="submitting" @click="submitReply">
+        <cyber-button block class="mt-4" variant="primary" @click="submitReply">
           确认
-        </wd-button>
+        </cyber-button>
       </view>
     </wd-popup>
   </scroll-view>
@@ -292,7 +300,6 @@ function avatarUrl(item: MsgboardNode) {
 <style scoped>
 .msgboard-page {
   min-height: 100vh;
-  background: #f5f5f5;
 }
 .reply-popup {
   padding-bottom: calc(16px + env(safe-area-inset-bottom));

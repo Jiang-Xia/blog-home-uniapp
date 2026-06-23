@@ -90,14 +90,14 @@ async function exportZip() {
 </script>
 
 <template>
-  <scroll-view scroll-y class="watermark-page px-4 py-4">
+  <scroll-view scroll-y class="watermark-page cyber-page-grid px-4 py-4">
     <wd-input v-model="watermarkText" label="水印文字" />
     <wd-input v-model="fontSize" type="number" label="字号" class="mt-3" />
     <wd-input v-model="opacity" type="number" label="透明度 0-1" class="mt-3" />
     <wd-button block class="mt-4" @click="pickImages">
       选择图片
     </wd-button>
-    <text class="mt-2 block text-xs text-gray-500">已选 {{ files.length }} 张</text>
+    <text class="mt-2 block text-xs text-tech-subtle">已选 {{ files.length }} 张</text>
     <wd-button block class="mt-4" :loading="processing" :disabled="!files.length" @click="exportZip">
       批量导出 ZIP
     </wd-button>
@@ -111,7 +111,7 @@ definePage({ style: { navigationBarTitleText: '批量水印' } })
 
 <!-- #ifndef H5 -->
 <template>
-  <view class="p-8 text-center text-gray-500">
+  <view class="watermark-page cyber-page-grid p-8 text-center text-tech-subtle">
     批量水印请在浏览器 H5 版使用
   </view>
 </template>
@@ -119,7 +119,6 @@ definePage({ style: { navigationBarTitleText: '批量水印' } })
 <style scoped>
 .watermark-page {
   min-height: 100vh;
-  background: #fff;
 }
 </style>
 <!-- #endif -->

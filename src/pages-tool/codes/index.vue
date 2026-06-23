@@ -33,7 +33,7 @@ function copyOutput() {
 </script>
 
 <template>
-  <view class="codes-page px-4 py-4">
+  <view class="codes-page cyber-page-grid px-4 py-4">
     <view class="mb-4 flex flex-wrap gap-2">
       <wd-button
         v-for="m in ['base64-encode', 'base64-decode', 'url-encode', 'url-decode']"
@@ -46,9 +46,9 @@ function copyOutput() {
       </wd-button>
     </view>
     <wd-textarea v-model="input" placeholder="输入文本" />
-    <view class="mt-4 rounded bg-gray-50 p-3">
-      <text class="mb-2 block text-xs text-gray-500">输出</text>
-      <text class="break-all text-sm">{{ output }}</text>
+    <view class="cyber-output-panel mt-4">
+      <text class="mb-2 block text-xs text-tech-subtle">输出</text>
+      <text class="break-all text-sm text-tech">{{ output }}</text>
     </view>
     <wd-button block class="mt-4" @click="copyOutput">
       复制结果
@@ -59,6 +59,5 @@ function copyOutput() {
 <style scoped>
 .codes-page {
   min-height: 100vh;
-  background: #fff;
 }
 </style>

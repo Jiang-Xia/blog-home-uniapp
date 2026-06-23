@@ -27,28 +27,31 @@ function goTool(route: string) {
 </script>
 
 <template>
-  <view class="tool-index px-4 py-4">
-    <text class="mb-4 block text-lg font-bold">实用工具</text>
-    <view
-      v-for="item in tools"
-      :key="item.route"
-      class="mb-3 rounded-lg bg-white p-4 shadow-sm"
-      @click="goTool(item.route)"
-    >
-      <text class="block font-medium">{{ item.title }}</text>
-      <text class="mt-1 block text-sm text-gray-500">{{ item.desc }}</text>
-    </view>
-    <!-- #ifndef H5 -->
-    <view class="mt-4 rounded-lg bg-gray-100 p-3">
-      <text class="text-xs text-gray-500">水印、PDF、WebRTC 等多媒体工具请在浏览器 H5 版使用，或复制 Web 链接：{{ nuxtHome }}</text>
-    </view>
-    <!-- #endif -->
-  </view>
+  <scroll-view scroll-y class="tool-index cyber-page-grid">
+    <cyber-page-container :grid="false" label="TOOLS" title="实用工具">
+      <view class="flex flex-col gap-3">
+        <view
+          v-for="item in tools"
+          :key="item.route"
+          @click="goTool(item.route)"
+        >
+          <cyber-card class="flex flex-col !p-4">
+            <text class="block text-tech font-medium">{{ item.title }}</text>
+            <text class="mt-1 block text-sm text-tech-muted">{{ item.desc }}</text>
+          </cyber-card>
+        </view>
+      </view>
+      <!-- #ifndef H5 -->
+      <view class="cyber-glass-card mt-4 p-3">
+        <text class="text-xs text-tech-subtle">水印、PDF、WebRTC 等多媒体工具请在浏览器 H5 版使用，或复制 Web 链接：{{ nuxtHome }}</text>
+      </view>
+      <!-- #endif -->
+    </cyber-page-container>
+  </scroll-view>
 </template>
 
 <style scoped>
 .tool-index {
-  min-height: 100vh;
-  background: #f5f5f5;
+  height: 100vh;
 }
 </style>

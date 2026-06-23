@@ -56,7 +56,7 @@ onMounted(createKey)
 </script>
 
 <template>
-  <scroll-view scroll-y class="rsa-page px-4 py-4">
+  <scroll-view scroll-y class="rsa-page cyber-page-grid px-4 py-4">
     <view class="mb-3 flex flex-wrap gap-2">
       <wd-button size="small" :type="outputType === 'Hex' ? 'primary' : undefined" @click="outputType = 'Hex'">
         Hex
@@ -89,6 +89,5 @@ onMounted(createKey)
 <style scoped>
 .rsa-page {
   min-height: 100vh;
-  background: #fff;
 }
 </style>

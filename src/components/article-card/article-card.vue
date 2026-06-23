@@ -1,10 +1,35 @@
 <script setup lang="ts">
 import type { ArticleItem } from '@/api/article'
 import { ROUTE_DETAIL } from '@/router/routes'
+import { apiDisplayLabel } from '@/utils/display-label'
+import { resolveStaticUrl } from '@/utils/static-url'
 
-defineProps<{
-  item: ArticleItem
+const props = defineProps<{
+  item: ArticleItem & {
+    commentCount?: number
+    userInfo?: { nickname?: string, avatar?: string }
+    category?: { id: number, name?: string, label?: string, color?: string }
+    tags?: { id: number, name?: string, label?: string, color?: string }[]
+  }
 }>()
+
+const coverUrl = computed(() => resolveStaticUrl(String(props.item.cover ?? '')))
+
+function tagLabel(tag: { name?: string, label?: string }) {
+  return apiDisplayLabel(tag)
+}
+
+function categoryLabel(cat?: { name?: string, label?: string }) {
+  return apiDisplayLabel(cat)
+}
+
+function metaBadgeStyle(color = '#22d3ee') {
+  return {
+    borderColor: color,
+    color,
+    backgroundColor: `${color}22`,
+  }
+}
 
 function goDetail(id: number) {
   uni.navigateTo({ url: `${ROUTE_DETAIL}?id=${id}` })
@@ -12,16 +37,81 @@ function goDetail(id: number) {
 </script>
 
 <template>
-  <view class="article-card mb-3 rounded-lg bg-white p-3 shadow-sm" @click="goDetail(item.id)">
-    <view v-if="item.cover" class="mb-2 overflow-hidden rounded-md">
-      <image :src="item.cover" mode="aspectFill" class="h-36 w-full" />
+  <view class="article-card mb-3 overflow-hidden" @click="goDetail(item.id)">
+    <view v-if="coverUrl" class="article-card-cover p-2">
+      <image :src="coverUrl" mode="aspectFill" class="article-card-cover-img h-36 w-full rounded-lg" />
     </view>
-    <text class="block text-base text-gray-900 font-medium">{{ item.title }}</text>
-    <text v-if="item.description" class="line-clamp-2 mt-1 block text-sm text-gray-500">{{ item.description }}</text>
-    <view class="mt-2 flex flex-wrap gap-1">
-      <text v-for="tag in item.tags" :key="tag.id" class="rounded bg-blue-50 px-2 py-0.5 text-xs text-blue-600">
-        {{ tag.name }}
+    <view class="article-card-body px-3 pb-3">
+      <text class="article-card-title block text-base text-tech font-semibold leading-snug">{{ item.title }}</text>
+      <text v-if="item.description" class="line-clamp-2 mt-2 block text-sm text-tech-muted leading-relaxed">
+        {{ item.description }}
       </text>
+
+      <view v-if="item.category || item.tags?.length" class="article-card-chips mt-3 flex flex-wrap gap-1">
+        <text
+          v-if="item.category?.id"
+          class="article-meta-badge"
+          :style="metaBadgeStyle(item.category.color || '#4ade80')"
+        >
+          {{ categoryLabel(item.category) }}
+        </text>
+        <text
+          v-for="tag in (item.tags || []).slice(0, 3)"
+          :key="tag.id"
+          class="article-meta-badge"
+          :style="metaBadgeStyle(tag.color || '#60a5fa')"
+        >
+          {{ tagLabel(tag) }}
+        </text>
+        <text
+          v-if="(item.tags?.length || 0) > 3"
+          class="article-meta-badge article-meta-badge--more"
+        >
+          +{{ (item.tags?.length || 0) - 3 }}
+        </text>
+      </view>
+
+      <view class="article-card-stats mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-tech-subtle">
+        <text v-if="item.views != null">👁 {{ item.views }}</text>
+        <text v-if="item.likes != null">♥ {{ item.likes }}</text>
+        <text v-if="item.commentCount != null">💬 {{ item.commentCount }}</text>
+        <text v-if="item.createTime" class="ml-auto">{{ item.createTime }}</text>
+      </view>
     </view>
   </view>
 </template>
+
+<style scoped lang="scss">
+.article-card {
+  border-radius: 24rpx;
+  border: 1px solid var(--tech-border);
+  background-color: rgba(17, 24, 39, 0.35);
+  transition: border-color 0.2s;
+}
+
+.article-card:active {
+  border-color: rgba(103, 232, 249, 0.35);
+}
+
+.article-card-cover-img {
+  display: block;
+}
+
+.article-meta-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 36rpx;
+  padding: 0 12rpx;
+  border: 1px solid;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.article-meta-badge--more {
+  border-color: var(--tech-border);
+  color: var(--tech-fg-muted);
+  background: transparent;
+}
+</style>

@@ -19,6 +19,8 @@ export interface QuickEntry {
   tags: string[]
   route: string
   phase: QuickEntryPhase
+  /** 图标背景渐变 class */
+  color: string
 }
 
 /** 对齐 blog-home-nuxt explore 卡片，route 为 uniapp 路径 */
@@ -30,6 +32,7 @@ export const quickEntries: QuickEntry[] = [
     tags: ['归档', '标签', '浏览'],
     route: ROUTE_ARCHIVES,
     phase: 1,
+    color: 'from-blue-500 to-cyan-500',
   },
   {
     icon: '⚔️',
@@ -38,6 +41,7 @@ export const quickEntries: QuickEntry[] = [
     tags: ['签到', '任务', '抽奖'],
     route: ROUTE_RPG_FULL,
     phase: 1,
+    color: 'from-amber-500 to-orange-500',
   },
   {
     icon: '📖',
@@ -46,6 +50,7 @@ export const quickEntries: QuickEntry[] = [
     tags: ['指南', '规则'],
     route: ROUTE_RPG_GUIDE,
     phase: 1,
+    color: 'from-violet-500 to-purple-500',
   },
   {
     icon: '👤',
@@ -54,6 +59,7 @@ export const quickEntries: QuickEntry[] = [
     tags: ['用户', '看板'],
     route: ROUTE_PROFILE,
     phase: 1,
+    color: 'from-sky-500 to-blue-500',
   },
   {
     icon: '💬',
@@ -62,6 +68,7 @@ export const quickEntries: QuickEntry[] = [
     tags: ['社区', '留言'],
     route: ROUTE_MSGBOARD,
     phase: 1,
+    color: 'from-emerald-500 to-teal-500',
   },
   {
     icon: '🔗',
@@ -70,6 +77,7 @@ export const quickEntries: QuickEntry[] = [
     tags: ['友链', '推荐'],
     route: ROUTE_LINKS,
     phase: 1,
+    color: 'from-indigo-500 to-blue-500',
   },
   {
     icon: '🛠️',
@@ -78,6 +86,7 @@ export const quickEntries: QuickEntry[] = [
     tags: ['加密', '工具'],
     route: '/pages-tool/index/index',
     phase: 1,
+    color: 'from-purple-500 to-pink-500',
   },
   {
     icon: '📦',
@@ -86,6 +95,7 @@ export const quickEntries: QuickEntry[] = [
     tags: ['三端', '开源', '合作'],
     route: '/pages-blog/open-source/index',
     phase: 1,
+    color: 'from-emerald-500 to-teal-500',
   },
   {
     icon: '📊',
@@ -94,6 +104,7 @@ export const quickEntries: QuickEntry[] = [
     tags: ['Demo', '多端'],
     route: ROUTE_PROJECTS,
     phase: 1,
+    color: 'from-cyan-500 to-blue-500',
   },
   {
     icon: '✨',
@@ -102,5 +113,6 @@ export const quickEntries: QuickEntry[] = [
     tags: ['特性', '指南'],
     route: ROUTE_FEATURES,
     phase: 1,
+    color: 'from-fuchsia-500 to-violet-500',
   },
 ]

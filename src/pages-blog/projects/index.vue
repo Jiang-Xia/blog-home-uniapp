@@ -1,8 +1,4 @@
 <script lang="ts" setup>
-/**
- * 项目展示页（对齐 blog-home-nuxt /projects）
- * - 多端演示链接；Zone 扫码图
- */
 import { getProjectLinks, zoneDemoCards } from '@/config/site-config'
 import { openExternalUrl } from '@/utils/open-external-url'
 
@@ -25,40 +21,44 @@ function previewQr(url: string) {
 </script>
 
 <template>
-  <scroll-view scroll-y class="projects-page">
+  <scroll-view scroll-y class="projects-page cyber-page-grid">
     <view class="px-4 py-4">
-      <text class="block text-lg font-bold">项目展示</text>
-      <text class="mt-1 block text-sm text-gray-500">个人项目与作品演示</text>
+      <cyber-section-header
+        label="PROJECTS"
+        title="项目展示"
+        subtitle="个人项目与作品演示"
+        align="left"
+      />
 
       <view class="mt-6">
-        <text class="mb-3 block font-medium">在线演示</text>
-        <view
+        <text class="mb-3 block text-tech font-medium">在线演示</text>
+        <cyber-card
           v-for="item in projectLinks"
           :key="item.title"
-          class="mb-3 rounded-lg bg-white p-4 shadow-sm"
+          class="mb-3 !p-4"
         >
-          <text class="block font-medium">{{ item.title }}</text>
-          <text class="mt-1 block text-sm text-gray-500">{{ item.desc }}</text>
-          <wd-button size="small" class="mt-3" @click="openProject(item.url)">
+          <text class="block text-tech font-medium">{{ item.title }}</text>
+          <text class="mt-1 block text-sm text-tech-muted">{{ item.desc }}</text>
+          <cyber-button size="small" class="mt-3 inline-flex" variant="secondary" @click="openProject(item.url)">
             <!-- #ifdef H5 -->在浏览器打开<!-- #endif -->
             <!-- #ifndef H5 -->复制链接<!-- #endif -->
-          </wd-button>
-        </view>
+          </cyber-button>
+        </cyber-card>
       </view>
 
       <view class="mt-6">
-        <text class="mb-3 block font-medium">Zone 多端体验</text>
+        <text class="mb-3 block text-tech font-medium">Zone 多端体验</text>
         <view class="grid grid-cols-2 gap-3">
-          <view
+          <cyber-card
             v-for="card in zoneDemoCards"
             :key="card.title"
-            class="rounded-lg bg-white p-3 shadow-sm"
+            class="!p-3"
             @click="previewQr(card.image)"
           >
-            <image :src="card.image" mode="aspectFit" class="h-28 w-full" />
-            <text class="mt-2 block text-sm font-medium">{{ card.title }}</text>
-            <text class="mt-1 block text-xs text-gray-500">{{ card.desc }}</text>
-          </view>
+            <image :src="card.image" mode="aspectFit" class="h-28 w-full rounded-lg" />
+            <text class="mt-2 block text-sm text-tech font-medium">{{ card.title }}</text>
+            <text class="mt-1 block text-xs text-tech-muted">{{ card.desc }}</text>
+          </cyber-card>
         </view>
       </view>
     </view>
@@ -67,7 +67,6 @@ function previewQr(url: string) {
 
 <style scoped>
 .projects-page {
-  min-height: 100vh;
-  background: #f5f5f5;
+  height: 100vh;
 }
 </style>

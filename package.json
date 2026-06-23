@@ -135,7 +135,7 @@
     "jsencrypt": "^3.5.4",
     "jszip": "^3.10.1",
     "markdown-it": "^14.2.0",
-    "md-editor-v3": "^6.5.1",
+    "md-editor-v3": "4.21.3",
     "mp-html": "^2.5.2",
     "pinia": "2.0.36",
     "pinia-plugin-persistedstate": "3.2.1",

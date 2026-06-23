@@ -25,8 +25,8 @@ export interface ArticleItem {
   description?: string
   cover?: string
   createTime?: string
-  tags?: { id: number, name: string }[]
-  category?: { id: number, name: string }
+  tags?: { id: number, name?: string, label?: string }[]
+  category?: { id: number, name?: string, label?: string }
   views?: number
   likes?: number
 }
@@ -90,10 +90,10 @@ export function delComment(id: string | number) {
 
 /** 发表回复 POST /reply/create；返回含 status */
 export function addReply(data: {
-  parentId: number
-  uid: number
+  parentId: string | number
+  uid?: number
   content: string
-  replyUid: number
+  replyUid: string | number
 }) {
   return http.post<any>('/reply/create', data)
 }

@@ -170,14 +170,14 @@ function goEditArticle(id: number) {
 </script>
 
 <template>
-  <view class="profile-page">
-    <scroll-view scroll-x class="tabs border-b border-gray-100 bg-white">
+  <view class="profile-page cyber-page-grid">
+    <scroll-view scroll-x class="cyber-tabs">
       <view class="flex px-2 py-2">
         <text
           v-for="tab in tabs"
           :key="tab.key"
-          class="mr-4 shrink-0 px-2 py-1 text-sm"
-          :class="activeTab === tab.key ? 'font-bold text-blue-600' : 'text-gray-500'"
+          class="cyber-tab mr-4 shrink-0"
+          :class="activeTab === tab.key ? 'cyber-tab-active' : ''"
           @click="activeTab = tab.key"
         >
           {{ tab.label }}
@@ -186,29 +186,31 @@ function goEditArticle(id: number) {
     </scroll-view>
 
     <view v-if="activeTab === 'card'" class="p-4">
-      <view class="mb-4 flex items-center gap-3">
-        <image :src="avatarDisplayUrl" class="h-16 w-16 rounded-full" mode="aspectFill" />
-        <view class="flex-1">
-          <text class="block font-bold">{{ userStore.userInfo.nickname }}</text>
-          <text class="text-sm text-gray-500">@{{ userStore.userInfo.username }}</text>
-          <wd-button size="small" class="mt-2" :loading="avatarUploading" @click="pickAvatar">
-            更换头像
-          </wd-button>
+      <cyber-card class="mb-4 !p-4">
+        <view class="flex items-center gap-3">
+          <image :src="avatarDisplayUrl" class="h-16 w-16 border border-tech rounded-full" mode="aspectFill" />
+          <view class="flex-1">
+            <text class="block text-tech font-bold">{{ userStore.userInfo.nickname }}</text>
+            <text class="text-sm text-tech-muted">@{{ userStore.userInfo.username }}</text>
+            <wd-button size="small" class="mt-2" :loading="avatarUploading" @click="pickAvatar">
+              更换头像
+            </wd-button>
+          </view>
         </view>
-      </view>
+      </cyber-card>
       <wd-input v-model="userStore.userInfo.nickname" label="昵称" />
       <wd-input v-model="userStore.userInfo.intro" label="简介" />
       <wd-input v-model="userStore.userInfo.homepage" label="主页" />
-      <wd-button block class="mt-4" @click="saveProfile">
+      <cyber-button block class="mt-4" variant="primary" @click="saveProfile">
         保存资料
-      </wd-button>
+      </cyber-button>
     </view>
 
     <view v-else-if="activeTab === 'article'" class="p-3">
-      <wd-button size="small" class="mb-3" @click="goWriteArticle">
+      <cyber-button size="small" class="mb-3 inline-flex" variant="secondary" @click="goWriteArticle">
         ✍️ 写文章
-      </wd-button>
-      <view v-for="item in articles" :key="item.id" class="mb-3 rounded bg-white p-2">
+      </cyber-button>
+      <cyber-card v-for="item in articles" :key="item.id" class="mb-3 !p-2">
         <ArticleCard :item="item" />
         <view class="mt-2 flex gap-2">
           <wd-button size="small" @click.stop="goEditArticle(item.id)">
@@ -223,7 +225,7 @@ function goEditArticle(id: number) {
             删除
           </wd-button>
         </view>
-      </view>
+      </cyber-card>
     </view>
 
     <view v-else-if="activeTab === 'collect'" class="p-3">
@@ -233,70 +235,70 @@ function goEditArticle(id: number) {
     <view v-else-if="activeTab === 'comment'" class="p-3">
       <view class="mb-3 flex gap-3">
         <text
-          class="text-sm"
-          :class="commentSubTab === 'comment' ? 'font-bold text-blue-600' : 'text-gray-500'"
+          class="cyber-tab"
+          :class="commentSubTab === 'comment' ? 'cyber-tab-active' : ''"
           @click="commentSubTab = 'comment'"
         >
           我的评论
         </text>
         <text
-          class="text-sm"
-          :class="commentSubTab === 'reply' ? 'font-bold text-blue-600' : 'text-gray-500'"
+          class="cyber-tab"
+          :class="commentSubTab === 'reply' ? 'cyber-tab-active' : ''"
           @click="commentSubTab = 'reply'"
         >
           我的回复
         </text>
       </view>
       <template v-if="commentSubTab === 'comment'">
-        <view v-for="c in comments" :key="c.id" class="mb-3 border-b border-gray-100 pb-2">
-          <text class="block text-sm">{{ c.content }}</text>
-          <text v-if="c.articleTitle" class="mt-1 block text-xs text-gray-400">{{ c.articleTitle }}</text>
+        <view v-for="c in comments" :key="c.id" class="mb-3 border-b border-tech pb-2">
+          <text class="block text-sm text-tech">{{ c.content }}</text>
+          <text v-if="c.articleTitle" class="mt-1 block text-xs text-tech-subtle">{{ c.articleTitle }}</text>
         </view>
-        <view v-if="!comments.length" class="py-8 text-center text-sm text-gray-400">
+        <view v-if="!comments.length" class="py-8 text-center text-sm text-tech-subtle">
           暂无评论
         </view>
       </template>
       <template v-else>
-        <view v-for="r in replies" :key="r.id" class="mb-3 border-b border-gray-100 pb-2">
-          <text class="block text-sm">{{ r.content }}</text>
-          <text v-if="r.parentContent" class="mt-1 block text-xs text-gray-400">回复：{{ r.parentContent }}</text>
+        <view v-for="r in replies" :key="r.id" class="mb-3 border-b border-tech pb-2">
+          <text class="block text-sm text-tech">{{ r.content }}</text>
+          <text v-if="r.parentContent" class="mt-1 block text-xs text-tech-subtle">回复：{{ r.parentContent }}</text>
         </view>
-        <view v-if="!replies.length" class="py-8 text-center text-sm text-gray-400">
+        <view v-if="!replies.length" class="py-8 text-center text-sm text-tech-subtle">
           暂无回复
         </view>
       </template>
     </view>
 
     <view v-else-if="activeTab === 'inbox'" class="p-3">
-      <wd-button size="small" @click="readAllNotifications">
+      <cyber-button size="small" class="inline-flex" variant="secondary" @click="readAllNotifications">
         全部已读
-      </wd-button>
-      <view v-for="n in notifications" :key="n.id" class="mt-2 rounded bg-gray-50 p-3" @click="readNotification(n.id)">
-        <text class="text-sm">{{ n.title || n.content }}</text>
-      </view>
-      <text class="mt-4 block font-medium">文章评论</text>
-      <view v-for="c in inboxComments" :key="c.id" class="mt-2 border-b border-gray-100 pb-2">
-        <text class="text-sm">{{ c.content }}</text>
+      </cyber-button>
+      <cyber-card v-for="n in notifications" :key="n.id" class="mt-2 !p-3" @click="readNotification(n.id)">
+        <text class="text-sm text-tech-muted">{{ n.title || n.content }}</text>
+      </cyber-card>
+      <text class="mt-4 block text-tech font-medium">文章评论</text>
+      <view v-for="c in inboxComments" :key="c.id" class="mt-2 border-b border-tech pb-2">
+        <text class="text-sm text-tech-muted">{{ c.content }}</text>
       </view>
     </view>
 
     <view v-else-if="activeTab === 'dashboard'" class="p-4">
       <view v-if="authorStats" class="grid grid-cols-2 gap-3">
-        <view class="rounded bg-blue-50 p-3 text-center">
-          <text class="block text-xl font-bold">{{ authorStats.articleCount ?? 0 }}</text>
-          <text class="text-xs text-gray-500">文章</text>
+        <view class="cyber-stat-card">
+          <text class="cyber-stat-value">{{ authorStats.articleCount ?? 0 }}</text>
+          <text class="cyber-stat-label">文章</text>
         </view>
-        <view class="rounded bg-green-50 p-3 text-center">
-          <text class="block text-xl font-bold">{{ authorStats.totalViews ?? 0 }}</text>
-          <text class="text-xs text-gray-500">阅读</text>
+        <view class="cyber-stat-card">
+          <text class="cyber-stat-value">{{ authorStats.totalViews ?? 0 }}</text>
+          <text class="cyber-stat-label">阅读</text>
         </view>
-        <view class="rounded bg-orange-50 p-3 text-center">
-          <text class="block text-xl font-bold">{{ authorStats.totalLikes ?? 0 }}</text>
-          <text class="text-xs text-gray-500">点赞</text>
+        <view class="cyber-stat-card">
+          <text class="cyber-stat-value">{{ authorStats.totalLikes ?? 0 }}</text>
+          <text class="cyber-stat-label">点赞</text>
         </view>
-        <view class="rounded bg-purple-50 p-3 text-center">
-          <text class="block text-xl font-bold">{{ authorStats.totalComments ?? 0 }}</text>
-          <text class="text-xs text-gray-500">评论</text>
+        <view class="cyber-stat-card">
+          <text class="cyber-stat-value">{{ authorStats.totalComments ?? 0 }}</text>
+          <text class="cyber-stat-label">评论</text>
         </view>
       </view>
     </view>
@@ -306,9 +308,5 @@ function goEditArticle(id: number) {
 <style scoped>
 .profile-page {
   min-height: 100vh;
-  background: #f5f5f5;
-}
-.tabs {
-  white-space: nowrap;
 }
 </style>

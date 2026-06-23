@@ -6,6 +6,13 @@ import RpgQuestPanel from '@/components/rpg/rpg-quest-panel.vue'
 import RpgStatusPanel from '@/components/rpg/rpg-status-panel.vue'
 import { useRpgPage } from '@/composables/use-rpg-page'
 import { useTokenStore } from '@/store/token'
+import {
+  formatLeaderboardScore,
+  RPG_LEADERBOARD_TYPE_TABS,
+  rpgItemDisplayName,
+
+} from '@/utils/rpg-display'
+import type { RpgLeaderboardScoreType } from '@/utils/rpg-display'
 
 definePage({
   style: { navigationBarTitleText: '冒险中心' },
@@ -58,7 +65,27 @@ const tabs = [
   { key: 'leaderboard', label: '排行' },
 ] as const
 
-const rechargeAmount = ref(6)
+const leaderboardTypeTabs = RPG_LEADERBOARD_TYPE_TABS
+
+function inventoryEquipSlot(item: any): string | null {
+  const type = item.config?.itemType
+  if (type === 'title')
+    return 'title'
+  if (type === 'avatar_frame')
+    return 'avatar_frame'
+  return item.slot ?? null
+}
+
+function isInventoryEquipped(item: any) {
+  if (!loadout.value)
+    return false
+  const code = item.itemCode || item.code
+  if (item.config?.itemType === 'title')
+    return loadout.value.titleCode === code
+  if (item.config?.itemType === 'avatar_frame')
+    return loadout.value.avatarFrameCode === code
+  return !!item.equipped
+}
 const guildJoinId = ref('')
 const petEggCode = ref('')
 let cleanup: (() => void) | null = null
@@ -78,15 +105,15 @@ onUnload(() => {
 </script>
 
 <template>
-  <view class="rpg-page">
-    <view class="flex items-center justify-between bg-white px-3 py-2">
+  <view class="rpg-page cyber-page-grid">
+    <view class="cyber-tabs flex items-center justify-between px-3 py-2">
       <scroll-view scroll-x class="tabs flex-1">
         <view class="flex">
           <text
             v-for="tab in tabs"
             :key="tab.key"
-            class="mr-3 shrink-0 px-2 py-1 text-sm"
-            :class="activeTab === tab.key ? 'font-bold text-blue-600' : 'text-gray-500'"
+            class="cyber-tab mr-3 shrink-0"
+            :class="activeTab === tab.key ? 'cyber-tab-active' : ''"
             @click="switchTab(tab.key)"
           >
             {{ tab.label }}
@@ -96,7 +123,7 @@ onUnload(() => {
       <RpgAudioControl />
     </view>
 
-    <view v-if="loading" class="p-8 text-center text-gray-400">
+    <view v-if="loading" class="p-8 text-center text-tech-subtle">
       加载中...
     </view>
 
@@ -116,100 +143,128 @@ onUnload(() => {
       <RpgQuestPanel :quests="quests" @claim="claimQuest" />
       <RpgAchievementPanel :achievements="achievements" />
       <RpgBuffList :buffs="buffs" @toggle="toggleBuff" />
-      <view class="mt-4 rounded-lg bg-white p-3 shadow-sm">
-        <text class="mb-2 block font-medium">充值</text>
+      <cyber-card class="mt-4 !p-3">
+        <text class="mb-2 block text-tech font-medium">充值</text>
         <wd-input v-model="rechargeAmount" type="number" label="金额(元)" />
         <wd-button size="small" class="mt-2" @click="recharge(Number(rechargeAmount))">
           充值钻石
         </wd-button>
-      </view>
+      </cyber-card>
     </view>
 
     <view v-else-if="activeTab === 'inventory'" class="p-3">
-      <view v-if="loadout" class="mb-3 rounded bg-blue-50 p-3 text-xs">
-        <text class="block font-medium">当前装备</text>
-        <text v-for="(v, k) in loadout" :key="k" class="mt-1 block">{{ k }}: {{ v?.name || '—' }}</text>
-      </view>
-      <view v-for="item in inventory" :key="item.id || item.code" class="mb-2 rounded bg-white p-3 shadow-sm">
+      <cyber-card v-if="loadout" class="mb-3 !p-3">
+        <text class="block text-tech font-medium">当前装备</text>
+        <text v-if="loadout.title" class="mt-1 block text-xs text-tech-muted">
+          称号：{{ loadout.title.name }}
+        </text>
+        <text v-if="loadout.avatarFrame" class="mt-1 block text-xs text-tech-muted">
+          头像框：{{ loadout.avatarFrame.name }}
+        </text>
+        <text v-if="loadout.pet" class="mt-1 block text-xs text-tech-muted">
+          宠物：{{ loadout.pet.nickname || loadout.pet.name }}
+        </text>
+        <text v-if="!loadout.title && !loadout.avatarFrame && !loadout.pet" class="mt-1 block text-xs text-tech-subtle">
+          暂无穿戴
+        </text>
+      </cyber-card>
+      <cyber-card v-for="item in inventory" :key="item.id || item.code || item.itemCode" class="mb-2 !p-3">
         <view class="flex items-center justify-between">
-          <text class="font-medium">{{ item.name }}</text>
-          <text class="text-xs text-gray-500">x{{ item.quantity ?? 1 }}</text>
+          <view class="min-w-0 flex-1">
+            <text class="text-tech font-medium">{{ rpgItemDisplayName(item) }}</text>
+            <view v-if="item.config?.itemTypeLabel || item.config?.rarityLabel" class="mt-1 flex flex-wrap gap-2">
+              <text v-if="item.config?.itemTypeLabel" class="text-xs text-tech-subtle">
+                {{ item.config.itemTypeLabel }}
+              </text>
+              <text
+                v-if="item.config?.rarityLabel"
+                class="text-xs"
+                :style="item.config?.rarityColor ? { color: item.config.rarityColor } : undefined"
+              >
+                {{ item.config.rarityLabel }}
+              </text>
+            </view>
+            <text v-if="item.sourceLabel" class="text-tech-faint mt-1 block text-xs">{{ item.sourceLabel }}</text>
+          </view>
+          <text class="ml-2 shrink-0 text-xs text-tech-subtle">x{{ item.quantity ?? 1 }}</text>
         </view>
-        <wd-button v-if="item.slot" size="small" class="mt-2" @click="equipItem(item.slot, item.code)">
-          装备
+        <wd-button
+          v-if="inventoryEquipSlot(item)"
+          size="small"
+          class="mt-2"
+          @click="isInventoryEquipped(item) ? unequipItem(inventoryEquipSlot(item)!) : equipItem(inventoryEquipSlot(item)!, item.itemCode || item.code)"
+        >
+          {{ isInventoryEquipped(item) ? '卸下' : '装备' }}
         </wd-button>
-        <wd-button v-if="item.equipped" size="small" class="mt-2" @click="unequipItem(item.slot)">
-          卸下
-        </wd-button>
-      </view>
-      <view v-if="!inventory.length" class="py-8 text-center text-gray-400">
+      </cyber-card>
+      <view v-if="!inventory.length" class="py-8 text-center text-tech-subtle">
         背包为空
       </view>
     </view>
 
     <view v-else-if="activeTab === 'pet'" class="p-3">
-      <view class="mb-3 rounded bg-white p-3 shadow-sm">
+      <cyber-card class="mb-3 !p-3">
         <wd-input v-model="petEggCode" label="宠物蛋 code" placeholder="itemCode" />
         <wd-button size="small" class="mt-2" @click="petEggCode && hatchPet(petEggCode)">
           孵化
         </wd-button>
-      </view>
-      <view v-for="pet in pets" :key="pet.id" class="mb-2 rounded bg-white p-3 shadow-sm">
-        <text class="font-medium">{{ pet.nickname || pet.name }}</text>
-        <text class="ml-2 text-xs text-gray-500">Lv.{{ pet.level ?? 1 }}</text>
-      </view>
+      </cyber-card>
+      <cyber-card v-for="pet in pets" :key="pet.id" class="mb-2 !p-3">
+        <text class="text-tech font-medium">{{ pet.nickname || pet.config?.name || pet.name }}</text>
+        <text class="ml-2 text-xs text-tech-subtle">Lv.{{ pet.level ?? 1 }}</text>
+      </cyber-card>
       <view v-if="petCatalog.length" class="mt-4">
-        <text class="mb-2 block text-sm text-gray-500">图鉴</text>
-        <text v-for="p in petCatalog" :key="p.code" class="mr-2 text-xs">{{ p.name }}</text>
+        <text class="mb-2 block text-sm text-tech-subtle">图鉴</text>
+        <text v-for="p in petCatalog" :key="p.code" class="mr-2 text-xs text-tech-muted">{{ p.config?.name || p.name }}</text>
       </view>
     </view>
 
     <view v-else-if="activeTab === 'guild'" class="p-4">
-      <view v-if="guild" class="rounded bg-white p-4 shadow-sm">
-        <text class="block text-lg font-bold">{{ guild.name }}</text>
-        <text class="mt-2 block text-sm text-gray-600">{{ guild.announcement }}</text>
+      <cyber-card v-if="guild" class="!p-4">
+        <text class="block text-lg text-tech font-bold">{{ guild.name }}</text>
+        <text class="mt-2 block text-sm text-tech-muted">{{ guild.announcement }}</text>
         <wd-button size="small" class="mt-3" @click="doLeaveGuild">
           退出公会
         </wd-button>
-      </view>
+      </cyber-card>
       <view v-else>
-        <view v-for="g in guildList" :key="g.id" class="mb-2 flex items-center justify-between rounded bg-white p-3 shadow-sm">
-          <text>{{ g.name }}</text>
+        <cyber-card v-for="g in guildList" :key="g.id" class="mb-2 flex items-center justify-between !p-3">
+          <text class="text-tech">{{ g.name }}</text>
           <wd-button size="small" @click="doJoinGuild(g.id)">
             加入
           </wd-button>
-        </view>
-        <view v-if="!guildList.length" class="py-8 text-center text-gray-400">
+        </cyber-card>
+        <view v-if="!guildList.length" class="py-8 text-center text-tech-subtle">
           暂无公会列表
         </view>
       </view>
     </view>
 
     <view v-else-if="activeTab === 'leaderboard'" class="p-3">
-      <view class="mb-3 flex gap-2">
+      <view class="mb-3 flex flex-wrap gap-2">
         <wd-button
-          v-for="t in ['exp', 'level', 'reputation', 'currency']"
-          :key="t"
+          v-for="tab in leaderboardTypeTabs"
+          :key="tab.key"
           size="small"
-          :type="leaderboardType === t ? 'primary' : undefined"
-          @click="leaderboardType = t as any; loadTab(true)"
+          :type="leaderboardType === tab.key ? 'primary' : undefined"
+          @click="leaderboardType = tab.key; loadTab(true)"
         >
-          {{ t }}
+          {{ tab.label }}
         </wd-button>
       </view>
-      <view v-for="(row, idx) in leaderboard" :key="row.uid || idx" class="mb-2 flex items-center gap-3 rounded bg-white p-3 shadow-sm">
-        <text class="w-6 text-center text-gray-400 font-bold">{{ idx + 1 }}</text>
-        <text class="flex-1">{{ row.nickname }}</text>
-        <text class="text-sm text-blue-600">{{ row.score ?? row.exp ?? row.level }}</text>
-      </view>
+      <cyber-card v-for="(row, idx) in leaderboard" :key="row.uid || idx" class="mb-2 flex items-center gap-3 !p-3">
+        <text class="w-6 text-center text-tech-subtle font-bold">{{ idx + 1 }}</text>
+        <text class="flex-1 text-tech">{{ row.nickname }}</text>
+        <text class="text-sm text-tech-primary">{{ formatLeaderboardScore(row, leaderboardType as RpgLeaderboardScoreType) }}</text>
+      </cyber-card>
     </view>
 
     <view v-if="showLevelUp" class="level-up-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click="showLevelUp = false">
-      <view class="rounded-xl bg-white p-8 text-center" @click.stop>
+      <cyber-card class="text-center !p-8" @click.stop>
         <text class="block text-4xl">🎉</text>
-        <text class="mt-2 block text-xl font-bold">升级！</text>
-        <text class="mt-1 block text-gray-600">Lv.{{ levelUpLevel }}</text>
-      </view>
+        <text class="mt-2 block text-xl text-tech font-bold">升级！</text>
+        <text class="mt-1 block text-tech-muted">Lv.{{ levelUpLevel }}</text>
+      </cyber-card>
     </view>
   </view>
 </template>
@@ -217,7 +272,6 @@ onUnload(() => {
 <style scoped>
 .rpg-page {
   min-height: 100vh;
-  background: #f0f2f5;
 }
 .tabs {
   white-space: nowrap;

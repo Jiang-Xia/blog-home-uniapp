@@ -60,7 +60,6 @@ function onGetCatalog(list: Array<{ level?: number | string, text: string }>) {
   <view class="markdown-body">
     <MdPreview
       :model-value="content"
-      preview-only
       language="zh-CN"
       :md-heading-id="mdHeadingId"
       @on-get-catalog="onGetCatalog"

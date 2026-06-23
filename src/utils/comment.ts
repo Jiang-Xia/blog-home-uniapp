@@ -29,6 +29,18 @@ export function filterApprovedComments<T extends CommentLike>(list: T[] | undefi
     })
 }
 
+/** 从评论/回复对象解析用户 uid（对齐 nuxt targetUser.id） */
+export function resolveCommentUserUid(item?: {
+  uid?: number | string
+  userInfo?: { id?: number | string }
+} | null): number {
+  if (!item)
+    return 0
+  const raw = item.userInfo?.id ?? item.uid
+  const uid = Number(raw)
+  return Number.isFinite(uid) && uid > 0 ? uid : 0
+}
+
 /** 解析 POST /comment/create、/reply/create 返回的审核状态 */
 export function parseCommentCreateStatus(res: unknown): 'pending' | 'approved' | string {
   if (!res || typeof res !== 'object')

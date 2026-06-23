@@ -66,51 +66,67 @@ function handleLogout() {
 </script>
 
 <template>
-  <view class="me-page">
-    <view class="bg-white px-4 py-6">
-      <view v-if="tokenStore.hasLogin" class="flex items-center gap-3">
-        <image :src="userInfo.avatar" class="h-14 w-14 rounded-full" />
-        <view>
-          <text class="block text-lg font-bold">{{ userInfo.nickname }}</text>
-          <text class="text-sm text-gray-500">@{{ userInfo.username }}</text>
+  <scroll-view scroll-y class="me-page cyber-page-grid">
+    <view class="px-4 py-6">
+      <cyber-card class="!p-5">
+        <view v-if="tokenStore.hasLogin" class="flex items-center gap-3">
+          <image :src="userInfo.avatar" class="h-14 w-14 border border-tech rounded-full" />
+          <view>
+            <text class="block text-lg text-tech font-bold">{{ userInfo.nickname }}</text>
+            <text class="text-sm text-tech-muted">@{{ userInfo.username }}</text>
+          </view>
         </view>
-      </view>
-      <view v-else class="text-center text-gray-500">
-        登录后查看个人数据
-      </view>
+        <view v-else class="py-2 text-center">
+          <text class="block text-tech-muted">登录后查看个人数据</text>
+          <cyber-button class="mt-4 inline-flex" variant="primary" @click="handleLogin">
+            立即登录
+          </cyber-button>
+        </view>
+      </cyber-card>
     </view>
 
-    <view class="mt-3 px-3">
+    <view class="px-3 pb-4">
       <view
         v-for="item in menuItems"
         :key="item.route"
-        class="mb-2 flex items-center justify-between rounded-lg bg-white px-4 py-3 shadow-sm"
+        class="mb-3"
         @click="navigateToRoute(item.route)"
       >
-        <view class="flex items-center gap-2">
-          <text>{{ item.label }}</text>
-          <view v-if="item.badge > 0" class="rounded-full bg-red-500 px-2 text-xs text-white">
-            {{ item.badge > 99 ? '99+' : item.badge }}
+        <cyber-card class="flex items-center justify-between !px-4 !py-3">
+          <view class="flex items-center gap-2">
+            <text class="text-tech">{{ item.label }}</text>
+            <view v-if="item.badge > 0" class="rounded-full bg-red-500/90 px-2 text-xs text-white">
+              {{ item.badge > 99 ? '99+' : item.badge }}
+            </view>
           </view>
-        </view>
-        <text class="text-gray-400">›</text>
+          <text class="text-tech-faint">›</text>
+        </cyber-card>
       </view>
     </view>
 
-    <view class="mt-8 px-3">
-      <wd-button v-if="tokenStore.hasLogin" block type="warning" @click="handleLogout">
+    <view class="px-3 pb-8">
+      <cyber-button
+        v-if="tokenStore.hasLogin"
+        block
+        variant="secondary"
+        @click="handleLogout"
+      >
         退出登录
-      </wd-button>
-      <wd-button v-else block @click="handleLogin">
+      </cyber-button>
+      <cyber-button
+        v-else
+        block
+        variant="primary"
+        @click="handleLogin"
+      >
         登录
-      </wd-button>
+      </cyber-button>
     </view>
-  </view>
+  </scroll-view>
 </template>
 
 <style scoped>
 .me-page {
-  min-height: 100vh;
-  background: #f5f5f5;
+  height: 100vh;
 }
 </style>

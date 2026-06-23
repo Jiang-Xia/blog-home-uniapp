@@ -1,0 +1,433 @@
+/**
+ * Cyber 深色主题 — 对齐 blog-home-nuxt data-theme="cyber"
+ * 移动端优先，避免 color-mix 以提升小程序兼容性
+ */
+page {
+  --tech-shell: #050505;
+  --tech-shell-header: rgba(5, 5, 5, 0.72);
+  --tech-fg: #ffffff;
+  --tech-fg-muted: rgba(255, 255, 255, 0.55);
+  --tech-fg-subtle: rgba(255, 255, 255, 0.4);
+  --tech-fg-faint: rgba(255, 255, 255, 0.3);
+  --tech-border: rgba(255, 255, 255, 0.1);
+  --tech-glass: rgba(17, 24, 39, 0.45);
+  --tech-grid-line: rgba(255, 255, 255, 0.035);
+  --tech-glow-purple: rgba(147, 51, 234, 0.22);
+  --tech-glow-cyan: rgba(34, 211, 238, 0.16);
+  --tech-glow-blue: rgba(37, 99, 235, 0.1);
+  --tech-nav-fg: rgba(255, 255, 255, 0.6);
+  --tech-nav-active-bg: rgba(255, 255, 255, 0.1);
+  --tech-input-bg: rgba(255, 255, 255, 0.05);
+  /** autofill 内阴影需用不透明色，半透明会露出浏览器默认黄底 */
+  --tech-input-autofill-bg: #0d1117;
+  --tech-input-border: rgba(255, 255, 255, 0.1);
+  --tech-btn-secondary-border: rgba(255, 255, 255, 0.2);
+  --tech-btn-secondary-hover-bg: rgba(255, 255, 255, 0.05);
+  --tech-section-label: #67e8f9;
+  --tech-gradient-from: #67e8f9;
+  --tech-gradient-mid: #60a5fa;
+  --tech-gradient-to: #a78bfa;
+  --tech-primary: #22d3ee;
+  --tech-primary-glow: rgba(34, 211, 238, 0.35);
+  --tech-primary-glow-hover: rgba(34, 211, 238, 0.5);
+  --tech-dropdown-bg: rgba(17, 24, 39, 0.96);
+  --tech-success: #4ade80;
+  --tech-rpg-amber: #fbbf24;
+  --tech-rpg-amber-border: rgba(251, 191, 36, 0.45);
+
+  background-color: var(--tech-shell);
+  color: var(--tech-fg);
+
+  --wot-color-theme: #22d3ee;
+  --wot-input-bg: var(--tech-input-bg);
+  --wot-input-inner-color: var(--tech-fg);
+  --wot-input-inner-placeholder-color: var(--tech-fg-subtle);
+  --wot-input-icon-color: var(--tech-fg-subtle);
+  --wot-filled-oppo: var(--tech-input-bg);
+  --wot-text-main: var(--tech-fg);
+}
+
+.bg-tech-shell {
+  background-color: var(--tech-shell);
+}
+
+.bg-tech-header {
+  background-color: var(--tech-shell-header);
+}
+
+.bg-tech-glass {
+  background-color: var(--tech-glass);
+}
+
+.text-tech {
+  color: var(--tech-fg);
+}
+
+.text-tech-muted {
+  color: var(--tech-fg-muted);
+}
+
+.text-tech-subtle {
+  color: var(--tech-fg-subtle);
+}
+
+.text-tech-faint {
+  color: var(--tech-fg-faint);
+}
+
+.text-tech-primary {
+  color: var(--tech-primary);
+}
+
+.border-tech {
+  border-color: var(--tech-border);
+}
+
+.cyber-grid-bg {
+  background-color: var(--tech-shell);
+  background-image:
+    linear-gradient(var(--tech-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--tech-grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.cyber-glass-card {
+  border-radius: 24rpx;
+  border: 1px solid var(--tech-border);
+  background-color: var(--tech-glass);
+  color: var(--tech-fg);
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.cyber-gradient-text {
+  background: linear-gradient(to right, var(--tech-gradient-from), var(--tech-gradient-mid), var(--tech-gradient-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.cyber-section-label {
+  font-size: 22rpx;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--tech-section-label);
+}
+
+.cyber-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  box-sizing: border-box;
+  max-width: 100%;
+  border-radius: 24rpx;
+  border: 0;
+  background: linear-gradient(to right, var(--tech-gradient-from), var(--tech-gradient-mid));
+  padding: 24rpx 48rpx;
+  font-weight: 500;
+  font-size: 28rpx;
+  color: #0f172a;
+  box-shadow: 0 0 30px var(--tech-primary-glow);
+}
+
+.cyber-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  box-sizing: border-box;
+  max-width: 100%;
+  border-radius: 24rpx;
+  border: 1px solid var(--tech-btn-secondary-border);
+  background: transparent;
+  padding: 24rpx 48rpx;
+  font-weight: 500;
+  font-size: 28rpx;
+  color: var(--tech-fg);
+}
+
+/** 块级按钮：登录/注册等整行提交 */
+.cyber-btn-block {
+  display: flex !important;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.cyber-btn-sm {
+  padding: 16rpx 32rpx;
+  font-size: 26rpx;
+}
+
+.cyber-feature-tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  border: 1px solid rgba(103, 232, 249, 0.35);
+  background-color: rgba(103, 232, 249, 0.12);
+  padding: 4rpx 20rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--tech-section-label);
+}
+
+.cyber-alert {
+  display: flex;
+  gap: 24rpx;
+  border-radius: 24rpx;
+  border: 1px solid var(--tech-border);
+  background-color: var(--tech-glass);
+  padding: 24rpx;
+  font-size: 26rpx;
+  color: var(--tech-fg-muted);
+}
+
+.cyber-alert-warning {
+  border-left: 4px solid #fbbf24;
+}
+
+.cyber-alert-info {
+  border-left: 4px solid var(--tech-section-label);
+}
+
+.cyber-page {
+  min-height: 100vh;
+  background-color: var(--tech-shell);
+  color: var(--tech-fg);
+}
+
+.cyber-page-grid {
+  min-height: 100vh;
+  background-color: var(--tech-shell);
+  background-image:
+    linear-gradient(var(--tech-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--tech-grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  color: var(--tech-fg);
+}
+
+.site-logo-badge {
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  background-color: rgba(34, 211, 238, 0.1);
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.22);
+}
+
+.typing-cursor {
+  margin-left: 4rpx;
+  color: var(--tech-section-label);
+  animation: typing-cursor-blink 0.8s step-end infinite;
+}
+
+@keyframes typing-cursor-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes cyber-logo-breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 12px rgba(34, 211, 238, 0.2);
+    border-color: rgba(34, 211, 238, 0.28);
+  }
+
+  50% {
+    box-shadow:
+      0 0 20px rgba(34, 211, 238, 0.45),
+      0 0 40px rgba(34, 211, 238, 0.28);
+    border-color: rgba(34, 211, 238, 0.55);
+  }
+}
+
+@keyframes home-status-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.cyber-tab {
+  padding: 8rpx 16rpx;
+  font-size: 28rpx;
+  color: var(--tech-fg-muted);
+}
+
+.cyber-tab-active {
+  color: var(--tech-primary);
+  font-weight: 700;
+}
+
+.cyber-tabs {
+  border-bottom: 1px solid var(--tech-border);
+  background-color: var(--tech-shell-header);
+}
+
+.cyber-output-panel {
+  border-radius: 16rpx;
+  border: 1px solid var(--tech-border);
+  background-color: var(--tech-input-bg);
+  padding: 24rpx;
+  color: var(--tech-fg-muted);
+}
+
+.cyber-stat-card {
+  border-radius: 16rpx;
+  border: 1px solid var(--tech-border);
+  background-color: var(--tech-glass);
+  padding: 24rpx;
+  text-align: center;
+}
+
+.cyber-stat-value {
+  display: block;
+  color: var(--tech-primary);
+  font-size: 40rpx;
+  font-weight: 700;
+}
+
+.cyber-stat-label {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: var(--tech-fg-subtle);
+}
+
+.cyber-list-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  border-bottom: 1px solid var(--tech-border);
+  padding: 20rpx 0;
+  color: var(--tech-fg);
+}
+
+.cyber-auth-tab {
+  font-size: 32rpx;
+  color: var(--tech-fg-muted);
+}
+
+.cyber-auth-tab-active {
+  font-size: 32rpx;
+  color: var(--tech-primary);
+  font-weight: 700;
+}
+
+/* cyber 页面内 wot-design 深色适配 — H5 专用（:deep / :-webkit-autofill 小程序 WXSS 不支持） */
+/* #ifdef H5 */
+.cyber-page-grid,
+.cyber-page,
+.login-page,
+.register-page,
+.msgboard-page,
+.profile-page,
+.public-page,
+.tool-index,
+.codes-page,
+.crypto-page,
+.rsa-page,
+.sm-page,
+.qrcode-page,
+.pdf-page,
+.watermark-page,
+.h5-web-page,
+.ai-page,
+.archives-page,
+.links-page,
+.features-page,
+.projects-page,
+.open-source-page,
+.about-page,
+.not-found-page,
+.rpg-page,
+.guide-page {
+  :deep(.wd-input__label),
+  :deep(.wd-textarea__label),
+  :deep(.wd-cell__title) {
+    color: var(--tech-fg-muted) !important;
+  }
+
+  :deep(.wd-input__inner),
+  :deep(.wd-textarea__inner),
+  :deep(.wd-cell__value) {
+    color: var(--tech-fg) !important;
+  }
+
+  :deep(.wd-input),
+  :deep(.wd-textarea) {
+    background-color: var(--tech-input-bg) !important;
+  }
+}
+
+/* 登录 / 注册：输入框边框 + 浏览器 autofill 深色适配（H5） */
+.login-page,
+.register-page {
+  :deep(.wd-input) {
+    margin-bottom: 24rpx;
+    border-radius: 16rpx;
+    border: 1px solid var(--tech-input-border);
+    overflow: hidden;
+  }
+
+  :deep(.wd-input:last-child) {
+    margin-bottom: 0;
+  }
+
+  :deep(.wd-input__inner),
+  :deep(.wd-textarea__inner),
+  :deep(input),
+  :deep(textarea) {
+    color: var(--tech-fg) !important;
+    -webkit-text-fill-color: var(--tech-fg);
+  }
+
+  :deep(.wd-input__inner),
+  :deep(input) {
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:focus,
+    &:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 1000px var(--tech-input-autofill-bg) inset !important;
+      box-shadow: 0 0 0 1000px var(--tech-input-autofill-bg) inset !important;
+      -webkit-text-fill-color: var(--tech-fg) !important;
+      caret-color: var(--tech-fg);
+      transition: background-color 99999s ease-out 0s;
+    }
+  }
+}
+
+/* 其他 cyber 页面的 autofill 兜底 */
+.cyber-page-grid,
+.cyber-page,
+.msgboard-page,
+.profile-page,
+.edit-page {
+  :deep(.wd-input__inner),
+  :deep(.wd-textarea__inner),
+  :deep(input),
+  :deep(textarea) {
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:focus,
+    &:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 1000px var(--tech-input-autofill-bg) inset !important;
+      box-shadow: 0 0 0 1000px var(--tech-input-autofill-bg) inset !important;
+      -webkit-text-fill-color: var(--tech-fg) !important;
+      caret-color: var(--tech-fg);
+      transition: background-color 99999s ease-out 0s;
+    }
+  }
+}
+/* #endif */

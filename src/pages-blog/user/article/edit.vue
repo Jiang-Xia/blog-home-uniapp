@@ -12,6 +12,7 @@ import MarkdownEditor from '@/components/markdown-editor/markdown-editor.vue'
 import { ROUTE_DETAIL, ROUTE_PROFILE } from '@/router/routes'
 import { useTokenStore } from '@/store/token'
 import { debounce } from '@/utils/debounce'
+import { apiDisplayLabel } from '@/utils/display-label'
 import { resolveStaticUrl } from '@/utils/static-url'
 
 definePage({
@@ -200,63 +201,65 @@ async function submit() {
 </script>
 
 <template>
-  <view v-if="loading" class="p-8 text-center text-gray-400">
+  <view v-if="loading" class="cyber-page-grid p-8 text-center text-tech-subtle">
     加载中...
   </view>
-  <scroll-view v-else scroll-y class="edit-page">
+  <scroll-view v-else scroll-y class="edit-page cyber-page-grid">
     <view class="p-4">
-      <view v-if="draftRestored" class="mb-3 rounded bg-amber-50 px-3 py-2 text-xs text-amber-700">
-        已恢复本地草稿
-      </view>
-      <wd-input v-model="form.title" label="标题" placeholder="文章标题" />
-      <wd-input v-model="form.description" label="摘要" placeholder="简短描述" class="mt-3" />
-      <view class="mt-3">
-        <text class="mb-1 block text-sm text-gray-600">封面</text>
-        <image v-if="form.cover" :src="coverDisplayUrl" mode="aspectFill" class="mb-2 h-32 w-full rounded-lg" />
-        <wd-button size="small" @click="pickCover">
-          选择封面
-        </wd-button>
-      </view>
-      <view class="mt-3">
-        <text class="mb-1 block text-sm text-gray-600">分类</text>
-        <picker :range="categories" range-key="name" @change="onCategoryChange">
-          <view class="border border-gray-200 rounded px-3 py-2 text-sm">
-            {{ categories.find(c => String(c.id) === form.category)?.name || '选择分类' }}
+      <cyber-alert v-if="draftRestored" class="mb-3" variant="warning">
+        <text class="text-xs text-tech-muted">已恢复本地草稿</text>
+      </cyber-alert>
+      <cyber-card class="!p-4">
+        <wd-input v-model="form.title" label="标题" placeholder="文章标题" />
+        <wd-input v-model="form.description" label="摘要" placeholder="简短描述" class="mt-3" />
+        <view class="mt-3">
+          <text class="mb-1 block text-sm text-tech-muted">封面</text>
+          <image v-if="form.cover" :src="coverDisplayUrl" mode="aspectFill" class="mb-2 h-32 w-full border border-tech rounded-lg" />
+          <wd-button size="small" @click="pickCover">
+            选择封面
+          </wd-button>
+        </view>
+        <view class="mt-3">
+          <text class="mb-1 block text-sm text-tech-muted">分类</text>
+          <picker :range="categories" range-key="label" @change="onCategoryChange">
+            <view class="border border-tech rounded px-3 py-2 text-sm text-tech">
+              {{ apiDisplayLabel(categories.find(c => String(c.id) === form.category), '选择分类') }}
+            </view>
+          </picker>
+        </view>
+        <view class="mt-3">
+          <text class="mb-1 block text-sm text-tech-muted">标签</text>
+          <view class="flex flex-wrap gap-2">
+            <text
+              v-for="tag in tags"
+              :key="tag.id"
+              class="rounded px-2 py-1 text-xs"
+              :class="form.tags.includes(tag.id) ? 'cyber-feature-tag border-[rgba(34,211,238,0.6)]' : 'border border-tech text-tech-muted'"
+              @click="toggleTag(tag.id)"
+            >
+              {{ apiDisplayLabel(tag) }}
+            </text>
           </view>
-        </picker>
-      </view>
-      <view class="mt-3">
-        <text class="mb-1 block text-sm text-gray-600">标签</text>
-        <view class="flex flex-wrap gap-2">
-          <text
-            v-for="tag in tags"
-            :key="tag.id"
-            class="rounded px-2 py-1 text-xs"
-            :class="form.tags.includes(tag.id) ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'"
-            @click="toggleTag(tag.id)"
-          >
-            {{ tag.name }}
-          </text>
         </view>
-      </view>
-      <view class="mt-3">
-        <text class="mb-1 block text-sm text-gray-600">正文（Markdown）</text>
-        <MarkdownEditor v-model="form.content" />
-      </view>
-      <view class="mt-3">
-        <text class="mb-1 block text-sm text-gray-600">状态</text>
-        <view class="flex gap-2">
-          <wd-button size="small" :type="form.status === 'publish' ? 'primary' : undefined" @click="form.status = 'publish'">
-            发布
-          </wd-button>
-          <wd-button size="small" :type="form.status === 'draft' ? 'primary' : undefined" @click="form.status = 'draft'">
-            草稿
-          </wd-button>
+        <view class="mt-3">
+          <text class="mb-1 block text-sm text-tech-muted">正文（Markdown）</text>
+          <MarkdownEditor v-model="form.content" />
         </view>
-      </view>
-      <wd-button block class="mt-6" :loading="submitting" @click="submit">
-        {{ isEdit ? '保存更新' : '创建文章' }}
-      </wd-button>
+        <view class="mt-3">
+          <text class="mb-1 block text-sm text-tech-muted">状态</text>
+          <view class="flex gap-2">
+            <wd-button size="small" :type="form.status === 'publish' ? 'primary' : undefined" @click="form.status = 'publish'">
+              发布
+            </wd-button>
+            <wd-button size="small" :type="form.status === 'draft' ? 'primary' : undefined" @click="form.status = 'draft'">
+              草稿
+            </wd-button>
+          </view>
+        </view>
+        <cyber-button block class="mt-6" variant="primary" @click="submit">
+          {{ isEdit ? '保存更新' : '创建文章' }}
+        </cyber-button>
+      </cyber-card>
     </view>
   </scroll-view>
 </template>
@@ -264,6 +267,5 @@ async function submit() {
 <style scoped>
 .edit-page {
   min-height: 100vh;
-  background: #fff;
 }
 </style>

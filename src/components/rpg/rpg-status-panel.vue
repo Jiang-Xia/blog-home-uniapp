@@ -24,7 +24,7 @@ const expPercent = computed(() => {
     <view class="flex items-start justify-between">
       <view>
         <text class="block text-3xl font-bold">Lv.{{ status.level }}</text>
-        <text class="mt-1 block text-sm opacity-90">{{ status.title || '冒险者' }}</text>
+        <text class="mt-1 block text-sm opacity-90">{{ status.roleReward?.titleName || '冒险者' }}</text>
       </view>
       <view v-if="signInfo" class="text-right text-xs opacity-90">
         <text class="block">连续 {{ status.consecutiveSignDays ?? signInfo.consecutiveDays ?? 0 }} 天</text>

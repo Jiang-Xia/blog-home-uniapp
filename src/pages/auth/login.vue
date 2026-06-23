@@ -162,60 +162,70 @@ async function wxLogin() {
 </script>
 
 <template>
-  <view class="login-page px-4 py-6">
+  <view class="login-page cyber-page-grid px-4 py-6">
+    <cyber-section-header
+      class="mb-6"
+      label="AUTH"
+      title="登录"
+      subtitle="账号 / 邮箱 / 第三方登录"
+      align="left"
+    />
+
     <view class="mb-6 flex gap-4">
       <text
-        class="text-base"
-        :class="loginType === 'account' ? 'text-primary font-bold' : 'text-gray-500'"
+        class="cyber-auth-tab"
+        :class="loginType === 'account' ? 'cyber-auth-tab-active' : ''"
         @click="loginType = 'account'"
       >
         账号登录
       </text>
       <text
-        class="text-base"
-        :class="loginType === 'email' ? 'text-primary font-bold' : 'text-gray-500'"
+        class="cyber-auth-tab"
+        :class="loginType === 'email' ? 'cyber-auth-tab-active' : ''"
         @click="loginType = 'email'"
       >
         邮箱登录
       </text>
     </view>
 
-    <template v-if="loginType === 'account'">
-      <wd-input v-model="form.username" label="用户名" placeholder="请输入用户名" clearable />
-      <wd-input v-model="form.password" label="密码" placeholder="请输入密码" show-password clearable />
-      <view class="mt-3 flex items-center gap-2">
-        <wd-input v-model="form.authCode" label="验证码" placeholder="验证码" class="flex-1" />
-        <image
-          v-if="captchaImage"
-          :src="captchaImage"
-          class="h-10 w-24 border border-gray-200"
-          mode="aspectFit"
-          @click="loadCaptcha"
-        />
-      </view>
-    </template>
-    <template v-else>
-      <wd-input v-model="form.email" label="邮箱" placeholder="请输入邮箱" clearable />
-      <wd-input v-model="form.verificationCode" label="验证码" placeholder="邮箱验证码" clearable />
-    </template>
+    <cyber-card class="!p-4">
+      <template v-if="loginType === 'account'">
+        <wd-input v-model="form.username" label="用户名" placeholder="请输入用户名" clearable />
+        <wd-input v-model="form.password" label="密码" placeholder="请输入密码" show-password clearable />
+        <view class="mt-3 flex items-center gap-2">
+          <wd-input v-model="form.authCode" label="验证码" placeholder="验证码" class="flex-1" />
+          <image
+            v-if="captchaImage"
+            :src="captchaImage"
+            class="h-10 w-24 border border-tech rounded"
+            mode="aspectFit"
+            @click="loadCaptcha"
+          />
+        </view>
+      </template>
+      <template v-else>
+        <wd-input v-model="form.email" label="邮箱" placeholder="请输入邮箱" clearable />
+        <wd-input v-model="form.verificationCode" label="验证码" placeholder="邮箱验证码" clearable />
+      </template>
 
-    <wd-button block class="mt-6" :loading="submitting || oauthTicketLoading" @click="handleLogin">
-      登录
-    </wd-button>
+      <cyber-button block class="mt-6" :class="{ 'opacity-60': submitting || oauthTicketLoading }" @click="handleLogin">
+        登录
+      </cyber-button>
 
-    <!-- #ifdef H5 -->
-    <wd-button block class="mt-3" :loading="githubLoginLoading" @click="githubLogin">
-      GitHub 登录
-    </wd-button>
-    <!-- #endif -->
+      <!-- #ifdef H5 -->
+      <cyber-button block class="mt-3" variant="secondary" @click="githubLogin">
+        GitHub 登录
+      </cyber-button>
+      <!-- #endif -->
 
-    <!-- #ifdef MP-WEIXIN -->
-    <wd-button block class="mt-3" :loading="submitting" @click="wxLogin">
-      微信登录
-    </wd-button>
-    <!-- #endif -->
+      <!-- #ifdef MP-WEIXIN -->
+      <cyber-button block class="mt-3" variant="secondary" @click="wxLogin">
+        微信登录
+      </cyber-button>
+      <!-- #endif -->
+    </cyber-card>
 
-    <navigator url="/pages/auth/register" open-type="navigate" class="mt-4 text-center text-sm text-gray-500">
+    <navigator url="/pages/auth/register" open-type="navigate" class="mt-4 text-center text-sm text-tech-muted">
       没有账号？去注册
     </navigator>
   </view>
@@ -224,9 +234,5 @@ async function wxLogin() {
 <style scoped>
 .login-page {
   min-height: 100vh;
-  background: #fff;
-}
-.text-primary {
-  color: #2563eb;
 }
 </style>

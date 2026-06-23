@@ -107,51 +107,62 @@ async function handleRegister() {
 </script>
 
 <template>
-  <view class="register-page px-4 py-6">
+  <view class="register-page cyber-page-grid px-4 py-6">
+    <cyber-section-header
+      class="mb-6"
+      label="AUTH"
+      title="注册"
+      subtitle="创建账号，开启冒险之旅"
+      align="left"
+    />
+
     <view class="mb-6 flex gap-4">
       <text
-        class="text-base"
-        :class="registerType === 'account' ? 'text-primary font-bold' : 'text-gray-500'"
+        class="cyber-auth-tab"
+        :class="registerType === 'account' ? 'cyber-auth-tab-active' : ''"
         @click="registerType = 'account'"
       >
         账号注册
       </text>
       <text
-        class="text-base"
-        :class="registerType === 'email' ? 'text-primary font-bold' : 'text-gray-500'"
+        class="cyber-auth-tab"
+        :class="registerType === 'email' ? 'cyber-auth-tab-active' : ''"
         @click="registerType = 'email'"
       >
         邮箱注册
       </text>
     </view>
 
-    <template v-if="registerType === 'account'">
-      <wd-input v-model="form.username" label="用户名" placeholder="用户名" clearable />
-      <wd-input v-model="form.nickname" label="昵称" placeholder="昵称" clearable />
-      <wd-input v-model="form.password" label="密码" show-password clearable />
-      <wd-input v-model="form.passwordRepeat" label="确认密码" show-password clearable />
-      <view class="mt-3 flex items-center gap-2">
-        <wd-input v-model="form.authCode" label="验证码" placeholder="验证码" class="flex-1" />
-        <image v-if="captchaImage" :src="captchaImage" class="h-10 w-24 border" @click="loadCaptcha" />
-      </view>
-    </template>
-    <template v-else>
-      <wd-input v-model="form.email" label="邮箱" clearable />
-      <wd-input v-model="form.nickname" label="昵称" clearable />
-      <wd-input v-model="form.password" label="密码" show-password clearable />
-      <wd-input v-model="form.passwordRepeat" label="确认密码" show-password clearable />
-      <view class="mt-3 flex items-center gap-2">
-        <wd-input v-model="form.verificationCode" label="邮箱验证码" class="flex-1" />
-        <wd-button size="small" :disabled="emailCodeDisabled" @click="handleSendEmailCode">
-          {{ emailCodeText }}
-        </wd-button>
-      </view>
-    </template>
+    <cyber-card class="!p-4">
+      <template v-if="registerType === 'account'">
+        <wd-input v-model="form.username" label="用户名" placeholder="用户名" clearable />
+        <wd-input v-model="form.nickname" label="昵称" placeholder="昵称" clearable />
+        <wd-input v-model="form.password" label="密码" show-password clearable />
+        <wd-input v-model="form.passwordRepeat" label="确认密码" show-password clearable />
+        <view class="mt-3 flex items-center gap-2">
+          <wd-input v-model="form.authCode" label="验证码" placeholder="验证码" class="flex-1" />
+          <image v-if="captchaImage" :src="captchaImage" class="h-10 w-24 border border-tech rounded" @click="loadCaptcha" />
+        </view>
+      </template>
+      <template v-else>
+        <wd-input v-model="form.email" label="邮箱" clearable />
+        <wd-input v-model="form.nickname" label="昵称" clearable />
+        <wd-input v-model="form.password" label="密码" show-password clearable />
+        <wd-input v-model="form.passwordRepeat" label="确认密码" show-password clearable />
+        <view class="mt-3 flex items-center gap-2">
+          <wd-input v-model="form.verificationCode" label="邮箱验证码" class="flex-1" />
+          <wd-button size="small" :disabled="emailCodeDisabled" @click="handleSendEmailCode">
+            {{ emailCodeText }}
+          </wd-button>
+        </view>
+      </template>
 
-    <wd-button block class="mt-6" :loading="submitting" @click="handleRegister">
-      注册
-    </wd-button>
-    <navigator url="/pages/auth/login" open-type="navigate" class="mt-4 text-center text-sm text-gray-500">
+      <cyber-button block class="mt-6" @click="handleRegister">
+        注册
+      </cyber-button>
+    </cyber-card>
+
+    <navigator url="/pages/auth/login" open-type="navigate" class="mt-4 text-center text-sm text-tech-muted">
       已有账号？去登录
     </navigator>
   </view>
@@ -160,9 +171,5 @@ async function handleRegister() {
 <style scoped>
 .register-page {
   min-height: 100vh;
-  background: #fff;
-}
-.text-primary {
-  color: #2563eb;
 }
 </style>

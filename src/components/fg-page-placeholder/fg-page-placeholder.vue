@@ -19,23 +19,23 @@ function navigate(route: string) {
 </script>
 
 <template>
-  <view class="placeholder px-4 py-8">
-    <view class="text-center text-lg text-gray-800 font-medium">
+  <view class="placeholder cyber-page-grid px-4 py-8">
+    <view class="text-center text-lg text-tech font-medium">
       {{ props.title }}
     </view>
-    <view class="mt-2 text-center text-sm text-gray-500">
+    <view class="mt-2 text-center text-sm text-tech-muted">
       {{ props.phaseLabel }} · 功能开发中
     </view>
     <view v-if="props.links.length" class="mt-8 flex flex-col gap-3">
-      <button
+      <cyber-button
         v-for="item in props.links"
         :key="item.route"
-        type="default"
-        class="w-full"
+        variant="secondary"
+        class="w-full text-center"
         @click="navigate(item.route)"
       >
         {{ item.label }}
-      </button>
+      </cyber-button>
     </view>
   </view>
 </template>

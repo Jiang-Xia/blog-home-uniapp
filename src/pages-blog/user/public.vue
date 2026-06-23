@@ -49,39 +49,31 @@ const listItems = computed(() => {
 </script>
 
 <template>
-  <view class="public-page">
-    <view v-if="user" class="bg-white p-4">
+  <view class="public-page cyber-page-grid">
+    <cyber-card v-if="user" class="!p-4">
       <view class="flex items-center gap-3">
-        <image :src="user.avatar" class="h-14 w-14 rounded-full" />
+        <image :src="user.avatar" class="h-14 w-14 border border-tech rounded-full" />
         <view>
-          <text class="block font-bold">{{ user.nickname }}</text>
-          <text class="text-sm text-gray-500">{{ user.intro }}</text>
+          <text class="block text-tech font-bold">{{ user.nickname }}</text>
+          <text class="text-sm text-tech-muted">{{ user.intro }}</text>
         </view>
       </view>
-    </view>
-    <view class="mt-2 flex bg-white px-4 py-2">
-      <text
-        class="mr-4 text-sm"
-        :class="activeTab === 'article' ? 'font-bold text-blue-600' : 'text-gray-500'"
-        @click="activeTab = 'article'"
-      >
-        文章
-      </text>
-      <text
-        class="mr-4 text-sm"
-        :class="activeTab === 'collect' ? 'font-bold text-blue-600' : 'text-gray-500'"
-        @click="activeTab = 'collect'"
-      >
-        收藏
-      </text>
-      <text
-        class="text-sm"
-        :class="activeTab === 'like' ? 'font-bold text-blue-600' : 'text-gray-500'"
-        @click="activeTab = 'like'"
-      >
-        点赞
-      </text>
-    </view>
+    </cyber-card>
+
+    <scroll-view scroll-x class="cyber-tabs mt-2 px-4 py-2">
+      <view class="flex">
+        <text
+          v-for="tab in [{ key: 'article', label: '文章' }, { key: 'collect', label: '收藏' }, { key: 'like', label: '点赞' }]"
+          :key="tab.key"
+          class="cyber-tab mr-4 shrink-0"
+          :class="activeTab === tab.key ? 'cyber-tab-active' : ''"
+          @click="activeTab = tab.key as any"
+        >
+          {{ tab.label }}
+        </text>
+      </view>
+    </scroll-view>
+
     <view class="p-3">
       <ArticleCard v-for="item in listItems" :key="item.id" :item="item" />
     </view>
@@ -91,6 +83,5 @@ const listItems = computed(() => {
 <style scoped>
 .public-page {
   min-height: 100vh;
-  background: #f5f5f5;
 }
 </style>

@@ -10,11 +10,11 @@ defineEmits<{
 
 <template>
   <view v-if="buffs.length" class="buff-list mt-4">
-    <text class="mb-2 block font-medium">增益</text>
-    <view v-for="b in buffs" :key="b.id" class="mb-2 flex items-center justify-between rounded-lg bg-white p-3 shadow-sm">
+    <text class="mb-2 block text-tech font-medium">增益</text>
+    <view v-for="b in buffs" :key="b.id" class="cyber-glass-card mb-2 flex items-center justify-between p-3">
       <view>
-        <text class="block text-sm font-medium">{{ b.name }}</text>
-        <text class="text-xs text-gray-500">{{ b.description }}</text>
+        <text class="block text-sm text-tech font-medium">{{ b.name }}</text>
+        <text class="text-xs text-tech-muted">{{ b.description }}</text>
       </view>
       <wd-button size="small" @click="$emit('toggle', b)">
         {{ b.isActive ? '关闭' : '激活' }}

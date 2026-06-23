@@ -83,9 +83,9 @@ onMounted(createKey)
 </script>
 
 <template>
-  <scroll-view scroll-y class="crypto-page px-4 py-4">
+  <scroll-view scroll-y class="crypto-page cyber-page-grid px-4 py-4">
     <view class="mb-3">
-      <text class="mb-2 block text-sm text-gray-600">算法</text>
+      <text class="mb-2 block text-sm text-tech-muted">算法</text>
       <view class="flex flex-wrap gap-2">
         <wd-button
           v-for="item in algorithms"
@@ -127,6 +127,5 @@ onMounted(createKey)
 <style scoped>
 .crypto-page {
   min-height: 100vh;
-  background: #fff;
 }
 </style>

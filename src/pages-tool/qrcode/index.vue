@@ -27,9 +27,9 @@ watch(qrcodeText, () => {
 </script>
 
 <template>
-  <view class="qrcode-page px-4 py-4">
+  <view class="qrcode-page cyber-page-grid px-4 py-4">
     <wd-input v-model="qrcodeText" label="内容" placeholder="URL 或文本" />
-    <view class="mt-4 flex justify-center rounded-lg bg-gray-50 p-4">
+    <view class="cyber-output-panel mt-4 flex justify-center">
       <image v-if="qrcodeDataUrl" :src="qrcodeDataUrl" class="h-52 w-52" mode="aspectFit" />
     </view>
     <wd-button block class="mt-4" @click="generateQr">
@@ -41,6 +41,5 @@ watch(qrcodeText, () => {
 <style scoped>
 .qrcode-page {
   min-height: 100vh;
-  background: #fff;
 }
 </style>

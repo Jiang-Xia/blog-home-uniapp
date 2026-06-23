@@ -71,6 +71,12 @@ export default defineConfig({
     {
       center: 'flex justify-center items-center',
     },
+    ['text-tech', 'color-[var(--tech-fg)]'],
+    ['text-tech-muted', 'color-[var(--tech-fg-muted)]'],
+    ['text-tech-subtle', 'color-[var(--tech-fg-subtle)]'],
+    ['text-tech-primary', 'color-[var(--tech-primary)]'],
+    ['bg-tech-shell', 'bg-[var(--tech-shell)]'],
+    ['border-tech', 'border-[var(--tech-border)]'],
   ],
   // 动态图标需要在这里配置，或者写在vue页面中注释掉
   safelist: [
