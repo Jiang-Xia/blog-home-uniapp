@@ -95,16 +95,14 @@ onMounted(() => {
   >
     <view class="home-page cyber-page-grid">
       <!-- Hero 首屏 -->
-      <view class="home-hero px-4 pb-4 pt-3">
+      <view class="home-hero u-page-body pb-4 pt-3">
         <view class="home-hero-brand flex justify-center">
-          <view class="home-hero-brand-chip max-w-full inline-flex items-center gap-2">
-            <view class="home-hero-brand-icon site-logo-badge flex shrink-0 items-center justify-center rounded-md">
-              <text class="text-xs leading-none">⚔️</text>
+          <view class="home-hero-brand-chip">
+            <view class="home-hero-brand-icon site-logo-badge">
+              <text class="home-hero-brand-emoji">⚔️</text>
             </view>
-            <view class="min-w-0 flex items-center gap-2 pr-0.5 text-sm text-tech-muted leading-snug">
-              <view class="home-hero-status-dot h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--tech-success)]" />
-              <text>Blog × RPG · 签到 · 任务 · 抽奖 · 排行榜</text>
-            </view>
+            <view class="home-hero-status-dot" />
+            <text class="home-hero-brand-label">Blog × RPG · 签到 · 任务 · 抽奖 · 排行榜</text>
           </view>
         </view>
 
@@ -128,19 +126,25 @@ onMounted(() => {
             读文章 · 做任务 · 冲排行榜
           </text>
 
-          <view class="home-hero-buttons mt-4 flex flex-wrap items-center justify-center gap-3">
-            <cyber-button variant="primary" @click="goRpg">
-              ⚔️ 开始冒险
-            </cyber-button>
-            <cyber-button variant="secondary" @click="scrollToArticles">
-              📖 浏览文章
-            </cyber-button>
-            <cyber-button variant="secondary" size="small" @click="goRpgGuide">
-              冒险攻略
-            </cyber-button>
+          <view class="home-hero-buttons mt-4 flex flex-wrap items-center justify-center">
+            <view>
+              <cyber-button size="small" variant="primary" @click="goRpg">
+                ⚔️ 开始冒险
+              </cyber-button>
+            </view>
+            <view>
+              <cyber-button size="small" variant="secondary" @click="scrollToArticles">
+                📖 浏览文章
+              </cyber-button>
+            </view>
+            <view>
+              <cyber-button size="small" variant="secondary" @click="goRpgGuide">
+                冒险攻略
+              </cyber-button>
+            </view>
           </view>
 
-          <view class="home-hero-stats mt-5 flex flex-wrap items-center justify-center gap-8">
+          <view class="home-hero-stats u-gap-8 mt-5 flex flex-wrap items-center justify-center">
             <view v-for="stat in heroStats" :key="stat.label" class="text-center">
               <text
                 class="home-hero-stat-value block font-bold"
@@ -155,7 +159,7 @@ onMounted(() => {
       </view>
 
       <!-- 文章列表 -->
-      <view id="articles" class="px-3 pb-6">
+      <view id="articles" class="u-page-body pb-6">
         <view class="mb-4 flex items-end justify-between">
           <cyber-section-header
             class="flex-1 text-left"
@@ -182,11 +186,21 @@ onMounted(() => {
   min-height: 100vh;
 }
 
+/* #ifdef MP-WEIXIN || MP-ALIPAY */
+.home-page {
+  min-height: 100%;
+}
+/* #endif */
+
 .home-hero-brand {
   margin-bottom: 28rpx;
 }
 
 .home-hero-brand-chip {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  max-width: 100%;
   border: 1px solid var(--tech-border);
   border-radius: 9999px;
   background: rgba(17, 24, 39, 0.55);
@@ -194,12 +208,49 @@ onMounted(() => {
 }
 
 .home-hero-brand-icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
   height: 40rpx;
   width: 40rpx;
+  border-radius: 8rpx;
+}
+
+.home-hero-brand-emoji {
+  font-size: 22rpx;
+  line-height: 1;
 }
 
 .home-hero-status-dot {
+  flex-shrink: 0;
+  width: 12rpx;
+  height: 12rpx;
+  margin-left: 16rpx;
+  border-radius: 50%;
+  background-color: var(--tech-success);
   animation: home-status-breathe 2.2s ease-in-out infinite;
+}
+
+.home-hero-brand-label {
+  margin-left: 12rpx;
+  font-size: 26rpx;
+  line-height: 1.25;
+  color: var(--tech-fg-muted);
+}
+
+.home-hero-poetry {
+  background: radial-gradient(
+    ellipse 70% 62% at 50% 42%,
+    rgba(34, 211, 238, 0.11) 0%,
+    rgba(147, 51, 234, 0.05) 38%,
+    transparent 68%
+  );
+}
+
+/* #ifdef H5 */
+.home-hero-poetry {
+  background: none;
 }
 
 .home-hero-poetry::before {
@@ -218,21 +269,34 @@ onMounted(() => {
     transparent 68%
   );
 }
+/* #endif */
 
+.home-hero-poetry-title {
+  font-size: 48rpx;
+}
+
+/* #ifdef H5 */
 .home-hero-poetry-title {
   font-size: clamp(40rpx, 4.5vw + 24rpx, 56rpx);
 }
+/* #endif */
 
-.home-hero-poetry-author {
-  font-size: 30rpx;
-  min-height: 40rpx;
+.home-hero-gradient-text {
+  color: var(--tech-rpg-amber);
 }
 
+/* #ifdef H5 */
 .home-hero-gradient-text {
   background: linear-gradient(to right, var(--tech-gradient-from), var(--tech-rpg-amber), var(--tech-gradient-to));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+/* #endif */
+
+.home-hero-poetry-author {
+  font-size: 30rpx;
+  min-height: 40rpx;
 }
 
 .home-hero-stat-value {

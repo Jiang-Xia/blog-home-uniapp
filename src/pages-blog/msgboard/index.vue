@@ -10,6 +10,7 @@ import { useUserStore } from '@/store'
 import { useTokenStore } from '@/store/token'
 import { buildMsgboardTree, collectMsgboardDeleteIds } from '@/utils/msgboard-tree'
 import type { MsgboardNode } from '@/utils/msgboard-tree'
+import { formatRelativeTime } from '@/utils/date-time'
 import { getRandomNickname } from '@/utils/nickname'
 import { resolveStaticUrl } from '@/utils/static-url'
 
@@ -207,7 +208,7 @@ function avatarUrl(item: MsgboardNode) {
 </script>
 
 <template>
-  <scroll-view scroll-y class="msgboard-page cyber-page-grid">
+  <scroll-view scroll-y class="msgboard-page cyber-page-grid u-page-scroll">
     <view class="p-3">
       <cyber-section-header
         class="mb-4"
@@ -240,23 +241,23 @@ function avatarUrl(item: MsgboardNode) {
         :key="item.id"
         class="mb-3 !p-4"
       >
-        <view class="flex items-start gap-2">
+        <view class="u-gap-2 flex items-start">
           <image :src="avatarUrl(item)" class="h-8 w-8 shrink-0 border border-tech rounded-full" mode="aspectFill" />
           <view class="min-w-0 flex-1">
             <view class="flex items-center justify-between">
               <text class="text-sm text-tech font-medium">{{ item.name }}</text>
               <text v-if="showDelBtn" class="text-xs text-red-400" @click="handleDelete(true, item)">删除</text>
             </view>
-            <text class="mt-1 block text-xs text-tech-subtle">{{ item.createAt }}</text>
+            <text class="mt-1 block text-xs text-tech-subtle">{{ formatRelativeTime(item.createAt) }}</text>
             <text class="mt-2 block text-sm text-tech-muted">{{ item.comment }}</text>
-            <view class="mt-2 flex flex-wrap gap-2 text-xs text-tech-subtle">
+            <view class="u-gap-2 mt-2 flex flex-wrap text-xs text-tech-subtle">
               <text class="text-tech-primary" @click="openReply(item)">回复</text>
               <text v-if="item.location">📍 {{ item.location }}</text>
             </view>
 
             <view v-if="item.children?.length" class="mt-3 border-l-2 border-tech pl-3">
               <view v-for="reply in item.children" :key="reply.id" class="mb-3">
-                <view class="flex items-start gap-2">
+                <view class="u-gap-2 flex items-start">
                   <image :src="avatarUrl(reply)" class="h-7 w-7 shrink-0 border border-tech rounded-full" mode="aspectFill" />
                   <view class="min-w-0 flex-1">
                     <view class="flex items-center justify-between">
@@ -266,7 +267,7 @@ function avatarUrl(item: MsgboardNode) {
                       </text>
                       <text v-if="showDelBtn" class="text-xs text-red-400" @click="handleDelete(false, reply)">删除</text>
                     </view>
-                    <text class="mt-1 block text-xs text-tech-subtle">{{ reply.createAt }}</text>
+                    <text class="mt-1 block text-xs text-tech-subtle">{{ formatRelativeTime(reply.createAt) }}</text>
                     <text class="mt-1 block text-sm text-tech-muted">{{ reply.comment }}</text>
                     <text class="mt-1 inline-block text-xs text-tech-primary" @click="openReply(reply)">回复</text>
                   </view>
@@ -289,19 +290,28 @@ function avatarUrl(item: MsgboardNode) {
         <text class="mb-3 block text-tech font-medium">回复留言</text>
         <wd-input v-model="replyForm.name" label="名称" placeholder="你的名称" maxlength="10" />
         <wd-textarea v-model="replyForm.comment" label="内容" placeholder="写下回复..." class="mt-2" :maxlength="300" />
-        <cyber-button block class="mt-4" variant="primary" @click="submitReply">
-          确认
-        </cyber-button>
+        <view class="u-form-actions">
+          <view class="u-form-action-item">
+            <cyber-button block variant="primary" @click="submitReply">
+              确认
+            </cyber-button>
+          </view>
+        </view>
       </view>
     </wd-popup>
   </scroll-view>
 </template>
 
 <style scoped>
-.msgboard-page {
-  min-height: 100vh;
-}
+/* #ifdef H5 */
 .reply-popup {
-  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
 }
+/* #endif */
+
+/* #ifdef MP-WEIXIN || MP-ALIPAY */
+.reply-popup {
+  padding-bottom: 32rpx;
+}
+/* #endif */
 </style>

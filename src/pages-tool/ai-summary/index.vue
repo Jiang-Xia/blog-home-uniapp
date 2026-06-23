@@ -85,8 +85,8 @@ function copySummary() {
 </script>
 
 <template>
-  <scroll-view scroll-y class="ai-page cyber-page-grid px-4 py-4">
-    <view class="mb-3 flex flex-wrap gap-2">
+  <scroll-view scroll-y class="ai-page cyber-page-grid u-page-scroll u-page-body py-4">
+    <view class="u-gap-2 mb-3 flex flex-wrap">
       <wd-button
         v-for="(label, key) in styleLabels"
         :key="key"
@@ -110,9 +110,3 @@ function copySummary() {
     </view>
   </scroll-view>
 </template>
-
-<style scoped>
-.ai-page {
-  min-height: 100vh;
-}
-</style>

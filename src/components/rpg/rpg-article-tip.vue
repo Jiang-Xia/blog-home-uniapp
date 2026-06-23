@@ -7,10 +7,14 @@ import { tipArticle } from '@/api/rpg'
 import { useUserStore } from '@/store'
 import { useTokenStore } from '@/store/token'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   articleId: number
   authorUid: number
-}>()
+  /** 嵌入 FAB 弹层时使用，去掉外层卡片样式 */
+  embedded?: boolean
+}>(), {
+  embedded: false,
+})
 
 const emit = defineEmits<{ tipped: [] }>()
 
@@ -55,13 +59,26 @@ async function submitTip() {
 </script>
 
 <template>
-  <view v-if="canTip" class="tip-panel mt-4 rounded-lg bg-amber-50 p-3">
-    <text class="mb-2 block text-sm font-medium">💎 打赏作者</text>
-    <view class="flex items-center gap-2">
-      <wd-input v-model.number="amount" type="number" placeholder="钻石数量" class="flex-1" />
-      <wd-button size="small" :loading="loading" @click="submitTip">
-        打赏
-      </wd-button>
+  <view v-if="canTip" :class="embedded ? 'tip-panel-embedded' : 'tip-panel mt-4 rounded-lg bg-amber-50 p-3'">
+    <text v-if="!embedded" class="mb-2 block text-sm font-medium">💎 打赏作者</text>
+    <view class="u-captcha-row u-captcha-row-flush">
+      <view class="u-captcha-input-wrap">
+        <wd-input v-model.number="amount" type="number" placeholder="钻石数量" />
+      </view>
+      <view class="u-captcha-side-btn">
+        <wd-button size="small" :loading="loading" @click="submitTip">
+          打赏
+        </wd-button>
+      </view>
     </view>
   </view>
+  <view v-else-if="embedded" class="tip-panel-embedded">
+    <text class="block text-sm text-tech-muted">不能打赏自己的文章</text>
+  </view>
 </template>
+
+<style scoped>
+.tip-panel-embedded {
+  padding: 0;
+}
+</style>

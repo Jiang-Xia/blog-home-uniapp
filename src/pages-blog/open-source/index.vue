@@ -5,8 +5,8 @@ definePage({
 </script>
 
 <template>
-  <scroll-view scroll-y class="open-source-page cyber-page-grid">
-    <view class="px-4 py-6">
+  <scroll-view scroll-y class="open-source-page cyber-page-grid u-page-scroll">
+    <view class="u-page-body py-6">
       <cyber-section-header
         label="OPEN SOURCE"
         title="三端项目说明"
@@ -14,7 +14,7 @@ definePage({
         align="left"
       />
 
-      <view class="mt-6 flex flex-col gap-3">
+      <view class="u-stack-3 mt-6 flex flex-col">
         <cyber-card
           v-for="item in [
             { title: 'blog-home-nuxt', desc: 'Web 前台（Nuxt 3），端口 5050' },
@@ -37,9 +37,3 @@ definePage({
     </view>
   </scroll-view>
 </template>
-
-<style scoped>
-.open-source-page {
-  height: 100vh;
-}
-</style>

@@ -1,4 +1,4 @@
-import { getWsOrigin } from '@/utils/ws-origin'
+import { getStaticBaseUrl } from '@/utils/ws-origin'
 
 /**
  * 将 /static 相对路径解析为可访问的完整 URL
@@ -10,7 +10,7 @@ export function resolveStaticUrl(path = ''): string {
   if (path.startsWith('http') || path.includes('base64'))
     return path
   if (path.startsWith('/static'))
-    return `${getWsOrigin()}${path}`
+    return `${getStaticBaseUrl()}${path}`
   return path
 }
 

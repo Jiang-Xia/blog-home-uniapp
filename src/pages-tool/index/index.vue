@@ -27,15 +27,15 @@ function goTool(route: string) {
 </script>
 
 <template>
-  <scroll-view scroll-y class="tool-index cyber-page-grid">
+  <scroll-view scroll-y class="tool-index cyber-page-grid u-page-scroll">
     <cyber-page-container :grid="false" label="TOOLS" title="实用工具">
-      <view class="flex flex-col gap-3">
+      <view class="u-stack-3 flex flex-col">
         <view
           v-for="item in tools"
           :key="item.route"
           @click="goTool(item.route)"
         >
-          <cyber-card class="flex flex-col !p-4">
+          <cyber-card>
             <text class="block text-tech font-medium">{{ item.title }}</text>
             <text class="mt-1 block text-sm text-tech-muted">{{ item.desc }}</text>
           </cyber-card>
@@ -49,9 +49,3 @@ function goTool(route: string) {
     </cyber-page-container>
   </scroll-view>
 </template>
-
-<style scoped>
-.tool-index {
-  height: 100vh;
-}
-</style>

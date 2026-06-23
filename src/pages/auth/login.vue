@@ -162,7 +162,7 @@ async function wxLogin() {
 </script>
 
 <template>
-  <view class="login-page cyber-page-grid px-4 py-6">
+  <view class="login-page cyber-page-grid u-page-body py-6">
     <cyber-section-header
       class="mb-6"
       label="AUTH"
@@ -171,7 +171,7 @@ async function wxLogin() {
       align="left"
     />
 
-    <view class="mb-6 flex gap-4">
+    <view class="u-gap-4 mb-6 flex">
       <text
         class="cyber-auth-tab"
         :class="loginType === 'account' ? 'cyber-auth-tab-active' : ''"
@@ -188,16 +188,18 @@ async function wxLogin() {
       </text>
     </view>
 
-    <cyber-card class="!p-4">
+    <cyber-card>
       <template v-if="loginType === 'account'">
         <wd-input v-model="form.username" label="用户名" placeholder="请输入用户名" clearable />
         <wd-input v-model="form.password" label="密码" placeholder="请输入密码" show-password clearable />
-        <view class="mt-3 flex items-center gap-2">
-          <wd-input v-model="form.authCode" label="验证码" placeholder="验证码" class="flex-1" />
+        <view class="u-captcha-row">
+          <view class="u-captcha-input-wrap">
+            <wd-input v-model="form.authCode" label="验证码" placeholder="验证码" />
+          </view>
           <image
             v-if="captchaImage"
             :src="captchaImage"
-            class="h-10 w-24 border border-tech rounded"
+            class="u-captcha-img"
             mode="aspectFit"
             @click="loadCaptcha"
           />
@@ -208,21 +210,29 @@ async function wxLogin() {
         <wd-input v-model="form.verificationCode" label="验证码" placeholder="邮箱验证码" clearable />
       </template>
 
-      <cyber-button block class="mt-6" :class="{ 'opacity-60': submitting || oauthTicketLoading }" @click="handleLogin">
-        登录
-      </cyber-button>
+      <view class="u-form-actions">
+        <view class="u-form-action-item">
+          <cyber-button block :disabled="submitting || oauthTicketLoading" @click="handleLogin">
+            登录
+          </cyber-button>
+        </view>
 
-      <!-- #ifdef H5 -->
-      <cyber-button block class="mt-3" variant="secondary" @click="githubLogin">
-        GitHub 登录
-      </cyber-button>
-      <!-- #endif -->
+        <!-- #ifdef H5 -->
+        <view class="u-form-action-item">
+          <cyber-button block variant="secondary" @click="githubLogin">
+            GitHub 登录
+          </cyber-button>
+        </view>
+        <!-- #endif -->
 
-      <!-- #ifdef MP-WEIXIN -->
-      <cyber-button block class="mt-3" variant="secondary" @click="wxLogin">
-        微信登录
-      </cyber-button>
-      <!-- #endif -->
+        <!-- #ifdef MP-WEIXIN -->
+        <view class="u-form-action-item">
+          <cyber-button block variant="secondary" @click="wxLogin">
+            微信登录
+          </cyber-button>
+        </view>
+        <!-- #endif -->
+      </view>
     </cyber-card>
 
     <navigator url="/pages/auth/register" open-type="navigate" class="mt-4 text-center text-sm text-tech-muted">
@@ -230,9 +240,3 @@ async function wxLogin() {
     </navigator>
   </view>
 </template>
-
-<style scoped>
-.login-page {
-  min-height: 100vh;
-}
-</style>

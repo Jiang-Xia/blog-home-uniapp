@@ -204,7 +204,7 @@ async function submit() {
   <view v-if="loading" class="cyber-page-grid p-8 text-center text-tech-subtle">
     加载中...
   </view>
-  <scroll-view v-else scroll-y class="edit-page cyber-page-grid">
+  <scroll-view v-else scroll-y class="edit-page cyber-page-grid u-page-scroll">
     <view class="p-4">
       <cyber-alert v-if="draftRestored" class="mb-3" variant="warning">
         <text class="text-xs text-tech-muted">已恢复本地草稿</text>
@@ -229,7 +229,7 @@ async function submit() {
         </view>
         <view class="mt-3">
           <text class="mb-1 block text-sm text-tech-muted">标签</text>
-          <view class="flex flex-wrap gap-2">
+          <view class="u-gap-2 flex flex-wrap">
             <text
               v-for="tag in tags"
               :key="tag.id"
@@ -247,7 +247,7 @@ async function submit() {
         </view>
         <view class="mt-3">
           <text class="mb-1 block text-sm text-tech-muted">状态</text>
-          <view class="flex gap-2">
+          <view class="u-gap-2 flex">
             <wd-button size="small" :type="form.status === 'publish' ? 'primary' : undefined" @click="form.status = 'publish'">
               发布
             </wd-button>
@@ -256,16 +256,14 @@ async function submit() {
             </wd-button>
           </view>
         </view>
-        <cyber-button block class="mt-6" variant="primary" @click="submit">
-          {{ isEdit ? '保存更新' : '创建文章' }}
-        </cyber-button>
+        <view class="u-form-actions">
+          <view class="u-form-action-item">
+            <cyber-button block variant="primary" @click="submit">
+              {{ isEdit ? '保存更新' : '创建文章' }}
+            </cyber-button>
+          </view>
+        </view>
       </cyber-card>
     </view>
   </scroll-view>
 </template>
-
-<style scoped>
-.edit-page {
-  min-height: 100vh;
-}
-</style>

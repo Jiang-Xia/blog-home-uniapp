@@ -91,7 +91,7 @@ async function loginViaApi() {
 
 const guestRoutes = [
   { name: '首页', path: 'pages/index/index', expectText: '技术文章' },
-  { name: '发现', path: 'pages/explore/explore', expectText: '快速入口' },
+  { name: '发现', path: 'pages/explore/explore', expectText: '博客阅读' },
   { name: '搜索', path: 'pages/search/search', expectText: '搜索' },
   { name: '关于', path: 'pages/about/about', expectText: 'Blog Home' },
   { name: '登录', path: 'pages/auth/login', expectText: '账号登录' },
@@ -168,7 +168,7 @@ async function uiLogin(page, errors) {
     await page.goto(`${BASE}/#/pages/me/me`, { waitUntil: 'networkidle', timeout: 45000 })
     await page.waitForTimeout(1500)
     const body = await page.locator('body').textContent() ?? ''
-    const ok = body.includes('我的') && (body.includes('个人中心') || body.includes(USERNAME) || body.includes('江夏'))
+    const ok = body.includes('我的') && (body.includes('编辑资料') || body.includes(USERNAME) || body.includes('江夏'))
     if (!ok)
       errors.push('[登录态注入] 我的页未呈现已登录状态')
     return ok ? session : null

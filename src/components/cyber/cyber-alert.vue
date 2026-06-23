@@ -1,4 +1,10 @@
 <script setup lang="ts">
+defineOptions({
+  // #ifdef MP-WEIXIN
+  virtualHost: true,
+  // #endif
+})
+
 withDefaults(defineProps<{
   variant?: 'warning' | 'info'
 }>(), {
@@ -12,7 +18,7 @@ withDefaults(defineProps<{
     :class="variant === 'warning' ? 'cyber-alert-warning' : 'cyber-alert-info'"
   >
     <text class="shrink-0 text-lg">{{ variant === 'warning' ? '⚠️' : '💡' }}</text>
-    <view class="min-w-0 flex-1">
+    <view class="u-flex-1 min-w-0">
       <slot />
     </view>
   </view>

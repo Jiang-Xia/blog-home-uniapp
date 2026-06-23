@@ -37,9 +37,3 @@ function goHome() {
     </cyber-button>
   </view>
 </template>
-
-<style scoped>
-.not-found-page {
-  min-height: 100vh;
-}
-</style>

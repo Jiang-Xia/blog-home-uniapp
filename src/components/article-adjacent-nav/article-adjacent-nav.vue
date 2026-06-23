@@ -20,11 +20,11 @@ const emit = defineEmits<{
 
 <template>
   <view v-if="prev || next" class="article-adjacent-nav mt-6 border-t border-tech pt-4">
-    <view class="adjacent-nav-row flex flex-col gap-2">
+    <view class="adjacent-nav-row">
       <view
         v-if="prev"
         class="adjacent-link adjacent-link--prev"
-        @click="emit('navigate', prev.id)"
+        @tap="emit('navigate', prev.id)"
       >
         <text class="adjacent-arrow text-tech-faint">‹</text>
         <text class="adjacent-label text-xs text-tech-muted">上一篇</text>
@@ -34,7 +34,7 @@ const emit = defineEmits<{
       <view
         v-if="next"
         class="adjacent-link adjacent-link--next"
-        @click="emit('navigate', next.id)"
+        @tap="emit('navigate', next.id)"
       >
         <text class="adjacent-title truncate text-sm text-tech">{{ next.title }}</text>
         <text class="adjacent-label text-xs text-tech-muted">下一篇</text>
@@ -45,13 +45,21 @@ const emit = defineEmits<{
 </template>
 
 <style scoped>
+.adjacent-nav-row {
+  display: flex;
+  flex-direction: column;
+}
+
 .adjacent-link {
   display: flex;
   min-width: 0;
   align-items: center;
-  gap: 6rpx;
   padding: 12rpx 20rpx;
   border-radius: 16rpx;
+}
+
+.adjacent-link + .adjacent-link {
+  margin-top: 12rpx;
 }
 
 .adjacent-link--next {
@@ -67,6 +75,7 @@ const emit = defineEmits<{
 .adjacent-label,
 .adjacent-arrow {
   flex-shrink: 0;
+  margin: 0 6rpx;
 }
 
 .adjacent-arrow {

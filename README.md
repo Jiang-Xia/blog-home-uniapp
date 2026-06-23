@@ -119,10 +119,10 @@ blog-home-uniapp/
 | `/pages/index/index` | 首页文章列表 |
 | `/pages/detail/detail?id=` | 文章详情（目录、代码高亮、打赏） |
 | `/pages/search/search` | 搜索 |
-| `/pages/explore/explore` | 发现快捷入口 |
+| `/pages/explore/explore` | 发现（站点浏览、社区互动与工具入口） |
 | `/pages/auth/login` | 登录 |
 | `/pages/auth/register` | 注册 |
-| `/pages/me/me` | 我的 |
+| `/pages/me/me` | 我的（账号卡片、个人中心功能菜单） |
 | `/pages/rpg/entry` | RPG Tab 入口 |
 | `/pages-rpg/index/index` | 冒险中心（五 Tab） |
 | `/pages-rpg/guide/index` | RPG 玩法说明 |
@@ -150,7 +150,7 @@ blog-home-uniapp/
 | `/pages-tool/pdf/index` | PDF 预览（H5） |
 | `/pages/about/about` | 关于 |
 
-路由常量见 `src/router/routes.ts`；发现页卡片见 `src/config/quick-entries.ts`。
+路由常量见 `src/router/routes.ts`；发现页分区见 `src/config/quick-entries.ts`，我的页菜单见 `src/config/me-menu.ts`。
 
 ## Git 提交规范
 

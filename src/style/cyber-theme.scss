@@ -11,6 +11,10 @@ page {
   --tech-fg-faint: rgba(255, 255, 255, 0.3);
   --tech-border: rgba(255, 255, 255, 0.1);
   --tech-glass: rgba(17, 24, 39, 0.45);
+  --tech-glass-border: rgba(255, 255, 255, 0.12);
+  --tech-glass-highlight: rgba(255, 255, 255, 0.06);
+  --tech-glass-shadow: rgba(0, 0, 0, 0.35);
+  --tech-glass-tile: rgba(255, 255, 255, 0.04);
   --tech-grid-line: rgba(255, 255, 255, 0.035);
   --tech-glow-purple: rgba(147, 51, 234, 0.22);
   --tech-glow-cyan: rgba(34, 211, 238, 0.16);
@@ -92,21 +96,217 @@ page {
 }
 
 .cyber-glass-card {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 32rpx;
   border-radius: 24rpx;
-  border: 1px solid var(--tech-border);
+  border: 1px solid var(--tech-glass-border);
   background-color: var(--tech-glass);
   color: var(--tech-fg);
-  box-sizing: border-box;
   max-width: 100%;
   overflow: hidden;
+  box-shadow:
+    0 8rpx 32rpx var(--tech-glass-shadow),
+    inset 0 1px 0 var(--tech-glass-highlight);
 }
 
+/* #ifdef H5 */
+.cyber-glass-card {
+  background-color: rgba(17, 24, 39, 0.42);
+  backdrop-filter: blur(16px) saturate(1.15);
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
+}
+/* #endif */
+
+/** 卡片内边距变体（替代 UnoCSS !p-*，小程序更稳定） */
+.cyber-card-pad-xs {
+  padding: 16rpx !important;
+}
+
+.cyber-card-pad-sm {
+  padding: 24rpx !important;
+}
+
+.cyber-card-pad-lg {
+  padding: 48rpx !important;
+}
+
+.cyber-card-pad-xl {
+  padding: 64rpx !important;
+}
+
+.cyber-card-pad-menu {
+  padding: 24rpx 32rpx !important;
+}
+
+/** 页面主内容区：统一左右留白；H5 限宽居中，避免大屏下过宽 */
+.u-page-body {
+  box-sizing: border-box;
+  width: 100%;
+  padding-left: 32rpx;
+  padding-right: 32rpx;
+}
+
+/* #ifdef H5 */
+.u-page-body {
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+/* #endif */
+
+/** 分组菜单（单卡片内多行，替代每项独立 cyber-card） */
+.cyber-menu-list {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cyber-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 28rpx 0;
+  border-bottom: 1px solid var(--tech-border);
+  color: var(--tech-fg);
+}
+
+.cyber-menu-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.cyber-menu-item:first-child {
+  padding-top: 0;
+}
+
+.cyber-menu-chevron {
+  flex-shrink: 0;
+  font-size: 32rpx;
+  line-height: 1;
+  color: var(--tech-fg-faint);
+}
+
+.cyber-cell-main {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  gap: 24rpx;
+}
+
+.cyber-cell-icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 72rpx;
+  height: 72rpx;
+  border: 1px solid var(--tech-border);
+  border-radius: 18rpx;
+  background: rgba(34, 211, 238, 0.06);
+  font-size: 36rpx;
+  line-height: 1;
+}
+
+.cyber-cell-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.cyber-cell-title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 500;
+  color: var(--tech-fg);
+}
+
+.cyber-cell-desc {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 24rpx;
+  color: var(--tech-fg-muted);
+}
+
+.cyber-cell-trail {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8rpx;
+  margin-left: 16rpx;
+}
+
+.cyber-cell-value {
+  max-width: 180rpx;
+  overflow: hidden;
+  font-size: 24rpx;
+  color: var(--tech-fg-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cyber-cell-badge {
+  min-width: 36rpx;
+  height: 36rpx;
+  padding: 0 10rpx;
+  border-radius: 9999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 22rpx;
+  line-height: 36rpx;
+  text-align: center;
+}
+
+/** 我的页用户卡片占位头像 */
+.me-guest-avatar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 112rpx;
+  height: 112rpx;
+  border: 1px solid var(--tech-border);
+  border-radius: 50%;
+  background: rgba(34, 211, 238, 0.06);
+  font-size: 48rpx;
+  line-height: 1;
+}
+
+.me-section-title {
+  display: block;
+  margin-bottom: 16rpx;
+  padding-left: 8rpx;
+  font-size: 26rpx;
+  color: var(--tech-fg-muted);
+}
+
+/** 卡片内横向行：左内容右箭头（flex 写在原生 view 上，勿写在 cyber-card 上） */
+.cyber-card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/** 渐变文字：小程序降级为纯色，H5 使用 background-clip */
+.cyber-gradient-text {
+  color: var(--tech-section-label);
+}
+
+/* #ifdef H5 */
 .cyber-gradient-text {
   background: linear-gradient(to right, var(--tech-gradient-from), var(--tech-gradient-mid), var(--tech-gradient-to));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
+/* #endif */
 
 .cyber-section-label {
   font-size: 22rpx;
@@ -120,7 +320,6 @@ page {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 12rpx;
   box-sizing: border-box;
   max-width: 100%;
   border-radius: 24rpx;
@@ -133,11 +332,15 @@ page {
   box-shadow: 0 0 30px var(--tech-primary-glow);
 }
 
+.cyber-btn-primary > view:not(:first-child),
+.cyber-btn-primary > text:not(:first-child) {
+  margin-left: 12rpx;
+}
+
 .cyber-btn-secondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 12rpx;
   box-sizing: border-box;
   max-width: 100%;
   border-radius: 24rpx;
@@ -149,12 +352,21 @@ page {
   color: var(--tech-fg);
 }
 
+.cyber-btn-secondary > view:not(:first-child),
+.cyber-btn-secondary > text:not(:first-child) {
+  margin-left: 12rpx;
+}
+
 /** 块级按钮：登录/注册等整行提交 */
 .cyber-btn-block {
   display: flex !important;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+}
+
+.cyber-btn-disabled {
+  opacity: 0.6;
 }
 
 .cyber-btn-sm {
@@ -177,13 +389,17 @@ page {
 
 .cyber-alert {
   display: flex;
-  gap: 24rpx;
   border-radius: 24rpx;
   border: 1px solid var(--tech-border);
   background-color: var(--tech-glass);
   padding: 24rpx;
   font-size: 26rpx;
   color: var(--tech-fg-muted);
+}
+
+.cyber-alert > view:not(:first-child),
+.cyber-alert > text:not(:first-child) {
+  margin-left: 24rpx;
 }
 
 .cyber-alert-warning {
@@ -199,6 +415,17 @@ page {
   background-color: var(--tech-shell);
   color: var(--tech-fg);
 }
+
+/* #ifdef MP-WEIXIN || MP-ALIPAY */
+.cyber-page,
+.cyber-page-grid {
+  min-height: 100%;
+}
+
+page {
+  height: 100%;
+}
+/* #endif */
 
 .cyber-page-grid {
   min-height: 100vh;
@@ -308,10 +535,15 @@ page {
 .cyber-list-row {
   display: flex;
   align-items: center;
-  gap: 16rpx;
   border-bottom: 1px solid var(--tech-border);
   padding: 20rpx 0;
   color: var(--tech-fg);
+}
+
+.cyber-list-row > view:not(:first-child),
+.cyber-list-row > text:not(:first-child),
+.cyber-list-row > image:not(:first-child) {
+  margin-left: 16rpx;
 }
 
 .cyber-auth-tab {
@@ -325,7 +557,7 @@ page {
   font-weight: 700;
 }
 
-/* cyber 页面内 wot-design 深色适配 — H5 专用（:deep / :-webkit-autofill 小程序 WXSS 不支持） */
+/* cyber 页面内 wot-design 深色适配 — H5 使用 :deep 与 autofill */
 /* #ifdef H5 */
 .cyber-page-grid,
 .cyber-page,
@@ -429,5 +661,375 @@ page {
       transition: background-color 99999s ease-out 0s;
     }
   }
+}
+/* #endif */
+
+/* 小程序 / App：全局类名穿透 wot-design（不用 :deep / autofill） */
+/* #ifndef H5 */
+.cyber-page-grid .wd-input__label,
+.cyber-page .wd-input__label,
+.login-page .wd-input__label,
+.register-page .wd-input__label,
+.msgboard-page .wd-input__label,
+.profile-page .wd-input__label,
+.public-page .wd-input__label,
+.tool-index .wd-input__label,
+.codes-page .wd-input__label,
+.crypto-page .wd-input__label,
+.rsa-page .wd-input__label,
+.sm-page .wd-input__label,
+.qrcode-page .wd-input__label,
+.pdf-page .wd-input__label,
+.ai-page .wd-input__label,
+.archives-page .wd-input__label,
+.links-page .wd-input__label,
+.features-page .wd-input__label,
+.projects-page .wd-input__label,
+.open-source-page .wd-input__label,
+.about-page .wd-input__label,
+.not-found-page .wd-input__label,
+.rpg-page .wd-input__label,
+.guide-page .wd-input__label,
+.edit-page .wd-input__label,
+.cyber-page-grid .wd-textarea__label,
+.cyber-page .wd-textarea__label,
+.msgboard-page .wd-textarea__label,
+.profile-page .wd-textarea__label,
+.edit-page .wd-textarea__label,
+.cyber-page-grid .wd-cell__title,
+.cyber-page .wd-cell__title,
+.profile-page .wd-cell__title {
+  color: var(--tech-fg-muted) !important;
+}
+
+.cyber-page-grid .wd-input__inner,
+.cyber-page .wd-input__inner,
+.login-page .wd-input__inner,
+.register-page .wd-input__inner,
+.msgboard-page .wd-input__inner,
+.profile-page .wd-input__inner,
+.edit-page .wd-input__inner,
+.cyber-page-grid .wd-textarea__inner,
+.cyber-page .wd-textarea__inner,
+.msgboard-page .wd-textarea__inner,
+.profile-page .wd-textarea__inner,
+.edit-page .wd-textarea__inner,
+.cyber-page-grid .wd-cell__value,
+.cyber-page .wd-cell__value,
+.profile-page .wd-cell__value {
+  color: var(--tech-fg) !important;
+}
+
+.cyber-page-grid .wd-input,
+.cyber-page .wd-input,
+.login-page .wd-input,
+.register-page .wd-input,
+.msgboard-page .wd-input,
+.profile-page .wd-input,
+.edit-page .wd-input,
+.cyber-page-grid .wd-textarea,
+.cyber-page .wd-textarea,
+.msgboard-page .wd-textarea,
+.profile-page .wd-textarea,
+.edit-page .wd-textarea {
+  background-color: var(--tech-input-bg) !important;
+}
+
+.login-page .wd-input,
+.register-page .wd-input {
+  margin-bottom: 24rpx;
+  border-radius: 16rpx;
+  border: 1px solid var(--tech-input-border);
+  overflow: hidden;
+}
+/* #endif */
+
+/**
+ * 跨端 flex 间距工具（负 margin 技巧，替代 UnoCSS gap-*）
+ * - H5：原生 gap
+ * - 小程序：负 margin + 子节点 margin（仅 view/text/image；easycom 组件须外包一层 view，见 u-grid-*-item）
+ * - 禁止 > *：WXSS 不支持通配选择器，会报 app.wxss compile error
+ */
+@mixin u-flex-gap-wrap($size) {
+  /* #ifdef H5 */
+  gap: $size;
+  /* #endif */
+  /* #ifndef H5 */
+  margin-left: -$size;
+  margin-top: -$size;
+
+  > view,
+  > text,
+  > image {
+    margin-left: $size;
+    margin-top: $size;
+  }
+  /* #endif */
+}
+
+.u-gap-1 {
+  @include u-flex-gap-wrap(8rpx);
+}
+
+.u-gap-1-5 {
+  @include u-flex-gap-wrap(12rpx);
+}
+
+.u-gap-2 {
+  @include u-flex-gap-wrap(16rpx);
+}
+
+.u-gap-3 {
+  @include u-flex-gap-wrap(24rpx);
+}
+
+.u-gap-4 {
+  @include u-flex-gap-wrap(32rpx);
+}
+
+.u-gap-8 {
+  @include u-flex-gap-wrap(64rpx);
+}
+
+/** 首页 Hero CTA 按钮行（子项为 view 包裹 cyber-button，配合 u-flex-gap-wrap） */
+.home-hero-buttons {
+  @include u-flex-gap-wrap(24rpx);
+}
+
+/** flex:1 包裹层（自定义组件外层使用，替代 UnoCSS flex-1） */
+.u-flex-1 {
+  flex: 1;
+  min-width: 0;
+}
+
+/** 横向居中行（替代 flex items-center） */
+.u-flex-row-center {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+/** 验证码 / 输入 + 侧栏按钮行 */
+.u-captcha-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 24rpx;
+  box-sizing: border-box;
+}
+
+.u-captcha-input-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.u-captcha-img {
+  flex-shrink: 0;
+  width: 192rpx;
+  height: 80rpx;
+  margin-left: 16rpx;
+  border-radius: 8rpx;
+  border: 1px solid var(--tech-border);
+}
+
+.u-captcha-side-btn {
+  flex-shrink: 0;
+  margin-left: 16rpx;
+}
+
+.u-captcha-row-flush {
+  margin-top: 0;
+}
+
+/** 表单底部按钮组（替代 cyber-button 上的 mt-*） */
+.u-form-actions {
+  margin-top: 48rpx;
+}
+
+.u-form-actions .u-form-action-item + .u-form-action-item {
+  margin-top: 24rpx;
+}
+
+.login-page .u-captcha-row .wd-input,
+.register-page .u-captcha-row .wd-input {
+  margin-bottom: 0 !important;
+}
+
+/** 纵向堆叠间距（替代 space-y-* / flex-col gap-*） */
+.u-stack-3 > view + view,
+.u-stack-3 > text + text {
+  margin-top: 24rpx;
+}
+
+/** 双列网格（替代 grid grid-cols-2 gap-3） */
+.u-grid-2 {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -12rpx;
+  box-sizing: border-box;
+}
+
+.u-grid-2 > view {
+  width: 50%;
+  box-sizing: border-box;
+  padding: 12rpx;
+}
+
+/** 网格项包裹层（子节点为自定义组件时使用） */
+.u-grid-2-item {
+  width: 50%;
+  box-sizing: border-box;
+  padding: 12rpx;
+}
+
+/** 四列功能格（发现页分区网格） */
+.u-grid-4 {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -8rpx;
+  box-sizing: border-box;
+}
+
+.u-grid-4-item {
+  width: 25%;
+  box-sizing: border-box;
+  padding: 8rpx;
+}
+
+/** 发现页分区大卡片 */
+.cyber-explore-section {
+  position: relative;
+}
+
+.cyber-explore-section-header {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20rpx;
+  padding-left: 16rpx;
+  border-left: 6rpx solid var(--tech-primary);
+}
+
+.cyber-explore-section-icon {
+  width: 72rpx;
+  height: 72rpx;
+  margin-right: 16rpx;
+  border-radius: 16rpx;
+}
+
+.cyber-explore-section-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 9999px;
+  font-size: 22rpx;
+  line-height: 1.4;
+  color: var(--tech-primary);
+  background-color: rgba(34, 211, 238, 0.12);
+  border: 1px solid rgba(34, 211, 238, 0.22);
+}
+
+/** 发现页功能格（玻璃小卡片） */
+.cyber-explore-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  min-height: 168rpx;
+  padding: 16rpx 8rpx;
+  border-radius: 20rpx;
+  border: 1px solid var(--tech-glass-border);
+  background-color: var(--tech-glass-tile);
+  text-align: center;
+  box-shadow: inset 0 1px 0 var(--tech-glass-highlight);
+}
+
+/* #ifdef H5 */
+.cyber-explore-tile {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+/* #endif */
+
+.cyber-explore-tile-icon {
+  width: 72rpx;
+  height: 72rpx;
+  margin-bottom: 10rpx;
+  border-radius: 16rpx;
+  font-size: 32rpx;
+}
+
+.cyber-explore-tile-title {
+  display: block;
+  width: 100%;
+  font-size: 24rpx;
+  line-height: 1.3;
+  font-weight: 500;
+  color: var(--tech-fg);
+}
+
+.cyber-explore-tile-desc {
+  display: block;
+  width: 100%;
+  margin-top: 4rpx;
+  font-size: 20rpx;
+  line-height: 1.3;
+  color: var(--tech-fg-subtle);
+}
+
+.cyber-explore-tile-badge {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  min-width: 28rpx;
+  padding: 0 8rpx;
+  border-radius: 9999px;
+  font-size: 18rpx;
+  line-height: 28rpx;
+  text-align: center;
+  color: #fff;
+  background-color: rgba(239, 68, 68, 0.9);
+}
+
+/** 半透明标签底（替代 bg-white/10） */
+.u-bg-white-10 {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/** 渐变文字（琥珀色 RPG 标题） */
+.cyber-gradient-text-amber {
+  color: var(--tech-rpg-amber);
+}
+
+/* #ifdef H5 */
+.cyber-gradient-text-amber {
+  background: linear-gradient(to right, var(--tech-gradient-from), var(--tech-rpg-amber), var(--tech-gradient-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+/* #endif */
+
+/** 半透明遮罩（替代 bg-black/50） */
+.u-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/** 进度条轨道底（替代 bg-white/20） */
+.u-bg-white-20 {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/** 页面满高 scroll-view（替代 height: 100vh） */
+.u-page-scroll {
+  height: 100vh;
+}
+
+/* #ifdef MP-WEIXIN || MP-ALIPAY */
+.u-page-scroll {
+  height: 100%;
 }
 /* #endif */

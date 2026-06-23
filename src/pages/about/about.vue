@@ -5,8 +5,8 @@ definePage({
 </script>
 
 <template>
-  <scroll-view scroll-y class="about-page cyber-page-grid">
-    <view class="px-4 py-6">
+  <scroll-view scroll-y class="about-page cyber-page-grid u-page-scroll">
+    <view class="u-page-body py-6">
       <cyber-section-header
         label="ABOUT"
         title="Blog Home"
@@ -23,7 +23,7 @@ definePage({
       </cyber-card>
       <cyber-card class="mt-4 !p-4">
         <text class="block text-sm text-tech font-medium">技术栈</text>
-        <view class="mt-3 flex flex-wrap gap-2">
+        <view class="u-gap-2 mt-3 flex flex-wrap">
           <text v-for="tag in ['uni-app', 'Vue 3', 'Pinia', 'wot-ui', 'UnoCSS', 'Socket.IO']" :key="tag" class="cyber-feature-tag">
             {{ tag }}
           </text>
@@ -32,9 +32,3 @@ definePage({
     </view>
   </scroll-view>
 </template>
-
-<style scoped>
-.about-page {
-  height: 100vh;
-}
-</style>

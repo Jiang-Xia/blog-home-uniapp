@@ -43,7 +43,7 @@ async function queryList(pageNo: number, pageSize: number) {
 
 <template>
   <z-paging ref="pagingRef" v-model="articleList" bg-color="#050505" @query="queryList">
-    <view class="px-3 py-3">
+    <view class="u-page-body py-3">
       <cyber-section-header
         v-if="tagName"
         class="mb-3"

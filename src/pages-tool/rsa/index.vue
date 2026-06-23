@@ -56,8 +56,8 @@ onMounted(createKey)
 </script>
 
 <template>
-  <scroll-view scroll-y class="rsa-page cyber-page-grid px-4 py-4">
-    <view class="mb-3 flex flex-wrap gap-2">
+  <scroll-view scroll-y class="rsa-page cyber-page-grid u-page-scroll u-page-body py-4">
+    <view class="u-gap-2 mb-3 flex flex-wrap">
       <wd-button size="small" :type="outputType === 'Hex' ? 'primary' : undefined" @click="outputType = 'Hex'">
         Hex
       </wd-button>
@@ -72,7 +72,7 @@ onMounted(createKey)
     <wd-textarea v-model="privateKey" label="私钥" placeholder="-----BEGIN RSA PRIVATE KEY-----" class="mt-3" />
     <wd-textarea v-model="plaintext" label="原文" placeholder="待加密文本" class="mt-3" />
     <wd-textarea v-model="ciphertext" label="密文" placeholder="加密结果 / 待解密文本" class="mt-3" />
-    <view class="mt-4 flex flex-wrap gap-2">
+    <view class="u-gap-2 mt-4 flex flex-wrap">
       <wd-button size="small" @click="encryptText">
         加密 →
       </wd-button>
@@ -85,9 +85,3 @@ onMounted(createKey)
     </view>
   </scroll-view>
 </template>
-
-<style scoped>
-.rsa-page {
-  min-height: 100vh;
-}
-</style>

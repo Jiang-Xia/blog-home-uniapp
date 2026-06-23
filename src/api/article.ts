@@ -4,8 +4,12 @@
  */
 import { http } from '@/http/http'
 import { filterApprovedComments } from '@/utils/comment'
+import type { ArticleDetailResponse } from '@/utils/article-detail'
 import { parseUploadedUrl } from '@/utils/static-url'
 import { uploadArticleImageFromFile } from '@/api/resources'
+
+export type { ArticleDetailResponse } from '@/utils/article-detail'
+export { parseArticleDetail } from '@/utils/article-detail'
 
 export interface ArticleListParams {
   page?: number
@@ -35,31 +39,10 @@ export function getArticleList(data: ArticleListParams) {
   return http.post<{ list: ArticleItem[], pagination?: { total: number, page: number, pageSize: number } }>('/article/list', data)
 }
 
-export interface ArticleDetailResponse {
-  info?: Record<string, unknown>
-  prev?: { id: number, title: string } | null
-  next?: { id: number, title: string } | null
-}
-
 export function getArticleInfo(params: { id?: string | number }) {
   if (!params.id)
     return Promise.resolve(null)
   return http.get<ArticleDetailResponse | Record<string, unknown>>('/article/info', params, undefined, { hideErrorToast: true }).catch(() => null)
-}
-
-/** 解包 /article/info 响应（兼容 info 包装与扁平结构） */
-export function parseArticleDetail(data: ArticleDetailResponse | Record<string, unknown> | null) {
-  if (!data)
-    return { info: null, prev: null, next: null }
-  const wrapped = data as ArticleDetailResponse
-  if (wrapped.info && typeof wrapped.info === 'object') {
-    return {
-      info: wrapped.info,
-      prev: wrapped.prev ?? null,
-      next: wrapped.next ?? null,
-    }
-  }
-  return { info: data as Record<string, unknown>, prev: null, next: null }
 }
 
 export function getArchives() {
@@ -95,7 +78,11 @@ export function addReply(data: {
   content: string
   replyUid: string | number
 }) {
-  return http.post<any>('/reply/create', data)
+  return http.post<any>('/reply/create', {
+    ...data,
+    parentId: String(data.parentId),
+    replyUid: String(data.replyUid),
+  })
 }
 
 /** 删除回复 DELETE /reply/delete */

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ArticleItem } from '@/api/article'
 import { ROUTE_DETAIL } from '@/router/routes'
+import { formatDate } from '@/utils/date-time'
 import { apiDisplayLabel } from '@/utils/display-label'
 import { resolveStaticUrl } from '@/utils/static-url'
 
@@ -39,7 +40,7 @@ function goDetail(id: number) {
 <template>
   <view class="article-card mb-3 overflow-hidden" @click="goDetail(item.id)">
     <view v-if="coverUrl" class="article-card-cover p-2">
-      <image :src="coverUrl" mode="aspectFill" class="article-card-cover-img h-36 w-full rounded-lg" />
+      <image :src="coverUrl" mode="aspectFill" class="article-card-cover-img w-full rounded-lg" />
     </view>
     <view class="article-card-body px-3 pb-3">
       <text class="article-card-title block text-base text-tech font-semibold leading-snug">{{ item.title }}</text>
@@ -47,7 +48,7 @@ function goDetail(id: number) {
         {{ item.description }}
       </text>
 
-      <view v-if="item.category || item.tags?.length" class="article-card-chips mt-3 flex flex-wrap gap-1">
+      <view v-if="item.category || item.tags?.length" class="article-card-chips u-gap-1 mt-3 flex flex-wrap">
         <text
           v-if="item.category?.id"
           class="article-meta-badge"
@@ -71,11 +72,11 @@ function goDetail(id: number) {
         </text>
       </view>
 
-      <view class="article-card-stats mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-tech-subtle">
+      <view class="article-card-stats mt-3 flex flex-wrap items-center text-xs text-tech-subtle">
         <text v-if="item.views != null">👁 {{ item.views }}</text>
         <text v-if="item.likes != null">♥ {{ item.likes }}</text>
         <text v-if="item.commentCount != null">💬 {{ item.commentCount }}</text>
-        <text v-if="item.createTime" class="ml-auto">{{ item.createTime }}</text>
+        <text v-if="item.createTime" class="ml-auto">{{ formatDate(item.createTime) }}</text>
       </view>
     </view>
   </view>
@@ -95,6 +96,16 @@ function goDetail(id: number) {
 
 .article-card-cover-img {
   display: block;
+  height: 288rpx;
+}
+
+.article-card-stats > text {
+  margin-right: 32rpx;
+  margin-bottom: 8rpx;
+}
+
+.article-card-stats > text.ml-auto {
+  margin-right: 0;
 }
 
 .article-meta-badge {

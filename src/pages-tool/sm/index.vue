@@ -42,8 +42,8 @@ onMounted(createKey)
 </script>
 
 <template>
-  <scroll-view scroll-y class="sm-page cyber-page-grid px-4 py-4">
-    <view class="mb-3 flex gap-2">
+  <scroll-view scroll-y class="sm-page cyber-page-grid u-page-scroll u-page-body py-4">
+    <view class="u-gap-2 mb-3 flex">
       <wd-button size="small" :type="cipherMode === 1 ? 'primary' : undefined" @click="cipherMode = 1">
         C1C3C2
       </wd-button>
@@ -58,7 +58,7 @@ onMounted(createKey)
     <wd-textarea v-model="privateKey" label="私钥" class="mt-3" />
     <wd-textarea v-model="plaintext" label="原文" class="mt-3" />
     <wd-textarea v-model="ciphertext" label="密文" class="mt-3" />
-    <view class="mt-4 flex gap-2">
+    <view class="u-gap-2 mt-4 flex">
       <wd-button size="small" @click="encryptText">
         加密 →
       </wd-button>
@@ -68,9 +68,3 @@ onMounted(createKey)
     </view>
   </scroll-view>
 </template>
-
-<style scoped>
-.sm-page {
-  min-height: 100vh;
-}
-</style>

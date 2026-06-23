@@ -189,7 +189,22 @@ export const useTokenStore = defineStore(
       return 'token' in tokenInfo.value && !!tokenInfo.value.token
     })
 
-    const hasValidLogin = computed(() => hasLoginInfo.value && !isTokenExpired.value)
+    const hasValidLogin = computed(() => {
+      if (!hasLoginInfo.value)
+        return false
+      if (!isTokenExpired.value)
+        return true
+      // accessToken 过期但 refreshToken 仍有效时，视为已登录（启动后会静默续期）
+      if (
+        isDoubleTokenMode
+        && isDoubleTokenRes(tokenInfo.value)
+        && tokenInfo.value.refreshToken
+        && !isRefreshTokenExpired.value
+      ) {
+        return true
+      }
+      return false
+    })
 
     const tryGetValidToken = async (): Promise<string> => {
       updateNowTime()
@@ -212,6 +227,7 @@ export const useTokenStore = defineStore(
       loginByOAuthTicket,
       logout,
       hasLogin: hasValidLogin,
+      hasLoginInfo,
       refreshToken,
       tryGetValidToken,
       validToken: getValidToken,
@@ -220,5 +236,5 @@ export const useTokenStore = defineStore(
       updateNowTime,
     }
   },
-  { persist: true },
+  { persist: { pick: ['tokenInfo'] } },
 )

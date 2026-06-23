@@ -35,7 +35,7 @@ function openInBrowser() {
 </script>
 
 <template>
-  <view class="h5-web-page cyber-page-grid px-4 py-8 text-center">
+  <view class="h5-web-page cyber-page-grid u-page-body py-8 text-center">
     <text class="block text-lg text-tech font-bold">{{ pageTitle }}</text>
     <text class="mt-4 block break-all text-sm text-tech-subtle">{{ fullUrl }}</text>
     <text class="mt-4 block text-sm text-tech-muted">该工具依赖 Web 能力（WebRTC、光影边框、PDF 签名等），请在浏览器打开 blog-home-nuxt 完整版。</text>
@@ -45,9 +45,3 @@ function openInBrowser() {
     </wd-button>
   </view>
 </template>
-
-<style scoped>
-.h5-web-page {
-  min-height: 100vh;
-}
-</style>

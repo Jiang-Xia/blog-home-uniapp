@@ -33,8 +33,8 @@ function copyOutput() {
 </script>
 
 <template>
-  <view class="codes-page cyber-page-grid px-4 py-4">
-    <view class="mb-4 flex flex-wrap gap-2">
+  <view class="codes-page cyber-page-grid u-page-body py-4">
+    <view class="u-gap-2 mb-4 flex flex-wrap">
       <wd-button
         v-for="m in ['base64-encode', 'base64-decode', 'url-encode', 'url-decode']"
         :key="m"
@@ -55,9 +55,3 @@ function copyOutput() {
     </wd-button>
   </view>
 </template>
-
-<style scoped>
-.codes-page {
-  min-height: 100vh;
-}
-</style>

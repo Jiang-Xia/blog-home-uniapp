@@ -1,3 +1,6 @@
+// highlight.js 语言包加载依赖 atob，须最先执行（见 mp-atob-polyfill.ts）
+import './utils/mp-atob-polyfill'
+
 import { createSSRApp } from 'vue'
 import App from './App.vue'
 import { requestInterceptor } from './http/interceptor'

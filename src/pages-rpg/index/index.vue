@@ -135,7 +135,7 @@ onUnload(() => {
         :signing-in="signingIn"
         @sign-in="signIn"
       />
-      <view class="mt-4 flex flex-wrap gap-2">
+      <view class="u-gap-2 mt-4 flex flex-wrap">
         <wd-button size="small" :loading="drawing" @click="drawLottery">
           抽奖 · 券 {{ lotteryTickets }}
         </wd-button>
@@ -143,7 +143,7 @@ onUnload(() => {
       <RpgQuestPanel :quests="quests" @claim="claimQuest" />
       <RpgAchievementPanel :achievements="achievements" />
       <RpgBuffList :buffs="buffs" @toggle="toggleBuff" />
-      <cyber-card class="mt-4 !p-3">
+      <cyber-card class="cyber-card-pad-sm mt-4">
         <text class="mb-2 block text-tech font-medium">充值</text>
         <wd-input v-model="rechargeAmount" type="number" label="金额(元)" />
         <wd-button size="small" class="mt-2" @click="recharge(Number(rechargeAmount))">
@@ -153,7 +153,7 @@ onUnload(() => {
     </view>
 
     <view v-else-if="activeTab === 'inventory'" class="p-3">
-      <cyber-card v-if="loadout" class="mb-3 !p-3">
+      <cyber-card v-if="loadout" class="cyber-card-pad-sm mb-3">
         <text class="block text-tech font-medium">当前装备</text>
         <text v-if="loadout.title" class="mt-1 block text-xs text-tech-muted">
           称号：{{ loadout.title.name }}
@@ -168,11 +168,11 @@ onUnload(() => {
           暂无穿戴
         </text>
       </cyber-card>
-      <cyber-card v-for="item in inventory" :key="item.id || item.code || item.itemCode" class="mb-2 !p-3">
+      <cyber-card v-for="item in inventory" :key="item.id || item.code || item.itemCode" class="cyber-card-pad-sm mb-2">
         <view class="flex items-center justify-between">
           <view class="min-w-0 flex-1">
             <text class="text-tech font-medium">{{ rpgItemDisplayName(item) }}</text>
-            <view v-if="item.config?.itemTypeLabel || item.config?.rarityLabel" class="mt-1 flex flex-wrap gap-2">
+            <view v-if="item.config?.itemTypeLabel || item.config?.rarityLabel" class="u-gap-2 mt-1 flex flex-wrap">
               <text v-if="item.config?.itemTypeLabel" class="text-xs text-tech-subtle">
                 {{ item.config.itemTypeLabel }}
               </text>
@@ -203,13 +203,13 @@ onUnload(() => {
     </view>
 
     <view v-else-if="activeTab === 'pet'" class="p-3">
-      <cyber-card class="mb-3 !p-3">
+      <cyber-card class="cyber-card-pad-sm mb-3">
         <wd-input v-model="petEggCode" label="宠物蛋 code" placeholder="itemCode" />
         <wd-button size="small" class="mt-2" @click="petEggCode && hatchPet(petEggCode)">
           孵化
         </wd-button>
       </cyber-card>
-      <cyber-card v-for="pet in pets" :key="pet.id" class="mb-2 !p-3">
+      <cyber-card v-for="pet in pets" :key="pet.id" class="cyber-card-pad-sm mb-2">
         <text class="text-tech font-medium">{{ pet.nickname || pet.config?.name || pet.name }}</text>
         <text class="ml-2 text-xs text-tech-subtle">Lv.{{ pet.level ?? 1 }}</text>
       </cyber-card>
@@ -220,7 +220,7 @@ onUnload(() => {
     </view>
 
     <view v-else-if="activeTab === 'guild'" class="p-4">
-      <cyber-card v-if="guild" class="!p-4">
+      <cyber-card v-if="guild" class="mb-4">
         <text class="block text-lg text-tech font-bold">{{ guild.name }}</text>
         <text class="mt-2 block text-sm text-tech-muted">{{ guild.announcement }}</text>
         <wd-button size="small" class="mt-3" @click="doLeaveGuild">
@@ -228,11 +228,13 @@ onUnload(() => {
         </wd-button>
       </cyber-card>
       <view v-else>
-        <cyber-card v-for="g in guildList" :key="g.id" class="mb-2 flex items-center justify-between !p-3">
-          <text class="text-tech">{{ g.name }}</text>
-          <wd-button size="small" @click="doJoinGuild(g.id)">
-            加入
-          </wd-button>
+        <cyber-card v-for="g in guildList" :key="g.id" class="cyber-card-pad-sm mb-2">
+          <view class="cyber-card-row">
+            <text class="text-tech">{{ g.name }}</text>
+            <wd-button size="small" @click="doJoinGuild(g.id)">
+              加入
+            </wd-button>
+          </view>
         </cyber-card>
         <view v-if="!guildList.length" class="py-8 text-center text-tech-subtle">
           暂无公会列表
@@ -241,7 +243,7 @@ onUnload(() => {
     </view>
 
     <view v-else-if="activeTab === 'leaderboard'" class="p-3">
-      <view class="mb-3 flex flex-wrap gap-2">
+      <view class="u-gap-2 mb-3 flex flex-wrap">
         <wd-button
           v-for="tab in leaderboardTypeTabs"
           :key="tab.key"
@@ -252,15 +254,17 @@ onUnload(() => {
           {{ tab.label }}
         </wd-button>
       </view>
-      <cyber-card v-for="(row, idx) in leaderboard" :key="row.uid || idx" class="mb-2 flex items-center gap-3 !p-3">
-        <text class="w-6 text-center text-tech-subtle font-bold">{{ idx + 1 }}</text>
-        <text class="flex-1 text-tech">{{ row.nickname }}</text>
-        <text class="text-sm text-tech-primary">{{ formatLeaderboardScore(row, leaderboardType as RpgLeaderboardScoreType) }}</text>
+      <cyber-card v-for="(row, idx) in leaderboard" :key="row.uid || idx" class="cyber-card-pad-sm mb-2">
+        <view class="u-flex-row-center u-gap-3">
+          <text class="w-6 shrink-0 text-center text-tech-subtle font-bold">{{ idx + 1 }}</text>
+          <text class="u-flex-1 text-tech">{{ row.nickname }}</text>
+          <text class="shrink-0 text-sm text-tech-primary">{{ formatLeaderboardScore(row, leaderboardType as RpgLeaderboardScoreType) }}</text>
+        </view>
       </cyber-card>
     </view>
 
-    <view v-if="showLevelUp" class="level-up-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click="showLevelUp = false">
-      <cyber-card class="text-center !p-8" @click.stop>
+    <view v-if="showLevelUp" class="level-up-overlay u-overlay fixed inset-0 z-50 flex items-center justify-center" @click="showLevelUp = false">
+      <cyber-card class="cyber-card-pad-xl text-center" @click.stop>
         <text class="block text-4xl">🎉</text>
         <text class="mt-2 block text-xl text-tech font-bold">升级！</text>
         <text class="mt-1 block text-tech-muted">Lv.{{ levelUpLevel }}</text>
@@ -273,6 +277,12 @@ onUnload(() => {
 .rpg-page {
   min-height: 100vh;
 }
+
+/* #ifdef MP-WEIXIN || MP-ALIPAY */
+.rpg-page {
+  min-height: 100%;
+}
+/* #endif */
 .tabs {
   white-space: nowrap;
 }

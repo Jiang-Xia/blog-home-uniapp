@@ -24,8 +24,8 @@ function goRoute(route: string) {
 </script>
 
 <template>
-  <scroll-view scroll-y class="features-page cyber-page-grid">
-    <view class="px-4 py-4">
+  <scroll-view scroll-y class="features-page cyber-page-grid u-page-scroll">
+    <view class="u-page-body py-4">
       <cyber-section-header
         label="FEATURES"
         title="博客系统特性"
@@ -34,16 +34,16 @@ function goRoute(route: string) {
       />
 
       <cyber-card class="mt-6 !p-4">
-        <view class="flex items-start gap-3">
+        <view class="u-gap-3 flex items-start">
           <text class="text-3xl">{{ rpgFeatureModule.icon }}</text>
           <view class="flex-1">
             <text class="block text-xs text-tech-primary">核心玩法</text>
             <text class="mt-1 block text-lg text-tech font-bold">{{ rpgFeatureModule.title }}</text>
             <text class="mt-2 block text-sm text-tech-muted">{{ rpgFeatureModule.desc }}</text>
-            <view class="mt-2 flex flex-wrap gap-1">
+            <view class="u-gap-1 mt-2 flex flex-wrap">
               <text v-for="tag in rpgFeatureModule.tags" :key="tag" class="cyber-feature-tag">{{ tag }}</text>
             </view>
-            <view class="mt-3 flex flex-wrap gap-2">
+            <view class="u-gap-2 mt-3 flex flex-wrap">
               <cyber-button size="small" variant="primary" @click="goRoute(rpgFeatureModule.route)">
                 进入冒险中心
               </cyber-button>
@@ -63,12 +63,12 @@ function goRoute(route: string) {
         @click="goRoute(item.route)"
       >
         <cyber-card class="!p-4">
-          <view class="flex items-start gap-3">
+          <view class="u-gap-3 flex items-start">
             <text class="text-2xl">{{ item.icon }}</text>
             <view class="min-w-0 flex-1">
               <text class="block text-tech font-medium">{{ item.title }}</text>
               <text class="mt-1 block text-sm text-tech-muted">{{ item.desc }}</text>
-              <view class="mt-2 flex flex-wrap gap-1">
+              <view class="u-gap-1 mt-2 flex flex-wrap">
                 <text v-for="tag in item.tags" :key="tag" class="cyber-feature-tag">{{ tag }}</text>
               </view>
             </view>
@@ -84,7 +84,7 @@ function goRoute(route: string) {
         @click="goRoute(item.route)"
       >
         <cyber-card class="!p-4">
-          <view class="flex items-start gap-3">
+          <view class="u-gap-3 flex items-start">
             <text class="text-2xl">{{ item.icon }}</text>
             <view class="min-w-0 flex-1">
               <text class="block text-tech font-medium">{{ item.title }}</text>
@@ -95,7 +95,7 @@ function goRoute(route: string) {
       </view>
 
       <text class="mb-3 mt-6 block text-tech font-medium">实用工具箱 · {{ toolFeatureLinks.length }} 款</text>
-      <view class="flex flex-wrap gap-2">
+      <view class="u-gap-2 flex flex-wrap">
         <text
           v-for="tool in toolFeatureLinks"
           :key="tool.route"
@@ -122,9 +122,3 @@ function goRoute(route: string) {
     </view>
   </scroll-view>
 </template>
-
-<style scoped>
-.features-page {
-  height: 100vh;
-}
-</style>

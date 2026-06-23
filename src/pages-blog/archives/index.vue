@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import dayjs from 'dayjs'
 import { getArchives } from '@/api/article'
 import { ROUTE_DETAIL } from '@/router/routes'
+import { formatArchiveDay } from '@/utils/date-time'
 
 definePage({
   style: { navigationBarTitleText: '文章归档' },
@@ -25,8 +25,8 @@ function goDetail(id: number) {
 </script>
 
 <template>
-  <scroll-view scroll-y class="archives-page cyber-page-grid">
-    <view class="px-4 py-3">
+  <scroll-view scroll-y class="archives-page cyber-page-grid u-page-scroll">
+    <view class="u-page-body py-3">
       <cyber-section-header
         class="mb-4"
         label="ARCHIVES"
@@ -52,7 +52,7 @@ function goDetail(id: number) {
             class="cyber-list-row"
             @click="goDetail(item.id)"
           >
-            <text class="text-xs text-tech-subtle">{{ dayjs(item.createTime).format('MM-DD') }}</text>
+            <text class="text-xs text-tech-subtle">{{ formatArchiveDay(item.createTime) }}</text>
             <text class="flex-1 text-sm text-tech">{{ item.title }}</text>
           </view>
         </cyber-card>
@@ -60,9 +60,3 @@ function goDetail(id: number) {
     </view>
   </scroll-view>
 </template>
-
-<style scoped>
-.archives-page {
-  height: 100vh;
-}
-</style>

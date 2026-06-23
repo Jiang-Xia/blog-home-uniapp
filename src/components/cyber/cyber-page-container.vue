@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import CyberSectionHeader from '@/components/cyber/cyber-section-header.vue'
 
+defineOptions({
+  // #ifdef MP-WEIXIN
+  virtualHost: true,
+  // #endif
+})
+
 withDefaults(defineProps<{
   label?: string
   title?: string
@@ -15,7 +21,7 @@ withDefaults(defineProps<{
 </script>
 
 <template>
-  <view class="px-3 py-3" :class="grid ? 'cyber-page-grid' : 'cyber-page'">
+  <view class="u-page-body py-3" :class="grid ? 'cyber-page-grid' : 'cyber-page'">
     <CyberSectionHeader
       v-if="title"
       class="mb-5"

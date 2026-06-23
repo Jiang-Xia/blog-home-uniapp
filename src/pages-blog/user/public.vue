@@ -51,7 +51,7 @@ const listItems = computed(() => {
 <template>
   <view class="public-page cyber-page-grid">
     <cyber-card v-if="user" class="!p-4">
-      <view class="flex items-center gap-3">
+      <view class="u-gap-3 flex items-center">
         <image :src="user.avatar" class="h-14 w-14 border border-tech rounded-full" />
         <view>
           <text class="block text-tech font-bold">{{ user.nickname }}</text>
@@ -79,9 +79,3 @@ const listItems = computed(() => {
     </view>
   </view>
 </template>
-
-<style scoped>
-.public-page {
-  min-height: 100vh;
-}
-</style>

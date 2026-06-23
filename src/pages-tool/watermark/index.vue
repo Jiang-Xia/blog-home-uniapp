@@ -90,7 +90,7 @@ async function exportZip() {
 </script>
 
 <template>
-  <scroll-view scroll-y class="watermark-page cyber-page-grid px-4 py-4">
+  <scroll-view scroll-y class="watermark-page cyber-page-grid u-page-scroll u-page-body py-4">
     <wd-input v-model="watermarkText" label="水印文字" />
     <wd-input v-model="fontSize" type="number" label="字号" class="mt-3" />
     <wd-input v-model="opacity" type="number" label="透明度 0-1" class="mt-3" />
@@ -116,9 +116,4 @@ definePage({ style: { navigationBarTitleText: '批量水印' } })
   </view>
 </template>
 
-<style scoped>
-.watermark-page {
-  min-height: 100vh;
-}
-</style>
 <!-- #endif -->

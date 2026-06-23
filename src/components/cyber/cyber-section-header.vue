@@ -1,4 +1,13 @@
 <script setup lang="ts">
+/**
+ * 页面区块标题（label + title + subtitle）
+ */
+defineOptions({
+  // #ifdef MP-WEIXIN
+  virtualHost: true,
+  // #endif
+})
+
 withDefaults(defineProps<{
   label?: string
   title: string

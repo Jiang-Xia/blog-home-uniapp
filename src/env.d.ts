@@ -15,6 +15,14 @@ interface ImportMetaEnv {
   readonly VITE_SERVER_PORT: string
   /** 后台接口地址 */
   readonly VITE_SERVER_BASEURL: string
+  /** WebSocket origin（线上 https://jiang-xia.top） */
+  readonly VITE_WS_ORIGIN?: string
+  /** 静态资源前缀（线上 /x-api/blog-server） */
+  readonly VITE_STATIC_BASEURL?: string
+  /** blog-home-nuxt 站点地址 */
+  readonly VITE_NUXT_HOME_URL?: string
+  /** blog-admin 地址 */
+  readonly VITE_ADMIN_URL?: string
   /** 微信小程序开发版后台接口地址，不配置则使用 VITE_SERVER_BASEURL */
   readonly VITE_SERVER_BASEURL__WEIXIN_DEVELOP?: string
   /** 微信小程序体验版后台接口地址，不配置则使用 VITE_SERVER_BASEURL */

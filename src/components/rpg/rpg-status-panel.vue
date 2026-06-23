@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { BanStatus, RpgStatus, SignInfo } from '@/types/rpg'
+import { formatDateMinute } from '@/utils/date-time'
 
 const props = defineProps<{
   status: RpgStatus
@@ -31,18 +32,18 @@ const expPercent = computed(() => {
       </view>
     </view>
     <view class="mt-3">
-      <view class="h-2 overflow-hidden rounded-full bg-white/20">
+      <view class="u-bg-white-20 h-2 overflow-hidden rounded-full">
         <view class="h-full rounded-full bg-amber-300" :style="{ width: `${expPercent}%` }" />
       </view>
       <text class="mt-1 block text-xs opacity-80">EXP {{ status.exp }} / {{ status.expToNext ?? '—' }}</text>
     </view>
-    <view class="mt-3 flex flex-wrap gap-3 text-sm">
+    <view class="u-gap-3 mt-3 flex flex-wrap text-sm">
       <text>❤️ {{ status.lifeValue }}</text>
       <text>💎 {{ status.currency ?? 0 }}</text>
       <text>⭐ {{ status.reputation ?? 0 }}</text>
     </view>
     <view v-if="banStatus?.banned" class="mt-3 rounded bg-red-500/30 px-2 py-1 text-xs">
-      禁言中{{ banStatus.banEndTime ? ` · 至 ${banStatus.banEndTime}` : '' }}
+      禁言中{{ banStatus.banEndTime ? ` · 至 ${formatDateMinute(banStatus.banEndTime)}` : '' }}
     </view>
     <wd-button
       size="small"

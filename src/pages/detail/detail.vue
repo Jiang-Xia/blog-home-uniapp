@@ -9,8 +9,6 @@ import type { ArticleItem } from '@/api/article'
 import {
   addComment,
   addReply,
-  checkCollected,
-  checkLiked,
   delComment,
   delReply,
   getArticleInfo,
@@ -18,19 +16,18 @@ import {
   getRelatedArticles,
   parseArticleDetail,
   postArticleViews,
-  toggleCollect,
-  toggleLike,
 } from '@/api/article'
 import ArticleAdjacentNav from '@/components/article-adjacent-nav/article-adjacent-nav.vue'
 import ArticleRelatedList from '@/components/article-related-list/article-related-list.vue'
+import ArticleRpgFab from '@/components/article-rpg-fab/article-rpg-fab.vue'
 import ArticleToc from '@/components/article-toc/article-toc.vue'
 import MarkdownView from '@/components/markdown-view/markdown-view.vue'
-import RpgArticleTip from '@/components/rpg/rpg-article-tip.vue'
 import { ROUTE_CATEGORY_LIST, ROUTE_DETAIL, ROUTE_TAG_LIST } from '@/router/routes'
 import { useUserStore } from '@/store'
 import { useTokenStore } from '@/store/token'
 import type { ArticleTocItem } from '@/utils/article-toc'
 import { parseCommentCreateStatus, resolveCommentUserUid } from '@/utils/comment'
+import { formatDate, formatRelativeTime } from '@/utils/date-time'
 import { apiDisplayLabel } from '@/utils/display-label'
 import { resolveStaticUrl } from '@/utils/static-url'
 
@@ -46,15 +43,17 @@ const adjacentPrev = ref<{ id: number, title: string } | null>(null)
 const adjacentNext = ref<{ id: number, title: string } | null>(null)
 const relatedList = ref<ArticleItem[]>([])
 const comments = ref<any[]>([])
-const liked = ref(false)
-const collected = ref(false)
 const commentText = ref('')
-/** 当前展开回复框的评论 id（楼中楼 parentId 仍为该评论 id） */
-const activeReplyCommentId = ref<string | number | null>(null)
+/** 回复弹层（底部弹出，避免 scroll-view 内输入框在小程序端失效） */
+const showReplyPopup = ref(false)
+const replySubmitting = ref(false)
 const replyTarget = ref<{ commentId: string | number, replyUid: number, nickname: string } | null>(null)
 const replyText = ref('')
 const loading = ref(true)
 const tocTopics = ref<ArticleTocItem[]>([])
+const scrollTop = ref(0)
+const scrollToTop = ref(0)
+const fabRef = ref<InstanceType<typeof ArticleRpgFab> | null>(null)
 
 const currentUserId = computed(() => userStore.userInfo.userId)
 const coverUrl = computed(() => resolveStaticUrl(String(article.value?.cover ?? '')))
@@ -75,10 +74,6 @@ async function loadArticle() {
       comments.value = commentRes?.list ?? []
       const related = await getRelatedArticles(articleId.value)
       relatedList.value = related?.list ?? []
-      if (tokenStore.hasLogin) {
-        liked.value = (await checkLiked(articleId.value))?.liked ?? false
-        collected.value = (await checkCollected(articleId.value))?.collected ?? false
-      }
     }
   }
   finally {
@@ -97,22 +92,26 @@ onLoad((query) => {
   void loadArticle()
 })
 
-async function handleLike() {
-  if (!tokenStore.hasLogin) {
-    uni.navigateTo({ url: '/pages/auth/login' })
-    return
-  }
-  await toggleLike(articleId.value)
-  liked.value = !liked.value
+/** scroll-view 滚动：FAB 回顶按钮与 scroll-top 同步 */
+function onDetailScroll(e: { detail: { scrollTop: number } }) {
+  scrollTop.value = e.detail.scrollTop
+  fabRef.value?.onPageScroll(e.detail.scrollTop)
 }
 
-async function handleCollect() {
-  if (!tokenStore.hasLogin) {
-    uni.navigateTo({ url: '/pages/auth/login' })
-    return
-  }
-  await toggleCollect(articleId.value)
-  collected.value = !collected.value
+function handleGoTop() {
+  scrollToTop.value = scrollTop.value
+  nextTick(() => {
+    scrollToTop.value = 0
+  })
+}
+
+function onLikesUpdate(count: number) {
+  if (article.value)
+    article.value.likes = count
+}
+
+async function onTipped() {
+  await loadArticle()
 }
 
 /** 发表评论；pending 时不刷新列表（尚未公开展示） */
@@ -145,17 +144,17 @@ function startReply(comment: any, reply?: any) {
     uni.showToast({ title: '无法获取回复对象', icon: 'none' })
     return
   }
-  activeReplyCommentId.value = comment.id
   replyTarget.value = {
     commentId: comment.id,
     replyUid,
     nickname: target.userInfo?.nickname ?? comment.userInfo?.nickname ?? comment.nickname ?? comment.username ?? '用户',
   }
   replyText.value = ''
+  showReplyPopup.value = true
 }
 
-function cancelReply() {
-  activeReplyCommentId.value = null
+function closeReply() {
+  showReplyPopup.value = false
   replyTarget.value = null
   replyText.value = ''
 }
@@ -166,16 +165,24 @@ async function submitReply() {
     uni.navigateTo({ url: '/pages/auth/login' })
     return
   }
-  if (!replyTarget.value || !replyText.value.trim())
+  if (!replyTarget.value) {
     return
+  }
+  if (!replyText.value.trim()) {
+    uni.showToast({ title: '请输入回复内容', icon: 'none' })
+    return
+  }
+  if (replySubmitting.value)
+    return
+  replySubmitting.value = true
   try {
     const res = await addReply({
-      parentId: replyTarget.value.commentId,
+      parentId: String(replyTarget.value.commentId),
       content: replyText.value.trim(),
-      replyUid: replyTarget.value.replyUid,
+      replyUid: String(replyTarget.value.replyUid),
     })
     const status = parseCommentCreateStatus(res)
-    cancelReply()
+    closeReply()
     if (status === 'pending') {
       uni.showToast({ title: '回复已提交，审核通过后将展示', icon: 'none' })
       return
@@ -186,14 +193,17 @@ async function submitReply() {
   catch {
     // http 层已 toast 业务错误
   }
+  finally {
+    replySubmitting.value = false
+  }
 }
 
 /** 删除本人评论 DELETE /comment/delete */
 async function handleDeleteComment(id: number | string) {
   await delComment(id)
   uni.showToast({ title: '删除成功', icon: 'success' })
-  if (activeReplyCommentId.value === id)
-    cancelReply()
+  if (replyTarget.value && String(replyTarget.value.commentId) === String(id))
+    closeReply()
   await reloadComments()
 }
 
@@ -204,8 +214,15 @@ async function handleDeleteReply(id: number | string) {
   await reloadComments()
 }
 
-function canDeleteItem(item: { uid?: number }) {
-  return currentUserId.value > 0 && Number(item.uid) === currentUserId.value
+function resolveItemOwnerUid(item: { uid?: number | string, userInfo?: { id?: number | string } }) {
+  const raw = item.userInfo?.id ?? item.uid
+  const uid = Number(raw)
+  return Number.isFinite(uid) ? uid : 0
+}
+
+function canDeleteItem(item: { uid?: number | string, userInfo?: { id?: number | string } }) {
+  const ownerUid = resolveItemOwnerUid(item)
+  return currentUserId.value > 0 && ownerUid === currentUserId.value
 }
 
 /** MdPreview 目录回调 */
@@ -240,142 +257,214 @@ function goCategory(id: number) {
   <view v-else-if="!article" class="p-4 text-center text-tech-subtle">
     文章不存在
   </view>
-  <scroll-view v-else scroll-y class="detail-page cyber-page-grid">
-    <view class="px-4 py-3">
-      <text class="block text-xl text-tech font-bold leading-snug">{{ article.title }}</text>
-      <text class="mt-2 block text-xs text-tech-subtle">{{ article.createTime || article.uTime }}</text>
-      <image
-        v-if="coverUrl"
-        :src="coverUrl"
-        mode="widthFix"
-        class="mt-3 w-full border border-tech rounded-lg"
-        @click="previewCover"
-      />
-      <ArticleToc :topics="tocTopics" />
-      <view v-if="article.category || article.tags?.length" class="mt-3 flex flex-wrap gap-2">
-        <text
-          v-if="article.category?.id"
-          class="cyber-feature-tag"
-          @click="goCategory(article.category.id)"
-        >
-          {{ apiDisplayLabel(article.category) }}
-        </text>
-        <text
-          v-for="tag in article.tags"
-          :key="tag.id"
-          class="cyber-feature-tag"
-          @click="goTag(tag.id)"
-        >
-          {{ apiDisplayLabel(tag) }}
-        </text>
-      </view>
-      <view class="mt-4">
-        <MarkdownView :content="String(article.content || '')" @catalog="onCatalog" />
-      </view>
-
-      <ArticleRelatedList :list="relatedList" @navigate="goArticle" />
-      <ArticleAdjacentNav
-        :prev="adjacentPrev"
-        :next="adjacentNext"
-        @navigate="goArticle"
-      />
-
-      <RpgArticleTip
-        v-if="article.id && authorUid"
-        :article-id="Number(article.id)"
-        :author-uid="authorUid"
-      />
-      <view class="mt-4 flex gap-4">
-        <wd-button size="small" :type="liked ? 'primary' : undefined" @click="handleLike">
-          {{ liked ? '已赞' : '点赞' }}
-        </wd-button>
-        <wd-button size="small" :type="collected ? 'primary' : undefined" @click="handleCollect">
-          {{ collected ? '已收藏' : '收藏' }}
-        </wd-button>
-      </view>
-
-      <view class="mt-6">
-        <text class="mb-2 block text-tech font-medium">评论</text>
-        <wd-textarea v-model="commentText" placeholder="写下你的评论..." />
-        <wd-button size="small" class="mt-2" @click="submitComment">
-          发表评论
-        </wd-button>
-        <view v-for="c in comments" :key="c.id" class="mt-3 border-t border-tech pt-2">
-          <view class="flex items-center justify-between">
-            <text class="text-sm text-tech font-medium">{{ c.nickname || c.username || c.userInfo?.nickname }}</text>
-            <view class="flex gap-2">
-              <text
-                v-if="activeReplyCommentId !== c.id"
-                class="text-xs text-tech-primary"
-                @click="startReply(c)"
-              >
-                回复
-              </text>
-              <text
-                v-else
-                class="text-xs text-tech-subtle"
-                @click="cancelReply"
-              >
-                取消
-              </text>
-              <text
-                v-if="canDeleteItem(c)"
-                class="text-xs text-red-400"
-                @click="handleDeleteComment(c.id)"
-              >
-                删除
-              </text>
-            </view>
+  <view v-else class="detail-root">
+    <scroll-view
+      scroll-y
+      class="detail-page cyber-page-grid u-page-scroll"
+      :scroll-top="scrollToTop"
+      @scroll="onDetailScroll"
+    >
+      <view class="u-page-body py-3">
+        <text class="block text-xl text-tech font-bold leading-snug">{{ article.title }}</text>
+        <text class="mt-2 block text-xs text-tech-subtle">{{ formatDate(article.createTime || article.uTime) }}</text>
+        <view class="detail-stats mt-3">
+          <text class="detail-stat">👁 {{ article.views ?? 0 }} 阅读</text>
+          <text class="detail-stat">♥ {{ article.likes ?? 0 }} 点赞</text>
+          <text v-if="article.tipTotal" class="detail-stat">💎 {{ article.tipTotal }} 打赏</text>
+        </view>
+        <image
+          v-if="coverUrl"
+          :src="coverUrl"
+          mode="widthFix"
+          class="mt-3 w-full border border-tech rounded-lg"
+          @tap="previewCover"
+        />
+        <ArticleToc :topics="tocTopics" />
+        <view v-if="article.category || article.tags?.length" class="detail-tags mt-3">
+          <view
+            v-if="article.category?.id"
+            class="cyber-feature-tag"
+            @tap="goCategory(article.category.id)"
+          >
+            <text>{{ apiDisplayLabel(article.category) }}</text>
           </view>
-          <text class="mt-1 block text-sm text-tech-muted">{{ c.content }}</text>
-
-          <!-- 内联回复框：紧跟当前评论，对齐 nuxt XiaReply -->
-          <view v-if="activeReplyCommentId === c.id && replyTarget" class="cyber-glass-card mt-2 p-3">
-            <text class="mb-2 block text-xs text-tech-subtle">回复 @{{ replyTarget.nickname }}</text>
-            <wd-textarea v-model="replyText" placeholder="写下回复..." />
-            <view class="mt-2 flex gap-2">
-              <cyber-button size="small" variant="primary" @click="submitReply">
-                发送
-              </cyber-button>
-              <cyber-button size="small" variant="secondary" @click="cancelReply">
-                取消
-              </cyber-button>
-            </view>
+          <view
+            v-for="tag in article.tags"
+            :key="tag.id"
+            class="cyber-feature-tag"
+            @tap="goTag(tag.id)"
+          >
+            <text>{{ apiDisplayLabel(tag) }}</text>
           </view>
+        </view>
+        <view class="mt-4">
+          <MarkdownView :content="String(article.content || '')" @catalog="onCatalog" />
+        </view>
 
-          <view v-for="r in c.replys || []" :key="r.id" class="ml-4 mt-2 border-l-2 border-tech pl-3">
+        <ArticleRelatedList :list="relatedList" @navigate="goArticle" />
+        <ArticleAdjacentNav
+          :prev="adjacentPrev"
+          :next="adjacentNext"
+          @navigate="goArticle"
+        />
+
+        <view class="mt-6">
+          <text class="mb-2 block text-tech font-medium">评论</text>
+          <wd-textarea v-model="commentText" placeholder="写下你的评论..." />
+          <wd-button size="small" class="mt-2" @click="submitComment">
+            发表评论
+          </wd-button>
+          <view v-for="c in comments" :key="c.id" class="mt-3 border-t border-tech pt-2">
             <view class="flex items-center justify-between">
-              <text class="text-xs text-tech font-medium">
-                {{ r.userInfo?.nickname }}
-                <text v-if="r.tUserInfo?.nickname" class="text-tech-subtle"> @ {{ r.tUserInfo.nickname }}</text>
-              </text>
-              <view class="flex gap-2">
-                <text
-                  v-if="activeReplyCommentId !== c.id"
-                  class="text-xs text-tech-primary"
-                  @click="startReply(c, r)"
+              <view class="u-gap-2 min-w-0 flex flex-1 items-center">
+                <text class="text-sm text-tech font-medium">{{ c.nickname || c.username || c.userInfo?.nickname }}</text>
+                <text v-if="c.createTime" class="text-xs text-tech-subtle">{{ formatRelativeTime(c.createTime) }}</text>
+              </view>
+              <view class="detail-comment-actions">
+                <view class="action-link action-link--primary" @tap="startReply(c)">
+                  <text>回复</text>
+                </view>
+                <view
+                  v-if="canDeleteItem(c)"
+                  class="action-link action-link--danger"
+                  @tap="handleDeleteComment(c.id)"
                 >
-                  回复
-                </text>
-                <text
-                  v-if="canDeleteItem(r)"
-                  class="text-xs text-red-400"
-                  @click="handleDeleteReply(r.id)"
-                >
-                  删除
-                </text>
+                  <text>删除</text>
+                </view>
               </view>
             </view>
-            <text class="mt-1 block text-xs text-tech-muted">{{ r.content }}</text>
+            <text class="mt-1 block text-sm text-tech-muted">{{ c.content }}</text>
+
+            <view v-for="r in c.replys || []" :key="r.id" class="ml-4 mt-2 border-l-2 border-tech pl-3">
+              <view class="flex items-center justify-between">
+                <view class="u-gap-2 min-w-0 flex flex-1 items-center">
+                  <text class="text-xs text-tech font-medium">
+                    {{ r.userInfo?.nickname }}
+                    <text v-if="r.tUserInfo?.nickname" class="text-tech-subtle"> @ {{ r.tUserInfo.nickname }}</text>
+                  </text>
+                  <text v-if="r.createTime" class="text-xs text-tech-subtle">{{ formatRelativeTime(r.createTime) }}</text>
+                </view>
+                <view class="detail-comment-actions">
+                  <view class="action-link action-link--primary" @tap="startReply(c, r)">
+                    <text>回复</text>
+                  </view>
+                  <view
+                    v-if="canDeleteItem(r)"
+                    class="action-link action-link--danger"
+                    @tap="handleDeleteReply(r.id)"
+                  >
+                    <text>删除</text>
+                  </view>
+                </view>
+              </view>
+              <text class="mt-1 block text-xs text-tech-muted">{{ r.content }}</text>
+            </view>
           </view>
         </view>
       </view>
-    </view>
-  </scroll-view>
+    </scroll-view>
+
+    <ArticleRpgFab
+      v-if="article.id && authorUid"
+      ref="fabRef"
+      :article-id="article.id"
+      :author-uid="authorUid"
+      :likes="article.likes"
+      @go-top="handleGoTop"
+      @update:likes="onLikesUpdate"
+      @tipped="onTipped"
+    />
+
+    <!-- 回复弹层置于 scroll-view 外，避免小程序端输入/按钮无响应 -->
+    <wd-popup v-model="showReplyPopup" position="bottom" closable @close="closeReply">
+      <view class="reply-popup cyber-page p-4">
+        <text class="mb-3 block text-tech font-medium">
+          回复 @{{ replyTarget?.nickname || '用户' }}
+        </text>
+        <wd-textarea v-model="replyText" placeholder="写下回复..." :maxlength="300" />
+        <cyber-button
+          block
+          class="mt-4"
+          variant="primary"
+          @click="submitReply"
+        >
+          {{ replySubmitting ? '发送中...' : '确认' }}
+        </cyber-button>
+      </view>
+    </wd-popup>
+  </view>
 </template>
 
 <style scoped>
-.detail-page {
+.detail-root {
+  display: flex;
+  flex-direction: column;
   height: 100vh;
 }
+
+/* #ifdef MP-WEIXIN || MP-ALIPAY */
+.detail-root {
+  height: 100%;
+}
+/* #endif */
+
+.detail-page {
+  flex: 1;
+  height: 0;
+}
+
+.detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.detail-tags .cyber-feature-tag {
+  margin-right: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.detail-stats {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.detail-stat {
+  font-size: 24rpx;
+  color: var(--tech-fg-subtle);
+  margin-right: 24rpx;
+  margin-bottom: 8rpx;
+}
+
+.detail-comment-actions {
+  display: flex;
+  align-items: center;
+}
+
+.action-link {
+  padding: 8rpx 0 8rpx 16rpx;
+}
+
+.action-link text {
+  font-size: 24rpx;
+}
+
+.action-link--primary text {
+  color: var(--tech-primary);
+}
+
+.action-link--danger text {
+  color: #f87171;
+}
+
+/* #ifdef H5 */
+.reply-popup {
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+}
+/* #endif */
+
+/* #ifdef MP-WEIXIN || MP-ALIPAY */
+.reply-popup {
+  padding-bottom: 32rpx;
+}
+/* #endif */
 </style>

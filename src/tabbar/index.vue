@@ -132,6 +132,9 @@ function getColorByIndex(index: number) {
   border-top: 1px solid var(--tech-border);
   box-sizing: border-box;
   backdrop-filter: blur(12px);
+  /* #ifndef H5 */
+  background-color: var(--tech-shell-header);
+  /* #endif */
 }
 // 中间鼓包的样式
 .bulge {

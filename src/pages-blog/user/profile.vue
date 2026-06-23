@@ -13,6 +13,7 @@ import { ROUTE_ARTICLE_EDIT } from '@/router/routes'
 import ArticleCard from '@/components/article-card/article-card.vue'
 import { useUserStore } from '@/store'
 import { useTokenStore } from '@/store/token'
+import { formatRelativeTime } from '@/utils/date-time'
 import { resolveStaticUrl } from '@/utils/static-url'
 
 definePage({
@@ -43,6 +44,13 @@ const tabs = [
   { key: 'inbox', label: '收件箱' },
   { key: 'dashboard', label: '看板' },
 ] as const
+
+/** 支持从「我的」菜单带 tab 参数直达 */
+onLoad((query) => {
+  const tab = query?.tab
+  if (tab && tabs.some(row => row.key === tab))
+    activeTab.value = tab as typeof activeTab.value
+})
 
 onShow(async () => {
   if (!tokenStore.hasLogin) {
@@ -187,7 +195,7 @@ function goEditArticle(id: number) {
 
     <view v-if="activeTab === 'card'" class="p-4">
       <cyber-card class="mb-4 !p-4">
-        <view class="flex items-center gap-3">
+        <view class="u-gap-3 flex items-center">
           <image :src="avatarDisplayUrl" class="h-16 w-16 border border-tech rounded-full" mode="aspectFill" />
           <view class="flex-1">
             <text class="block text-tech font-bold">{{ userStore.userInfo.nickname }}</text>
@@ -201,9 +209,13 @@ function goEditArticle(id: number) {
       <wd-input v-model="userStore.userInfo.nickname" label="昵称" />
       <wd-input v-model="userStore.userInfo.intro" label="简介" />
       <wd-input v-model="userStore.userInfo.homepage" label="主页" />
-      <cyber-button block class="mt-4" variant="primary" @click="saveProfile">
-        保存资料
-      </cyber-button>
+      <view class="u-form-actions">
+        <view class="u-form-action-item">
+          <cyber-button block variant="primary" @click="saveProfile">
+            保存资料
+          </cyber-button>
+        </view>
+      </view>
     </view>
 
     <view v-else-if="activeTab === 'article'" class="p-3">
@@ -212,7 +224,7 @@ function goEditArticle(id: number) {
       </cyber-button>
       <cyber-card v-for="item in articles" :key="item.id" class="mb-3 !p-2">
         <ArticleCard :item="item" />
-        <view class="mt-2 flex gap-2">
+        <view class="u-gap-2 mt-2 flex">
           <wd-button size="small" @click.stop="goEditArticle(item.id)">
             编辑
           </wd-button>
@@ -233,7 +245,7 @@ function goEditArticle(id: number) {
     </view>
 
     <view v-else-if="activeTab === 'comment'" class="p-3">
-      <view class="mb-3 flex gap-3">
+      <view class="u-gap-3 mb-3 flex">
         <text
           class="cyber-tab"
           :class="commentSubTab === 'comment' ? 'cyber-tab-active' : ''"
@@ -252,6 +264,7 @@ function goEditArticle(id: number) {
       <template v-if="commentSubTab === 'comment'">
         <view v-for="c in comments" :key="c.id" class="mb-3 border-b border-tech pb-2">
           <text class="block text-sm text-tech">{{ c.content }}</text>
+          <text v-if="c.createTime" class="mt-1 block text-xs text-tech-subtle">{{ formatRelativeTime(c.createTime) }}</text>
           <text v-if="c.articleTitle" class="mt-1 block text-xs text-tech-subtle">{{ c.articleTitle }}</text>
         </view>
         <view v-if="!comments.length" class="py-8 text-center text-sm text-tech-subtle">
@@ -261,6 +274,7 @@ function goEditArticle(id: number) {
       <template v-else>
         <view v-for="r in replies" :key="r.id" class="mb-3 border-b border-tech pb-2">
           <text class="block text-sm text-tech">{{ r.content }}</text>
+          <text v-if="r.createTime" class="mt-1 block text-xs text-tech-subtle">{{ formatRelativeTime(r.createTime) }}</text>
           <text v-if="r.parentContent" class="mt-1 block text-xs text-tech-subtle">回复：{{ r.parentContent }}</text>
         </view>
         <view v-if="!replies.length" class="py-8 text-center text-sm text-tech-subtle">
@@ -275,15 +289,17 @@ function goEditArticle(id: number) {
       </cyber-button>
       <cyber-card v-for="n in notifications" :key="n.id" class="mt-2 !p-3" @click="readNotification(n.id)">
         <text class="text-sm text-tech-muted">{{ n.title || n.content }}</text>
+        <text v-if="n.createTime" class="mt-1 block text-xs text-tech-subtle">{{ formatRelativeTime(n.createTime) }}</text>
       </cyber-card>
       <text class="mt-4 block text-tech font-medium">文章评论</text>
       <view v-for="c in inboxComments" :key="c.id" class="mt-2 border-b border-tech pb-2">
         <text class="text-sm text-tech-muted">{{ c.content }}</text>
+        <text v-if="c.createTime" class="mt-1 block text-xs text-tech-subtle">{{ formatRelativeTime(c.createTime) }}</text>
       </view>
     </view>
 
     <view v-else-if="activeTab === 'dashboard'" class="p-4">
-      <view v-if="authorStats" class="grid grid-cols-2 gap-3">
+      <view v-if="authorStats" class="u-grid-2">
         <view class="cyber-stat-card">
           <text class="cyber-stat-value">{{ authorStats.articleCount ?? 0 }}</text>
           <text class="cyber-stat-label">文章</text>
@@ -304,9 +320,3 @@ function goEditArticle(id: number) {
     </view>
   </view>
 </template>
-
-<style scoped>
-.profile-page {
-  min-height: 100vh;
-}
-</style>

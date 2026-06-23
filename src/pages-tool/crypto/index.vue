@@ -83,10 +83,10 @@ onMounted(createKey)
 </script>
 
 <template>
-  <scroll-view scroll-y class="crypto-page cyber-page-grid px-4 py-4">
+  <scroll-view scroll-y class="crypto-page cyber-page-grid u-page-scroll u-page-body py-4">
     <view class="mb-3">
       <text class="mb-2 block text-sm text-tech-muted">算法</text>
-      <view class="flex flex-wrap gap-2">
+      <view class="u-gap-2 flex flex-wrap">
         <wd-button
           v-for="item in algorithms"
           :key="item.value"
@@ -100,7 +100,7 @@ onMounted(createKey)
     </view>
     <wd-input v-model="secretKey" label="密钥" placeholder="密钥" />
     <wd-input v-model="iv" label="偏移量 IV" placeholder="IV" class="mt-3" />
-    <view class="mt-3 flex gap-2">
+    <view class="u-gap-2 mt-3 flex">
       <wd-button size="small" :type="outputType === 'Hex' ? 'primary' : undefined" @click="outputType = 'Hex'">
         Hex
       </wd-button>
@@ -113,7 +113,7 @@ onMounted(createKey)
     </view>
     <wd-textarea v-model="plaintext" label="原文" class="mt-3" />
     <wd-textarea v-model="ciphertext" label="密文" class="mt-3" />
-    <view class="mt-4 flex gap-2">
+    <view class="u-gap-2 mt-4 flex">
       <wd-button size="small" @click="encryptText">
         加密 →
       </wd-button>
@@ -123,9 +123,3 @@ onMounted(createKey)
     </view>
   </scroll-view>
 </template>
-
-<style scoped>
-.crypto-page {
-  min-height: 100vh;
-}
-</style>

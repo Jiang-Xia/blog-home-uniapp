@@ -30,6 +30,7 @@ import ViteRestart from 'vite-plugin-restart'
 import openDevTools from './scripts/open-dev-tools'
 import vitePluginEruda from './scripts/vite-plugin-eruda'
 import { createCopyNativeResourcesPlugin } from './vite-plugins/copy-native-resources'
+import mpAtobPolyfillInject from './vite-plugins/mp-atob-polyfill-inject'
 import syncManifestPlugin from './vite-plugins/sync-manifest-plugins'
 
 // https://vitejs.dev/config/
@@ -152,6 +153,7 @@ export default defineConfig(({ command, mode }) => {
         },
       ),
       syncManifestPlugin(),
+      mpAtobPolyfillInject(),
       vitePluginEruda({
         open: UNI_PLATFORM === 'h5' && mode === 'development',
       }),

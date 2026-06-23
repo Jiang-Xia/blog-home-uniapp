@@ -107,7 +107,7 @@ async function handleRegister() {
 </script>
 
 <template>
-  <view class="register-page cyber-page-grid px-4 py-6">
+  <view class="register-page cyber-page-grid u-page-body py-6">
     <cyber-section-header
       class="mb-6"
       label="AUTH"
@@ -116,7 +116,7 @@ async function handleRegister() {
       align="left"
     />
 
-    <view class="mb-6 flex gap-4">
+    <view class="u-gap-4 mb-6 flex">
       <text
         class="cyber-auth-tab"
         :class="registerType === 'account' ? 'cyber-auth-tab-active' : ''"
@@ -133,15 +133,23 @@ async function handleRegister() {
       </text>
     </view>
 
-    <cyber-card class="!p-4">
+    <cyber-card>
       <template v-if="registerType === 'account'">
         <wd-input v-model="form.username" label="用户名" placeholder="用户名" clearable />
         <wd-input v-model="form.nickname" label="昵称" placeholder="昵称" clearable />
         <wd-input v-model="form.password" label="密码" show-password clearable />
         <wd-input v-model="form.passwordRepeat" label="确认密码" show-password clearable />
-        <view class="mt-3 flex items-center gap-2">
-          <wd-input v-model="form.authCode" label="验证码" placeholder="验证码" class="flex-1" />
-          <image v-if="captchaImage" :src="captchaImage" class="h-10 w-24 border border-tech rounded" @click="loadCaptcha" />
+        <view class="u-captcha-row">
+          <view class="u-captcha-input-wrap">
+            <wd-input v-model="form.authCode" label="验证码" placeholder="验证码" />
+          </view>
+          <image
+            v-if="captchaImage"
+            :src="captchaImage"
+            class="u-captcha-img"
+            mode="aspectFit"
+            @click="loadCaptcha"
+          />
         </view>
       </template>
       <template v-else>
@@ -149,17 +157,25 @@ async function handleRegister() {
         <wd-input v-model="form.nickname" label="昵称" clearable />
         <wd-input v-model="form.password" label="密码" show-password clearable />
         <wd-input v-model="form.passwordRepeat" label="确认密码" show-password clearable />
-        <view class="mt-3 flex items-center gap-2">
-          <wd-input v-model="form.verificationCode" label="邮箱验证码" class="flex-1" />
-          <wd-button size="small" :disabled="emailCodeDisabled" @click="handleSendEmailCode">
-            {{ emailCodeText }}
-          </wd-button>
+        <view class="u-captcha-row">
+          <view class="u-captcha-input-wrap">
+            <wd-input v-model="form.verificationCode" label="邮箱验证码" />
+          </view>
+          <view class="u-captcha-side-btn">
+            <wd-button size="small" :disabled="emailCodeDisabled" @click="handleSendEmailCode">
+              {{ emailCodeText }}
+            </wd-button>
+          </view>
         </view>
       </template>
 
-      <cyber-button block class="mt-6" @click="handleRegister">
-        注册
-      </cyber-button>
+      <view class="u-form-actions">
+        <view class="u-form-action-item">
+          <cyber-button block :disabled="submitting" @click="handleRegister">
+            注册
+          </cyber-button>
+        </view>
+      </view>
     </cyber-card>
 
     <navigator url="/pages/auth/login" open-type="navigate" class="mt-4 text-center text-sm text-tech-muted">
@@ -167,9 +183,3 @@ async function handleRegister() {
     </navigator>
   </view>
 </template>
-
-<style scoped>
-.register-page {
-  min-height: 100vh;
-}
-</style>

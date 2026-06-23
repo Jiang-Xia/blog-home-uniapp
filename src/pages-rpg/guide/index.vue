@@ -32,8 +32,8 @@ const sections = [
 </script>
 
 <template>
-  <scroll-view scroll-y class="guide-page cyber-page-grid">
-    <view class="px-4 py-4">
+  <scroll-view scroll-y class="guide-page cyber-page-grid u-page-scroll">
+    <view class="u-page-body py-4">
       <cyber-section-header
         label="GUIDE"
         title="RPG 冒险指南"
@@ -47,9 +47,3 @@ const sections = [
     </view>
   </scroll-view>
 </template>
-
-<style scoped>
-.guide-page {
-  height: 100vh;
-}
-</style>

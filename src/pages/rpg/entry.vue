@@ -49,8 +49,8 @@ function goGuide() {
 </script>
 
 <template>
-  <scroll-view scroll-y class="entry-page cyber-page-grid">
-    <view class="px-4 py-6">
+  <scroll-view scroll-y class="entry-page cyber-page-grid u-page-scroll">
+    <view class="u-page-body py-6">
       <cyber-section-header
         label="RPG"
         title="冒险中心"
@@ -72,7 +72,7 @@ function goGuide() {
         </view>
         <template v-else>
           <cyber-card v-if="status" class="mb-4 !p-5">
-            <text class="home-hero-gradient-text block text-xl font-bold">Lv.{{ status.level }} 冒险者</text>
+            <text class="cyber-gradient-text-amber block text-xl font-bold">Lv.{{ status.level }} 冒险者</text>
             <text class="mt-2 block text-sm text-tech-muted">经验 {{ status.exp }} · 生命 {{ status.lifeValue }}</text>
             <text class="mt-1 block text-sm text-tech-primary">💎 {{ status.currency ?? 0 }}</text>
             <text class="mt-3 block text-xs text-tech-subtle">
@@ -80,27 +80,20 @@ function goGuide() {
             </text>
           </cyber-card>
 
-          <cyber-button block class="mb-3" variant="primary" @click="goRpg">
-            ⚔️ 进入冒险中心
-          </cyber-button>
-          <cyber-button block variant="secondary" @click="goGuide">
-            冒险攻略
-          </cyber-button>
+          <view class="u-form-actions">
+            <view class="u-form-action-item">
+              <cyber-button block variant="primary" @click="goRpg">
+                ⚔️ 进入冒险中心
+              </cyber-button>
+            </view>
+            <view class="u-form-action-item">
+              <cyber-button block variant="secondary" @click="goGuide">
+                冒险攻略
+              </cyber-button>
+            </view>
+          </view>
         </template>
       </template>
     </view>
   </scroll-view>
 </template>
-
-<style scoped lang="scss">
-.entry-page {
-  height: 100vh;
-}
-
-.home-hero-gradient-text {
-  background: linear-gradient(to right, var(--tech-gradient-from), var(--tech-rpg-amber), var(--tech-gradient-to));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-</style>

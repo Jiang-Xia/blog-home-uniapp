@@ -42,22 +42,24 @@ function doSearch() {
   <z-paging ref="pagingRef" v-model="articleList" bg-color="#050505" :auto="false" @query="queryList">
     <template #top>
       <view class="search-bar bg-tech-header border-b border-tech px-3 py-3">
-        <view class="flex items-center gap-2">
-          <input
-            v-model="keyword"
-            class="search-input flex-1"
-            placeholder="输入标题或摘要"
-            placeholder-class="search-placeholder"
-            confirm-type="search"
-            @confirm="doSearch"
-          >
+        <view class="u-flex-row-center u-gap-2">
+          <view class="u-flex-1">
+            <input
+              v-model="keyword"
+              class="search-input"
+              placeholder="输入标题或摘要"
+              placeholder-class="search-placeholder"
+              confirm-type="search"
+              @confirm="doSearch"
+            >
+          </view>
           <cyber-button size="small" variant="secondary" @click="doSearch">
             搜索
           </cyber-button>
         </view>
       </view>
     </template>
-    <view class="px-3 py-3">
+    <view class="u-page-body py-3">
       <ArticleCard v-for="item in articleList" :key="item.id" :item="item" />
       <view v-if="keyword && !articleList.length" class="py-16 text-center text-tech-subtle">
         找不到相关文章
@@ -68,6 +70,7 @@ function doSearch() {
 
 <style scoped lang="scss">
 .search-input {
+  width: 100%;
   height: 72rpx;
   padding: 0 24rpx;
   border-radius: 16rpx;

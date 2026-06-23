@@ -1,11 +1,21 @@
 import { http } from '@/http/http'
 
-export function getLinks() {
-  return http.get<any[]>('/link')
+/** 友链项（对齐 blog-server Link 实体） */
+export interface LinkItem {
+  id: string
+  icon: string
+  url: string
+  title: string
+  desp: string
+  agreed?: boolean
 }
 
-export function createLink(data: { name: string, url: string, description?: string, avatar?: string }) {
-  return http.post<any>('/link', data)
+export function getLinks() {
+  return http.get<LinkItem[]>('/link', { client: true })
+}
+
+export function createLink(data: { title: string, url: string, desp?: string, icon?: string }) {
+  return http.post<LinkItem>('/link', data)
 }
 
 export function deleteLink(id: number) {

@@ -1,7 +1,14 @@
 <script lang="ts" setup>
-import { storeToRefs } from 'pinia'
+/**
+ * 我的 Tab：用户卡片 + 个人中心功能菜单（cell 列表）
+ * - 未登录可见全部菜单，点击跳转登录并带 redirect
+ * - 功能项由原个人中心六 Tab 拆出，详情仍在 profile 子页
+ */
 import { getUnreadCount } from '@/api/notification'
-import { LOGIN_PAGE, ROUTE_ABOUT, ROUTE_LINKS, ROUTE_MSGBOARD, ROUTE_PROFILE, ROUTE_TOOL_INDEX } from '@/router/config'
+import { meMenuSections, resolveMeMenuRoute } from '@/config/me-menu'
+import type { MeMenuItem } from '@/config/me-menu'
+import { storeToRefs } from 'pinia'
+import { LOGIN_PAGE, ROUTE_PROFILE } from '@/router/config'
 import { useUserStore } from '@/store'
 import { useTokenStore } from '@/store/token'
 
@@ -15,26 +22,47 @@ const { userInfo } = storeToRefs(userStore)
 const unreadCount = ref(0)
 
 onShow(async () => {
-  if (tokenStore.hasLogin) {
-    try {
-      unreadCount.value = (await getUnreadCount())?.count ?? 0
-    }
-    catch {
-      unreadCount.value = 0
-    }
+  if (!tokenStore.hasLogin) {
+    unreadCount.value = 0
+    return
+  }
+  try {
+    unreadCount.value = (await getUnreadCount())?.count ?? 0
+  }
+  catch {
+    unreadCount.value = 0
   }
 })
 
-const menuItems = computed(() => [
-  { label: '个人中心', route: ROUTE_PROFILE, badge: unreadCount.value },
-  { label: '留言板', route: ROUTE_MSGBOARD, badge: 0 },
-  { label: '友情链接', route: ROUTE_LINKS, badge: 0 },
-  { label: '工具箱', route: ROUTE_TOOL_INDEX, badge: 0 },
-  { label: '关于作者', route: ROUTE_ABOUT, badge: 0 },
-])
+function menuValue(item: MeMenuItem) {
+  if (tokenStore.hasLogin)
+    return ''
+  return item.requiresLogin ? '登录后可用' : ''
+}
 
-function navigateToRoute(route: string) {
-  uni.navigateTo({ url: route })
+function menuBadge(item: MeMenuItem) {
+  if (item.tab === 'inbox' && unreadCount.value > 0)
+    return unreadCount.value > 99 ? '99+' : String(unreadCount.value)
+  return ''
+}
+
+function handleMenuClick(item: MeMenuItem) {
+  const target = resolveMeMenuRoute(item)
+  if (item.requiresLogin && !tokenStore.hasLogin) {
+    uni.navigateTo({
+      url: `${LOGIN_PAGE}?redirect=${encodeURIComponent(target)}`,
+    })
+    return
+  }
+  uni.navigateTo({ url: target })
+}
+
+function goUserCard() {
+  if (!tokenStore.hasLogin) {
+    void handleLogin()
+    return
+  }
+  uni.navigateTo({ url: `${ROUTE_PROFILE}?tab=card` })
 }
 
 async function handleLogin() {
@@ -56,77 +84,74 @@ function handleLogout() {
     title: '提示',
     content: '确定要退出登录吗？',
     success: (res) => {
-      if (res.confirm) {
+      if (res.confirm)
         tokenStore.logout()
-        unreadCount.value = 0
-      }
     },
   })
 }
 </script>
 
 <template>
-  <scroll-view scroll-y class="me-page cyber-page-grid">
-    <view class="px-4 py-6">
-      <cyber-card class="!p-5">
-        <view v-if="tokenStore.hasLogin" class="flex items-center gap-3">
-          <image :src="userInfo.avatar" class="h-14 w-14 border border-tech rounded-full" />
-          <view>
+  <scroll-view scroll-y class="me-page cyber-page-grid u-page-scroll">
+    <view class="u-page-body u-stack-3 py-4">
+      <!-- 用户卡片 -->
+      <cyber-card class="cyber-card-pad-menu" @click="goUserCard">
+        <view v-if="tokenStore.hasLogin" class="cyber-card-row u-gap-3">
+          <image :src="userInfo.avatar" class="h-14 w-14 shrink-0 border border-tech rounded-full" mode="aspectFill" />
+          <view class="u-flex-1 min-w-0">
             <text class="block text-lg text-tech font-bold">{{ userInfo.nickname }}</text>
             <text class="text-sm text-tech-muted">@{{ userInfo.username }}</text>
           </view>
+          <text class="cyber-menu-chevron">›</text>
         </view>
-        <view v-else class="py-2 text-center">
-          <text class="block text-tech-muted">登录后查看个人数据</text>
-          <cyber-button class="mt-4 inline-flex" variant="primary" @click="handleLogin">
-            立即登录
-          </cyber-button>
+        <view v-else class="cyber-card-row u-gap-3">
+          <view class="me-guest-avatar">
+            👤
+          </view>
+          <view class="u-flex-1 min-w-0">
+            <text class="block text-tech font-semibold">登录 / 注册</text>
+            <text class="mt-1 block text-xs text-tech-muted">登录后管理资料、文章与互动数据</text>
+          </view>
+          <text class="cyber-menu-chevron">›</text>
         </view>
       </cyber-card>
-    </view>
 
-    <view class="px-3 pb-4">
+      <!-- 功能菜单 -->
       <view
-        v-for="item in menuItems"
-        :key="item.route"
-        class="mb-3"
-        @click="navigateToRoute(item.route)"
+        v-for="section in meMenuSections"
+        :key="section.title"
+        class="me-section"
       >
-        <cyber-card class="flex items-center justify-between !px-4 !py-3">
-          <view class="flex items-center gap-2">
-            <text class="text-tech">{{ item.label }}</text>
-            <view v-if="item.badge > 0" class="rounded-full bg-red-500/90 px-2 text-xs text-white">
-              {{ item.badge > 99 ? '99+' : item.badge }}
-            </view>
+        <text class="me-section-title">{{ section.title }}</text>
+        <cyber-card class="cyber-card-pad-menu">
+          <view class="cyber-menu-list">
+            <cyber-cell
+              v-for="item in section.items"
+              :key="item.title"
+              :icon="item.icon"
+              :title="item.title"
+              :desc="item.desc"
+              :value="menuValue(item)"
+              :badge="menuBadge(item)"
+              @click="handleMenuClick(item)"
+            />
           </view>
-          <text class="text-tech-faint">›</text>
+        </cyber-card>
+      </view>
+
+      <!-- 退出登录 -->
+      <view v-if="tokenStore.hasLogin" class="me-section">
+        <cyber-card class="cyber-card-pad-menu">
+          <view class="cyber-menu-list">
+            <cyber-cell
+              icon="🚪"
+              title="退出登录"
+              desc="退出当前账号"
+              @click="handleLogout"
+            />
+          </view>
         </cyber-card>
       </view>
     </view>
-
-    <view class="px-3 pb-8">
-      <cyber-button
-        v-if="tokenStore.hasLogin"
-        block
-        variant="secondary"
-        @click="handleLogout"
-      >
-        退出登录
-      </cyber-button>
-      <cyber-button
-        v-else
-        block
-        variant="primary"
-        @click="handleLogin"
-      >
-        登录
-      </cyber-button>
-    </view>
   </scroll-view>
 </template>
-
-<style scoped>
-.me-page {
-  height: 100vh;
-}
-</style>

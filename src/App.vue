@@ -4,6 +4,7 @@ import { getCurrentInstance, onMounted, onUnmounted } from 'vue'
 import { navigateToInterceptor } from '@/router/interceptor'
 import { tabbarStore } from '@/tabbar/store'
 import { permission } from '@/router/permission'
+import { restoreAuthSession } from '@/utils/auth-session'
 
 const { proxy } = (getCurrentInstance() || {}) as any
 const router = proxy?.$router
@@ -12,6 +13,7 @@ router && permission.install(router)
 
 onLaunch((options) => {
   console.log('App.vue onLaunch', options)
+  void restoreAuthSession()
   uni.onPageNotFound((res) => {
     uni.redirectTo({
       url: `/pages/404/index?path=${encodeURIComponent(res.path || '')}`,
@@ -20,6 +22,7 @@ onLaunch((options) => {
 })
 onShow((options) => {
   console.log('App.vue onShow', options)
+  void restoreAuthSession()
   // 处理直接进入页面路由的情况：如h5直接输入路由、微信小程序分享后进入等
   // https://github.com/unibest-tech/unibest/issues/192
   if (options?.path) {

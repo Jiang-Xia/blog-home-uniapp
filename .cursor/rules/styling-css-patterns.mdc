@@ -6,49 +6,66 @@
 - 支持预设和自定义规则
 - 优先使用原子化类名，减少自定义 CSS
 
+## 跨端样式（H5 + 微信小程序，强制）
+
+样式须**同时**在 H5 与 `MP-WEIXIN` 验证，禁止只写 H5 段或只依赖浏览器特性。
+
+### 优先使用全局跨端工具类（`cyber-theme.scss`）
+
+| 避免（H5 倾向 / MP 不稳定） | 改用 |
+|---|---|
+| UnoCSS `gap-*`、`gap-x-*`、`gap-y-*` | `u-gap-1` ~ `u-gap-8`、`u-gap-1-5` |
+| `space-y-*`、`flex-col gap-*` | `u-stack-3`（纵向堆叠） |
+| `grid grid-cols-2 gap-*` | `u-grid-2` |
+| `bg-white/10`、`bg-black/50`、`bg-white/20` | `u-bg-white-10`、`u-overlay`、`u-bg-white-20` |
+| scroll-view `height: 100vh` | `u-page-scroll` |
+| 页面根 `min-height: 100vh` 单独写 | 用 `cyber-page` / `cyber-page-grid`（已含 MP `100%` 回退） |
+| `background-clip: text` 渐变字 | `cyber-gradient-text` / `cyber-gradient-text-amber`（MP 降级纯色） |
+| `backdrop-filter` | 实色半透明背景 `var(--tech-shell-header)` |
+| wot-design 深色：仅 H5 `:deep` | H5 保留 `:deep`；MP 用 `cyber-theme.scss` 全局类名穿透 |
+
+### 微信小程序慎用 / 禁用
+
+> 完整清单与编译报错说明见 [uniapp-21-wxss-forbidden-css.mdc](uniapp-21-wxss-forbidden-css.mdc)
+
+- **`*`、`> *`**：WXSS 不支持，会报 `app.wxss error at token *`（`src/style/index.scss` 亦有说明）
+- easycom 组件作 flex 子项：须外包 `<view>`，勿用 `> *` 覆盖组件
+- `:deep()`、`:webkit-autofill`（仅 H5 条件编译）
+- `100vh` 单独用于 scroll-view（TabBar 高度导致双滚动/留白）
+- `::before` / `::after` 复杂渐变（改用元素背景或 H5 条件编译）
+- `clamp()` + `vw` 混用（MP 用固定 `rpx`，H5 可用 `clamp`）
+- UnoCSS 透明度简写 `bg-*/10`（改用 `u-bg-*` 或 `rgba()`）
+
+### 间距写法示例
+
+```vue
+<!-- 横向/换行间距（含 easycom 组件时每个子项外包 view） -->
+<view class="flex flex-wrap u-gap-2">
+  <view><cyber-button>确定</cyber-button></view>
+</view>
+
+<!-- 纵向列表间距 -->
+<view class="u-stack-3">...</view>
+
+<!-- 双列统计卡片 -->
+<view class="u-grid-2">...</view>
+```
+
 ## SCSS 规范
 - 使用 SCSS 预处理器
 - 样式文件使用 `lang="scss"` 和 `scoped` 属性
 - 遵循 BEM 命名规范
-- 使用变量和混入提高复用性
+- 全局主题与跨端工具类在 [src/style/cyber-theme.scss](mdc:src/style/cyber-theme.scss)
 
 ## 样式组织
 - 全局样式在 [src/style/](mdc:src/style/) 目录下
 - 组件样式使用 scoped 作用域
 - 图标字体在 [src/style/iconfont.css](mdc:src/style/iconfont.css)
-- 主题变量在 [src/uni_modules/uni-scss/](mdc:src/uni_modules/uni-scss/) 目录下
-
-## 示例代码结构
-```vue
-<template>
-  <view class="container flex flex-col items-center p-4">
-    <text class="title text-lg font-bold mb-2">标题</text>
-    <view class="content bg-gray-100 rounded-lg p-3">
-      <!-- 内容 -->
-    </view>
-  </view>
-</template>
-
-<style lang="scss" scoped>
-.container {
-  min-height: 100vh;
-  
-  .title {
-    color: var(--primary-color);
-  }
-  
-  .content {
-    width: 100%;
-    max-width: 600rpx;
-  }
-}
-</style>
 
 ## 响应式设计
-- 使用 rpx 单位适配不同屏幕
-- 支持横屏和竖屏布局
-- 使用 flexbox 和 grid 布局
-- 考虑不同平台的样式差异
+- 使用 **rpx** 单位适配不同屏幕
+- 布局优先 **flex + u-gap-***，避免依赖 CSS Grid / flex gap
+- 新页面 scroll-view 默认加 `u-page-scroll`
 ---
 globs: *.vue,*.scss,*.css
 ---

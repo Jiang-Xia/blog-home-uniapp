@@ -25,6 +25,7 @@ export default defineConfig({
         'vertical-align': 'middle',
       },
       collections: {
+        'carbon': () => import('@iconify-json/carbon/icons.json').then(i => i.default as any),
         // 注册本地 SVG 图标集合, 从本地文件系统加载图标
         // 在 './src/static/my-icons' 目录下的所有 svg 文件将被注册为图标，
         // my-icons 是图标集合名称，使用 `i-my-icons-图标名` 调用
