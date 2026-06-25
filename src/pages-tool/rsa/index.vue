@@ -57,31 +57,33 @@ onMounted(createKey)
 
 <template>
   <scroll-view scroll-y class="rsa-page cyber-page-grid u-page-scroll u-page-body py-4">
-    <view class="u-gap-2 mb-3 flex flex-wrap">
-      <wd-button size="small" :type="outputType === 'Hex' ? 'primary' : undefined" @click="outputType = 'Hex'">
-        Hex
-      </wd-button>
-      <wd-button size="small" :type="outputType === 'Base64' ? 'primary' : undefined" @click="outputType = 'Base64'">
-        Base64
-      </wd-button>
-      <wd-button size="small" @click="createKey">
-        生成密钥对
-      </wd-button>
-    </view>
-    <wd-textarea v-model="publicKey" label="公钥" placeholder="-----BEGIN PUBLIC KEY-----" />
-    <wd-textarea v-model="privateKey" label="私钥" placeholder="-----BEGIN RSA PRIVATE KEY-----" class="mt-3" />
-    <wd-textarea v-model="plaintext" label="原文" placeholder="待加密文本" class="mt-3" />
-    <wd-textarea v-model="ciphertext" label="密文" placeholder="加密结果 / 待解密文本" class="mt-3" />
-    <view class="u-gap-2 mt-4 flex flex-wrap">
-      <wd-button size="small" @click="encryptText">
-        加密 →
-      </wd-button>
-      <wd-button size="small" @click="decryptText">
-        ← 解密
-      </wd-button>
-      <wd-button size="small" @click="copyText(ciphertext)">
-        复制密文
-      </wd-button>
-    </view>
+    <cyber-card class="cyber-card-pad-sm">
+      <view class="u-gap-2 mb-3 flex flex-wrap">
+        <wd-button size="small" :type="outputType === 'Hex' ? 'primary' : undefined" @click="outputType = 'Hex'">
+          Hex
+        </wd-button>
+        <wd-button size="small" :type="outputType === 'Base64' ? 'primary' : undefined" @click="outputType = 'Base64'">
+          Base64
+        </wd-button>
+        <wd-button size="small" @click="createKey">
+          生成密钥对
+        </wd-button>
+      </view>
+      <wd-textarea v-model="publicKey" label="公钥" placeholder="-----BEGIN PUBLIC KEY-----" />
+      <wd-textarea v-model="privateKey" label="私钥" placeholder="-----BEGIN RSA PRIVATE KEY-----" class="mt-3" />
+      <wd-textarea v-model="plaintext" label="原文" placeholder="待加密文本" class="mt-3" />
+      <wd-textarea v-model="ciphertext" label="密文" placeholder="加密结果 / 待解密文本" class="mt-3" />
+      <view class="u-gap-2 mt-4 flex flex-wrap">
+        <wd-button size="small" @click="encryptText">
+          加密 →
+        </wd-button>
+        <wd-button size="small" @click="decryptText">
+          ← 解密
+        </wd-button>
+        <wd-button size="small" @click="copyText(ciphertext)">
+          复制密文
+        </wd-button>
+      </view>
+    </cyber-card>
   </scroll-view>
 </template>

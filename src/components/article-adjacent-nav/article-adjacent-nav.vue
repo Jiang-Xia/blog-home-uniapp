@@ -19,11 +19,11 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <view v-if="prev || next" class="article-adjacent-nav mt-6 border-t border-tech pt-4">
+  <view v-if="prev || next" class="article-adjacent-nav mt-6">
     <view class="adjacent-nav-row">
       <view
         v-if="prev"
-        class="adjacent-link adjacent-link--prev"
+        class="adjacent-link adjacent-link--prev cyber-glass-card cyber-card-pad-xs"
         @tap="emit('navigate', prev.id)"
       >
         <text class="adjacent-arrow text-tech-faint">‹</text>
@@ -33,7 +33,7 @@ const emit = defineEmits<{
 
       <view
         v-if="next"
-        class="adjacent-link adjacent-link--next"
+        class="adjacent-link adjacent-link--next cyber-glass-card cyber-card-pad-xs"
         @tap="emit('navigate', next.id)"
       >
         <text class="adjacent-title truncate text-sm text-tech">{{ next.title }}</text>
@@ -54,8 +54,6 @@ const emit = defineEmits<{
   display: flex;
   min-width: 0;
   align-items: center;
-  padding: 12rpx 20rpx;
-  border-radius: 16rpx;
 }
 
 .adjacent-link + .adjacent-link {

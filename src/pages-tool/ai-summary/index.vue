@@ -86,25 +86,27 @@ function copySummary() {
 
 <template>
   <scroll-view scroll-y class="ai-page cyber-page-grid u-page-scroll u-page-body py-4">
-    <view class="u-gap-2 mb-3 flex flex-wrap">
-      <wd-button
-        v-for="(label, key) in styleLabels"
-        :key="key"
-        size="small"
-        :type="style === key ? 'primary' : undefined"
-        @click="style = key"
-      >
-        {{ label }}
+    <cyber-card class="cyber-card-pad-sm">
+      <view class="u-gap-2 mb-3 flex flex-wrap">
+        <wd-button
+          v-for="(label, key) in styleLabels"
+          :key="key"
+          size="small"
+          :type="style === key ? 'primary' : undefined"
+          @click="style = key"
+        >
+          {{ label }}
+        </wd-button>
+      </view>
+      <wd-textarea v-model="originalText" label="原文" placeholder="粘贴文章内容" />
+      <wd-button block class="mt-4" :loading="loading" @click="generateSummary">
+        生成摘要
       </wd-button>
-    </view>
-    <wd-textarea v-model="originalText" label="原文" placeholder="粘贴文章内容" />
-    <wd-button block class="mt-4" :loading="loading" @click="generateSummary">
-      生成摘要
-    </wd-button>
-    <wd-textarea v-model="summaryText" label="摘要结果" class="mt-4" />
-    <wd-button v-if="summaryText" block class="mt-2" @click="copySummary">
-      复制摘要
-    </wd-button>
+      <wd-textarea v-model="summaryText" label="摘要结果" class="mt-4" />
+      <wd-button v-if="summaryText" block class="mt-2" @click="copySummary">
+        复制摘要
+      </wd-button>
+    </cyber-card>
     <view class="cyber-glass-card mt-4 p-3">
       <text class="text-xs text-tech-subtle">依赖 blog-home-nuxt Nitro 代理（{{ nuxtHome }}），需配置 AI_SUMMARY_API_KEY</text>
     </view>

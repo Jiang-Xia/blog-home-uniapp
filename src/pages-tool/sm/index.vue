@@ -43,28 +43,30 @@ onMounted(createKey)
 
 <template>
   <scroll-view scroll-y class="sm-page cyber-page-grid u-page-scroll u-page-body py-4">
-    <view class="u-gap-2 mb-3 flex">
-      <wd-button size="small" :type="cipherMode === 1 ? 'primary' : undefined" @click="cipherMode = 1">
-        C1C3C2
-      </wd-button>
-      <wd-button size="small" :type="cipherMode === 0 ? 'primary' : undefined" @click="cipherMode = 0">
-        C1C2C3
-      </wd-button>
-      <wd-button size="small" @click="createKey">
-        生成密钥对
-      </wd-button>
-    </view>
-    <wd-textarea v-model="publicKey" label="公钥" />
-    <wd-textarea v-model="privateKey" label="私钥" class="mt-3" />
-    <wd-textarea v-model="plaintext" label="原文" class="mt-3" />
-    <wd-textarea v-model="ciphertext" label="密文" class="mt-3" />
-    <view class="u-gap-2 mt-4 flex">
-      <wd-button size="small" @click="encryptText">
-        加密 →
-      </wd-button>
-      <wd-button size="small" @click="decryptText">
-        ← 解密
-      </wd-button>
-    </view>
+    <cyber-card class="cyber-card-pad-sm">
+      <view class="u-gap-2 mb-3 flex">
+        <wd-button size="small" :type="cipherMode === 1 ? 'primary' : undefined" @click="cipherMode = 1">
+          C1C3C2
+        </wd-button>
+        <wd-button size="small" :type="cipherMode === 0 ? 'primary' : undefined" @click="cipherMode = 0">
+          C1C2C3
+        </wd-button>
+        <wd-button size="small" @click="createKey">
+          生成密钥对
+        </wd-button>
+      </view>
+      <wd-textarea v-model="publicKey" label="公钥" />
+      <wd-textarea v-model="privateKey" label="私钥" class="mt-3" />
+      <wd-textarea v-model="plaintext" label="原文" class="mt-3" />
+      <wd-textarea v-model="ciphertext" label="密文" class="mt-3" />
+      <view class="u-gap-2 mt-4 flex">
+        <wd-button size="small" @click="encryptText">
+          加密 →
+        </wd-button>
+        <wd-button size="small" @click="decryptText">
+          ← 解密
+        </wd-button>
+      </view>
+    </cyber-card>
   </scroll-view>
 </template>

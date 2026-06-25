@@ -84,42 +84,44 @@ onMounted(createKey)
 
 <template>
   <scroll-view scroll-y class="crypto-page cyber-page-grid u-page-scroll u-page-body py-4">
-    <view class="mb-3">
-      <text class="mb-2 block text-sm text-tech-muted">算法</text>
-      <view class="u-gap-2 flex flex-wrap">
-        <wd-button
-          v-for="item in algorithms"
-          :key="item.value"
-          size="small"
-          :type="algorithm === item.value ? 'primary' : undefined"
-          @click="algorithm = item.value"
-        >
-          {{ item.label }}
+    <cyber-card class="cyber-card-pad-sm">
+      <view class="mb-3">
+        <text class="mb-2 block text-sm text-tech-muted">算法</text>
+        <view class="u-gap-2 flex flex-wrap">
+          <wd-button
+            v-for="item in algorithms"
+            :key="item.value"
+            size="small"
+            :type="algorithm === item.value ? 'primary' : undefined"
+            @click="algorithm = item.value"
+          >
+            {{ item.label }}
+          </wd-button>
+        </view>
+      </view>
+      <wd-input v-model="secretKey" label="密钥" placeholder="密钥" />
+      <wd-input v-model="iv" label="偏移量 IV" placeholder="IV" class="mt-3" />
+      <view class="u-gap-2 mt-3 flex">
+        <wd-button size="small" :type="outputType === 'Hex' ? 'primary' : undefined" @click="outputType = 'Hex'">
+          Hex
+        </wd-button>
+        <wd-button size="small" :type="outputType === 'Base64' ? 'primary' : undefined" @click="outputType = 'Base64'">
+          Base64
+        </wd-button>
+        <wd-button size="small" @click="createKey">
+          生成密钥
         </wd-button>
       </view>
-    </view>
-    <wd-input v-model="secretKey" label="密钥" placeholder="密钥" />
-    <wd-input v-model="iv" label="偏移量 IV" placeholder="IV" class="mt-3" />
-    <view class="u-gap-2 mt-3 flex">
-      <wd-button size="small" :type="outputType === 'Hex' ? 'primary' : undefined" @click="outputType = 'Hex'">
-        Hex
-      </wd-button>
-      <wd-button size="small" :type="outputType === 'Base64' ? 'primary' : undefined" @click="outputType = 'Base64'">
-        Base64
-      </wd-button>
-      <wd-button size="small" @click="createKey">
-        生成密钥
-      </wd-button>
-    </view>
-    <wd-textarea v-model="plaintext" label="原文" class="mt-3" />
-    <wd-textarea v-model="ciphertext" label="密文" class="mt-3" />
-    <view class="u-gap-2 mt-4 flex">
-      <wd-button size="small" @click="encryptText">
-        加密 →
-      </wd-button>
-      <wd-button size="small" @click="decryptText">
-        ← 解密
-      </wd-button>
-    </view>
+      <wd-textarea v-model="plaintext" label="原文" class="mt-3" />
+      <wd-textarea v-model="ciphertext" label="密文" class="mt-3" />
+      <view class="u-gap-2 mt-4 flex">
+        <wd-button size="small" @click="encryptText">
+          加密 →
+        </wd-button>
+        <wd-button size="small" @click="decryptText">
+          ← 解密
+        </wd-button>
+      </view>
+    </cyber-card>
   </scroll-view>
 </template>

@@ -262,7 +262,7 @@ function goEditArticle(id: number) {
         </text>
       </view>
       <template v-if="commentSubTab === 'comment'">
-        <view v-for="c in comments" :key="c.id" class="mb-3 border-b border-tech pb-2">
+        <view v-for="c in comments" :key="c.id" class="cyber-glass-card cyber-card-pad-sm mb-3">
           <text class="block text-sm text-tech">{{ c.content }}</text>
           <text v-if="c.createTime" class="mt-1 block text-xs text-tech-subtle">{{ formatRelativeTime(c.createTime) }}</text>
           <text v-if="c.articleTitle" class="mt-1 block text-xs text-tech-subtle">{{ c.articleTitle }}</text>
@@ -272,7 +272,7 @@ function goEditArticle(id: number) {
         </view>
       </template>
       <template v-else>
-        <view v-for="r in replies" :key="r.id" class="mb-3 border-b border-tech pb-2">
+        <view v-for="r in replies" :key="r.id" class="cyber-glass-card cyber-card-pad-sm mb-3">
           <text class="block text-sm text-tech">{{ r.content }}</text>
           <text v-if="r.createTime" class="mt-1 block text-xs text-tech-subtle">{{ formatRelativeTime(r.createTime) }}</text>
           <text v-if="r.parentContent" class="mt-1 block text-xs text-tech-subtle">回复：{{ r.parentContent }}</text>
@@ -292,7 +292,7 @@ function goEditArticle(id: number) {
         <text v-if="n.createTime" class="mt-1 block text-xs text-tech-subtle">{{ formatRelativeTime(n.createTime) }}</text>
       </cyber-card>
       <text class="mt-4 block text-tech font-medium">文章评论</text>
-      <view v-for="c in inboxComments" :key="c.id" class="mt-2 border-b border-tech pb-2">
+      <view v-for="c in inboxComments" :key="c.id" class="cyber-glass-card cyber-card-pad-sm mt-2">
         <text class="text-sm text-tech-muted">{{ c.content }}</text>
         <text v-if="c.createTime" class="mt-1 block text-xs text-tech-subtle">{{ formatRelativeTime(c.createTime) }}</text>
       </view>

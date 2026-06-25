@@ -310,11 +310,13 @@ function goCategory(id: number) {
 
         <view class="mt-6">
           <text class="mb-2 block text-tech font-medium">评论</text>
-          <wd-textarea v-model="commentText" placeholder="写下你的评论..." />
-          <wd-button size="small" class="mt-2" @click="submitComment">
-            发表评论
-          </wd-button>
-          <view v-for="c in comments" :key="c.id" class="mt-3 border-t border-tech pt-2">
+          <view class="cyber-glass-card cyber-card-pad-sm mb-4">
+            <wd-textarea v-model="commentText" placeholder="写下你的评论..." />
+            <wd-button size="small" class="mt-2" @click="submitComment">
+              发表评论
+            </wd-button>
+          </view>
+          <view v-for="c in comments" :key="c.id" class="cyber-glass-card cyber-card-pad-sm mb-3">
             <view class="flex items-center justify-between">
               <view class="u-gap-2 min-w-0 flex flex-1 items-center">
                 <text class="text-sm text-tech font-medium">{{ c.nickname || c.username || c.userInfo?.nickname }}</text>
@@ -335,7 +337,7 @@ function goCategory(id: number) {
             </view>
             <text class="mt-1 block text-sm text-tech-muted">{{ c.content }}</text>
 
-            <view v-for="r in c.replys || []" :key="r.id" class="ml-4 mt-2 border-l-2 border-tech pl-3">
+            <view v-for="r in c.replys || []" :key="r.id" class="cyber-glass-card cyber-card-pad-xs ml-4 mt-2">
               <view class="flex items-center justify-between">
                 <view class="u-gap-2 min-w-0 flex flex-1 items-center">
                   <text class="text-xs text-tech font-medium">

@@ -38,7 +38,7 @@ function goDetail(id: number) {
 </script>
 
 <template>
-  <view class="article-card mb-3 overflow-hidden" @click="goDetail(item.id)">
+  <view class="article-card cyber-glass-card cyber-glass-card-flush mb-3 overflow-hidden" @click="goDetail(item.id)">
     <view v-if="coverUrl" class="article-card-cover p-2">
       <image :src="coverUrl" mode="aspectFill" class="article-card-cover-img w-full rounded-lg" />
     </view>
@@ -84,9 +84,6 @@ function goDetail(id: number) {
 
 <style scoped lang="scss">
 .article-card {
-  border-radius: 24rpx;
-  border: 1px solid var(--tech-border);
-  background-color: rgba(17, 24, 39, 0.35);
   transition: border-color 0.2s;
 }
 

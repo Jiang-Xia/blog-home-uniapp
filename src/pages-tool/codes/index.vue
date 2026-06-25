@@ -34,24 +34,26 @@ function copyOutput() {
 
 <template>
   <view class="codes-page cyber-page-grid u-page-body py-4">
-    <view class="u-gap-2 mb-4 flex flex-wrap">
-      <wd-button
-        v-for="m in ['base64-encode', 'base64-decode', 'url-encode', 'url-decode']"
-        :key="m"
-        size="small"
-        :type="mode === m ? 'primary' : undefined"
-        @click="mode = m as any"
-      >
-        {{ m }}
+    <cyber-card class="cyber-card-pad-sm">
+      <view class="u-gap-2 mb-4 flex flex-wrap">
+        <wd-button
+          v-for="m in ['base64-encode', 'base64-decode', 'url-encode', 'url-decode']"
+          :key="m"
+          size="small"
+          :type="mode === m ? 'primary' : undefined"
+          @click="mode = m as any"
+        >
+          {{ m }}
+        </wd-button>
+      </view>
+      <wd-textarea v-model="input" placeholder="输入文本" />
+      <view class="cyber-output-panel mt-4">
+        <text class="mb-2 block text-xs text-tech-subtle">输出</text>
+        <text class="break-all text-sm text-tech">{{ output }}</text>
+      </view>
+      <wd-button block class="mt-4" @click="copyOutput">
+        复制结果
       </wd-button>
-    </view>
-    <wd-textarea v-model="input" placeholder="输入文本" />
-    <view class="cyber-output-panel mt-4">
-      <text class="mb-2 block text-xs text-tech-subtle">输出</text>
-      <text class="break-all text-sm text-tech">{{ output }}</text>
-    </view>
-    <wd-button block class="mt-4" @click="copyOutput">
-      复制结果
-    </wd-button>
+    </cyber-card>
   </view>
 </template>

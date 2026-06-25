@@ -15,13 +15,13 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <view v-if="list.length" class="article-related mt-6 border-t border-tech pt-4">
+  <view v-if="list.length" class="article-related mt-6">
     <text class="mb-3 block text-sm text-tech-muted font-semibold">相关推荐</text>
     <view class="related-list">
       <view
         v-for="item in list"
         :key="item.id"
-        class="related-item"
+        class="related-item cyber-glass-card cyber-card-pad-sm mb-2"
         @tap="emit('navigate', item.id)"
       >
         <text class="related-title">{{ item.title }}</text>
@@ -37,15 +37,6 @@ const emit = defineEmits<{
 .related-list {
   display: flex;
   flex-direction: column;
-}
-
-.related-item {
-  padding: 16rpx 0;
-  border-bottom: 1px solid var(--tech-border);
-}
-
-.related-item:last-child {
-  border-bottom: none;
 }
 
 .related-item:active {
