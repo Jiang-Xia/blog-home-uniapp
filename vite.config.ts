@@ -30,6 +30,7 @@ import ViteRestart from 'vite-plugin-restart'
 import openDevTools from './scripts/open-dev-tools'
 import vitePluginEruda from './scripts/vite-plugin-eruda'
 import { createCopyNativeResourcesPlugin } from './vite-plugins/copy-native-resources'
+import mpAtobPolyfillInject from './vite-plugins/mp-atob-polyfill-inject'
 import syncManifestPlugin from './vite-plugins/sync-manifest-plugins'
 
 // https://vitejs.dev/config/
@@ -65,7 +66,7 @@ export default defineConfig(({ command, mode }) => {
     VITE_APP_PROXY_PREFIX,
     VITE_COPY_NATIVE_RES_ENABLE,
   } = env
-  const { WECHAT_DEVTOOLS_CLI_PATH } = localEnv
+  const { WECHAT_DEVTOOLS_CLI_PATH, ALIPAY_DEVTOOLS_PATH } = localEnv
   console.log('环境变量 env -> ', env)
 
   return defineConfig({
@@ -87,8 +88,7 @@ export default defineConfig(({ command, mode }) => {
         exclude: ['**/components/**/**.*', '**/sections/**/**.*'],
         // pages 目录为 src/pages，分包目录不能配置在pages目录下！！
         // 是个数组，可以配置多个，但是不能为pages里面的目录！！
-        // "src/pages-demo" 是unibest demo 预留的，方便后续插入demo示例
-        subPackages: ['src/pages-demo'],
+        subPackages: ['src/pages-blog', 'src/pages-rpg', 'src/pages-tool'],
         dts: 'src/types/uni-pages.d.ts',
       }),
       // UniOptimization 插件需要 page.json 文件，故应在 UniPages 插件之后执行
@@ -153,6 +153,7 @@ export default defineConfig(({ command, mode }) => {
         },
       ),
       syncManifestPlugin(),
+      mpAtobPolyfillInject(),
       vitePluginEruda({
         open: UNI_PLATFORM === 'h5' && mode === 'development',
       }),
@@ -161,6 +162,7 @@ export default defineConfig(({ command, mode }) => {
       SKIP_OPEN_DEVTOOLS !== 'true' && openDevTools({
         mode,
         wechatDevtoolsCliPath: WECHAT_DEVTOOLS_CLI_PATH,
+        alipayDevtoolsPath: ALIPAY_DEVTOOLS_PATH,
       }),
     ],
     define: {

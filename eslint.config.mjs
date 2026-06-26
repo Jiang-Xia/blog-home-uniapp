@@ -19,6 +19,8 @@ export default uniHelper({
     'src/manifest.json',
     // 忽略自动生成文件
     'src/service/**',
+    // 本地运维/冒烟脚本，非业务源码
+    'scripts/**',
   ],
   // https://eslint-config.antfu.me/rules
   rules: {

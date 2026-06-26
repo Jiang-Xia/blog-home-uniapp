@@ -2,6 +2,7 @@ import type { IDoubleTokenRes } from '@/api/types/login'
 import type { CustomRequestOptions, IResponse } from '@/http/types'
 import { nextTick } from 'vue'
 import { useTokenStore } from '@/store/token'
+import { getPersistedAccessToken } from '@/utils/auth-token'
 import { isDoubleTokenMode } from '@/utils'
 import { toLoginPage } from '@/utils/toLoginPage'
 import { ResultEnum } from './tools/enum'
@@ -11,6 +12,15 @@ let refreshing = false // 防止重复刷新 token 标识
 let taskQueue: (() => void)[] = [] // 刷新 token 请求队列
 
 export function http<T>(options: CustomRequestOptions) {
+  // 登录后立即发起的请求，确保 header 已带 token
+  const token = useTokenStore().updateNowTime().validToken || getPersistedAccessToken()
+  if (token) {
+    options.header = {
+      ...options.header,
+      Authorization: `Bearer ${token}`,
+    }
+  }
+
   // 1. 返回 Promise 对象
   return new Promise<T>((resolve, reject) => {
     uni.request({
@@ -30,14 +40,13 @@ export function http<T>(options: CustomRequestOptions) {
         if (isTokenExpired) {
           const tokenStore = useTokenStore()
           if (!isDoubleTokenMode) {
-            // 未启用双token策略，清理用户信息，跳转到登录页
             tokenStore.logout()
             toLoginPage()
             return reject(res)
           }
 
-          /* -------- 无感刷新 token ----------- */
-          const { refreshToken } = tokenStore.tokenInfo as IDoubleTokenRes || {}
+          /* -------- 无感刷新 token（GET /user/refresh）----------- */
+          const { refreshToken } = (tokenStore.tokenInfo as IDoubleTokenRes) || {}
           // token 失效的，且有刷新 token 的，才放到请求队列里
           if (refreshToken) {
             taskQueue.push(() => {
@@ -175,6 +184,20 @@ export function httpPut<T>(url: string, data?: Record<string, any>, query?: Reco
 }
 
 /**
+ * PATCH 请求
+ */
+export function httpPatch<T>(url: string, data?: Record<string, any>, query?: Record<string, any>, header?: Record<string, any>, options?: Partial<CustomRequestOptions>) {
+  return http<T>({
+    url,
+    data,
+    query,
+    method: 'PATCH' as UniApp.RequestOptions['method'],
+    header,
+    ...options,
+  })
+}
+
+/**
  * DELETE 请求（无请求体，仅 query）
  */
 export function httpDelete<T>(url: string, query?: Record<string, any>, header?: Record<string, any>, options?: Partial<CustomRequestOptions>) {
@@ -191,10 +214,12 @@ export function httpDelete<T>(url: string, query?: Record<string, any>, header?:
 http.get = httpGet
 http.post = httpPost
 http.put = httpPut
+http.patch = httpPatch
 http.delete = httpDelete
 
 // 支持与 alovaJS 类似的API调用
 http.Get = httpGet
 http.Post = httpPost
 http.Put = httpPut
+http.Patch = httpPatch
 http.Delete = httpDelete

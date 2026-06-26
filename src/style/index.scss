@@ -9,13 +9,14 @@
   color: red;
 }
 
-:root,
-page {
-  // 修改按主题色
-  // --wot-color-theme: #37c2bc;
+@import './cyber-theme.scss';
+@import './markdown-preview.scss';
 
-  // 修改按钮背景色
-  // --wot-button-primary-bg-color: green;
+/* #ifdef H5 */
+:root,
+/* #endif */
+page {
+  // cyber 主题色在 cyber-theme.scss 中定义
 }
 
 /*

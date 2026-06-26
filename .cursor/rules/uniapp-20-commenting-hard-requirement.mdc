@@ -1,0 +1,55 @@
+---
+description: blog-home-uniapp 全项目代码注释规范（新功能必注释、复杂逻辑必注释）
+alwaysApply: true
+---
+
+# 注释规范
+
+注释说明**意图、规则与边界**，禁止翻译代码。修改或新增代码时**禁止删除**已有中文/文件头注释。
+
+对齐 blog-home-nuxt [`home-09-commenting-hard-requirement.mdc`](../../blog-home-nuxt/.cursor/rules/home-09-commenting-hard-requirement.mdc)，uni-app 平台差异在文件头注明（如 `#ifdef H5`、小程序登录）。
+
+## 新功能 / 新模块（必须）
+
+| 位置 | 写什么 |
+|------|--------|
+| **新文件顶部** | 页面/组件/composable 职责、数据来源（哪个 API） |
+| **导出函数 / composable** | 用途、副作用（调 API、改 Pinia、WebSocket、uni.storage） |
+| **types 新接口** | 字段含义；若来自后端 enrich，注明「勿本地 map 回显」 |
+| **组件 script 头** | 纯展示 vs 含业务；父组件传 props 的约定 |
+
+## 必须加注释的场景
+
+1. **所有新增/修改的函数与方法**（含 composable、页面 handler）：至少 1 行中文 JSDoc
+2. **函数体超过 5 行**：函数头 JSDoc；核心分支前 1 行注释
+3. **复杂逻辑**：多条件、异步并发、缓存/去重、WebSocket、请求队列、跨端条件编译
+4. **核心逻辑块**：Tab 懒加载、mutation 后 refresh、OAuth ticket 兑换、评论 pending 分支、草稿 autosave
+
+## 展示类数据（全项目通则）
+
+- **列表/详情/标签/状态文案**：只渲染 **API 返回字段**，禁止为同一业务 code 维护前端 dict/map
+- 类型定义与 API 对齐；展示用 `item.config?.xxxLabel`、`reward.xxx?.name` 等
+- 若后端尚未下发展示字段，应改后端 enrich，而不是在前端补 map
+
+## 文件级要求
+
+- `composables/**`、`utils/**`、`api/**`：每个导出函数有中文 JSDoc
+- `pages/**`、`components/**`：文件头模块说明；含副作用方法需注释
+- 模板中非显然 `v-if`/事件，在 script 侧注释约定即可
+
+## 可不注释
+
+- 命名自解释的单行 getter/简单映射（≤5 行无分支）
+- 禁止废话注释
+
+## 示例
+
+```typescript
+/** 评论列表：仅展示已审核内容，pending 由 POST /comment/create 返回 status 提示 */
+export async function getComment(articleId: string, params?: CommentQuery) {
+  const res = await http.get('/comment/findAll', { articleId, ...params })
+  if (res?.list)
+    res.list = filterApprovedComments(res.list)
+  return res
+}
+```

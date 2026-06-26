@@ -25,6 +25,7 @@ export default defineConfig({
         'vertical-align': 'middle',
       },
       collections: {
+        'carbon': () => import('@iconify-json/carbon/icons.json').then(i => i.default as any),
         // 注册本地 SVG 图标集合, 从本地文件系统加载图标
         // 在 './src/static/my-icons' 目录下的所有 svg 文件将被注册为图标，
         // my-icons 是图标集合名称，使用 `i-my-icons-图标名` 调用
@@ -71,12 +72,20 @@ export default defineConfig({
     {
       center: 'flex justify-center items-center',
     },
+    ['text-tech', 'color-[var(--tech-fg)]'],
+    ['text-tech-muted', 'color-[var(--tech-fg-muted)]'],
+    ['text-tech-subtle', 'color-[var(--tech-fg-subtle)]'],
+    ['text-tech-primary', 'color-[var(--tech-primary)]'],
+    ['bg-tech-shell', 'bg-[var(--tech-shell)]'],
+    ['border-tech', 'border-[var(--tech-border)]'],
   ],
   // 动态图标需要在这里配置，或者写在vue页面中注释掉
   safelist: [
     'i-carbon-code',
     'i-carbon-home',
     'i-carbon-user',
+    'i-carbon-compass',
+    'i-carbon-game-console',
     'i-carbon-ibm-watson-language-translator',
     'i-carbon-menu',
   ],

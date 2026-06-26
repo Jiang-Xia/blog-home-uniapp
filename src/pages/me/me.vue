@@ -1,32 +1,63 @@
 <script lang="ts" setup>
+/**
+ * 我的 Tab：用户卡片 + 个人中心功能菜单（分组 cell 列表）
+ * - 单卡片内多行 cell，行间距由 margin-bottom 控制
+ * - 未登录可见全部菜单，点击跳转登录并带 redirect
+ * - 功能项由原个人中心六 Tab 拆出，详情仍在 profile 子页
+ */
+import { getUnreadCount } from '@/api/notification'
+import { meMenuSections, resolveMeMenuRoute } from '@/config/me-menu'
+import type { MeMenuItem } from '@/config/me-menu'
 import { storeToRefs } from 'pinia'
-import { LOGIN_PAGE } from '@/router/config'
+import { LOGIN_PAGE, ROUTE_PROFILE } from '@/router/config'
 import { useUserStore } from '@/store'
 import { useTokenStore } from '@/store/token'
 
 definePage({
-  style: {
-    navigationBarTitleText: '我的',
-  },
+  style: { navigationBarTitleText: '我的' },
 })
 
 const userStore = useUserStore()
 const tokenStore = useTokenStore()
-// 使用storeToRefs解构userInfo
 const { userInfo } = storeToRefs(userStore)
+const unreadCount = ref(0)
 
-// 微信小程序下登录
-async function handleLogin() {
-  // #ifdef MP-WEIXIN
-  // 微信登录
-  await tokenStore.wxLogin()
+onShow(async () => {
+  if (!tokenStore.hasLogin) {
+    unreadCount.value = 0
+    return
+  }
+  try {
+    unreadCount.value = (await getUnreadCount())?.count ?? 0
+  }
+  catch {
+    unreadCount.value = 0
+  }
+})
 
-  // #endif
-  // #ifndef MP-WEIXIN
-  uni.navigateTo({
-    url: `${LOGIN_PAGE}`,
-  })
-  // #endif
+function menuBadge(item: MeMenuItem) {
+  if (item.tab === 'inbox' && unreadCount.value > 0)
+    return unreadCount.value > 99 ? '99+' : String(unreadCount.value)
+  return ''
+}
+
+function handleMenuClick(item: MeMenuItem) {
+  const target = resolveMeMenuRoute(item)
+  if (item.requiresLogin && !tokenStore.hasLogin) {
+    uni.navigateTo({
+      url: `${LOGIN_PAGE}?redirect=${encodeURIComponent(target)}`,
+    })
+    return
+  }
+  uni.navigateTo({ url: target })
+}
+
+function goUserCard() {
+  if (!tokenStore.hasLogin) {
+    uni.navigateTo({ url: LOGIN_PAGE })
+    return
+  }
+  uni.navigateTo({ url: `${ROUTE_PROFILE}?tab=card` })
 }
 
 function handleLogout() {
@@ -34,46 +65,83 @@ function handleLogout() {
     title: '提示',
     content: '确定要退出登录吗？',
     success: (res) => {
-      if (res.confirm) {
-        // 清空用户信息
-        useTokenStore().logout()
-        // 执行退出登录逻辑
-        uni.showToast({
-          title: '退出登录成功',
-          icon: 'success',
-        })
-        // #ifdef MP-WEIXIN
-        // 微信小程序，去首页
-        // uni.reLaunch({ url: '/pages/index/index' })
-        // #endif
-        // #ifndef MP-WEIXIN
-        // 非微信小程序，去登录页
-        // uni.navigateTo({ url: LOGIN_PAGE })
-        // #endif
-      }
+      if (res.confirm)
+        tokenStore.logout()
     },
   })
 }
 </script>
 
 <template>
-  <view class="profile-container">
-    <view class="mt-3 break-all px-3 text-center text-green-500">
-      {{ userInfo.username ? '已登录' : '未登录' }}
-    </view>
-    <view class="mt-3 break-all px-3">
-      {{ JSON.stringify(userInfo, null, 2) }}
-    </view>
+  <scroll-view scroll-y class="me-page cyber-page-grid u-page-scroll">
+    <view class="u-page-body me-page-body">
+      <!-- 用户卡片 -->
+      <view class="me-section">
+        <cyber-card class="cyber-card-pad-menu--solo">
+          <view class="cyber-card-row u-gap-3 me-user-card-row" @tap="goUserCard">
+            <template v-if="tokenStore.hasLogin">
+              <image :src="userInfo.avatar" class="h-14 w-14 shrink-0 border border-tech rounded-full" mode="aspectFill" />
+              <view class="u-flex-1 min-w-0">
+                <text class="block text-lg text-tech font-bold">{{ userInfo.nickname }}</text>
+                <text class="text-sm text-tech-muted">@{{ userInfo.username }}</text>
+              </view>
+              <text class="cyber-menu-chevron">›</text>
+            </template>
+            <template v-else>
+              <view class="me-guest-avatar">
+                👤
+              </view>
+              <view class="u-flex-1 min-w-0">
+                <text class="block text-tech font-semibold">登录 / 注册</text>
+                <text class="mt-1 block text-xs text-tech-muted">登录后管理资料、文章与互动数据</text>
+              </view>
+              <text class="cyber-menu-chevron">›</text>
+            </template>
+          </view>
+        </cyber-card>
+      </view>
 
-    <view class="mt-[60vh] px-3">
-      <view class="m-auto w-160px text-center">
-        <button v-if="tokenStore.hasLogin" type="warn" class="w-full" @click="handleLogout">
-          退出登录
-        </button>
-        <button v-else type="primary" class="w-full" @click="handleLogin">
-          登录
-        </button>
+      <!-- 功能菜单：分组单卡片，cell 下边距拉开行距 -->
+      <view
+        v-for="section in meMenuSections"
+        :key="section.title"
+        class="me-section"
+      >
+        <text class="me-section-title">{{ section.title }}</text>
+        <cyber-card
+          class="cyber-card-pad-menu"
+          :class="section.items.length === 1 ? 'cyber-card-pad-menu--compact' : 'cyber-card-pad-menu--group'"
+        >
+          <view
+            class="cyber-menu-list"
+            :class="section.items.length > 1 ? 'cyber-menu-list--multi' : ''"
+          >
+            <cyber-cell
+              v-for="item in section.items"
+              :key="item.title"
+              :icon="item.icon"
+              :title="item.title"
+              :desc="item.desc"
+              :badge="menuBadge(item)"
+              @click="handleMenuClick(item)"
+            />
+          </view>
+        </cyber-card>
+      </view>
+
+      <!-- 退出登录 -->
+      <view v-if="tokenStore.hasLogin" class="me-section me-section--tail">
+        <cyber-card class="cyber-card-pad-menu cyber-card-pad-menu--compact">
+          <view class="cyber-menu-list">
+            <cyber-cell
+              icon="🚪"
+              title="退出登录"
+              desc="退出当前账号"
+              @click="handleLogout"
+            />
+          </view>
+        </cyber-card>
       </view>
     </view>
-  </view>
+  </scroll-view>
 </template>

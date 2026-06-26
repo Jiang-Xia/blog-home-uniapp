@@ -1,0 +1,44 @@
+---
+description: blog-home-uniapp 功能完成后须 H5 冒烟验证；由用户触发，Agent 勿自动开测
+alwaysApply: true
+---
+
+# H5 浏览器测试
+
+blog-home-uniapp 功能开发或修复完成后，**交付前须完成 H5 端浏览器验证**，不要仅依赖 type-check / 单元测试。
+
+## Agent 行为（重要）
+
+- **禁止**在任务结束时**自动**启动 `pnpm dev`、跑 `smoke-h5.mjs` 或做浏览器验证，除非用户**明确要求**测试/验证/H5 冒烟。
+- 用户已自行开启本规则时，Agent 在回复中**提醒**「功能改动已完成，可按下方步骤做 H5 冒烟」，**不要**擅自开 dev 进程。
+- 用户说「测一下」「跑冒烟」「H5 验证」等时，再执行测试并在结束后关闭 9000 dev 进程。
+
+## 默认环境
+
+| 服务 | 命令 | 地址 |
+|------|------|------|
+| uniapp H5 | `pnpm dev` | http://localhost:9000/#/ |
+| blog-server | `npm run start:dev` | http://localhost:5000/api/v1 |
+
+Agent 仅在用户要求验证时自启 dev；验证结束后按 [uniapp-16-dev-service-cleanup.mdc](uniapp-16-dev-service-cleanup.mdc) 关闭 **9000**，勿停 MySQL/Redis。
+
+## 测试方式（按优先级）
+
+1. **自动化冒烟**（推荐）：
+   ```bash
+   cd blog-home-uniapp
+   pnpm exec playwright install chromium   # 首次
+   node scripts/smoke-h5.mjs
+   ```
+2. **手动**：浏览器打开上述 H5 地址，走 TabBar + 发现页卡片 + 本次改动页面。
+
+## 必查项
+
+- 页面无白屏、无阻塞性 `console.error` / 未捕获异常
+- 网络请求指向 `VITE_SERVER_BASEURL`（默认 `/api/v1`），401 刷新/跳登录正常
+- 本次改动涉及的路由在 H5 hash 路由下可直达
+
+## 范围说明
+
+- **默认测 H5**；小程序/App 差异用条件编译或单独说明，不替代 H5 冒烟
+- 新增页面时同步更新 `scripts/smoke-h5.mjs` 的 `routes` 列表（若属常用页）

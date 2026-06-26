@@ -1,0 +1,70 @@
+---
+description: blog-home-uniapp 微信小程序 WXSS 禁用/须条件编译的 CSS 语法（防 app.wxss 编译报错）
+globs: *.vue,*.scss,*.css
+alwaysApply: true
+---
+
+# 微信小程序 WXSS CSS 规范（强制）
+
+样式会编译进 `app.wxss`。须区分 **编译报错** 与 **兼容/布局风险** 两类问题。
+
+**原则：默认按小程序能编译的写法写；仅 H5 可用的语法必须包在 `/* #ifdef H5 */` … `/* #endif */` 内。**
+
+## A. 编译必报错（禁止写入非 H5 段）
+
+| 禁止 | 现象 | 替代 |
+|------|------|------|
+| `*`、`> *`、`* + *` | `error at token *` | 列具体标签 `view/text/image`，或外包 `view` |
+| `:deep()`、`::v-deep`、`/deep/` 泄漏进 wxss | 编译/选择器异常 | 仅 `#ifdef H5`；MP 用全局类名 |
+| `:is()`、`:where()` | 编译失败 | 展开为具体选择器 |
+
+## B. 通常能编译，但有兼容/布局风险（项目规范用 u-*）
+
+| 避免 | 实际表现 | 项目替代 |
+|------|----------|----------|
+| UnoCSS `gap-*`、`space-y-*` | 新基础库可用 `gap`；旧版**静默失效**；且对 easycom 组件间距常无效 | `u-gap-*`、`u-stack-3`（MP 用负 margin） |
+| `grid` / `grid-cols-*` | 新基础库部分支持；旧版**布局错乱** | `u-grid-2`、`u-grid-4`（flex 模拟） |
+| UnoCSS `bg-*/10` 等 | 多数能编译；个别色值语法在 MP **显示异常** | `u-bg-white-10`、`rgba()` |
+| `100vh` 用于 scroll-view | 不报错；TabBar 下**双滚动/留白** | `u-page-scroll` |
+| `backdrop-filter` | 不报错；**无效果** | 实色半透明背景 |
+| `clamp()` + `vw` | 不报错；MP **字号/间距异常** | MP 用 `rpx`，H5 可 `clamp` |
+| `background-clip: text` 无降级 | 不报错；MP **渐变字失效** | `cyber-gradient-text` |
+
+## C. 仅 H5 或须降级
+
+- `::before` / `::after` 复杂布局 → H5 条件编译或真实 `view`
+- `:webkit-autofill` 等浏览器私有 → 包 `#ifdef H5`
+
+## easycom 组件与间距
+
+`u-flex-gap-wrap` 等间距 mixin **只匹配** `> view, > text, > image`，**不匹配** `cyber-button` 等组件标签。
+
+```vue
+<!-- ❌ 小程序无间距，且勿用 > *  hack -->
+<view class="u-gap-3">
+  <cyber-button>确定</cyber-button>
+</view>
+
+<!-- ✅ 外包原生 view（同 u-grid-*-item 模式） -->
+<view class="u-gap-3">
+  <view><cyber-button>确定</cyber-button></view>
+</view>
+```
+
+## H5 专用须条件编译
+
+```scss
+/* #ifdef H5 */
+.hero::before { ... }
+:deep(.wd-input__inner) { ... }
+.title { background-clip: text; }
+/* #endif */
+```
+
+## 新增/修改样式自检
+
+1. 全局 `cyber-theme.scss`、组件 `<style>` 是否含 `*`、`:deep`、UnoCSS `gap`？
+2. flex 子项若是 easycom 组件，是否包了 `view`？
+3. 改完是否在 **微信开发者工具** 编译通过（不只验 H5）？
+
+参考：[`styling-css-patterns.mdc`](styling-css-patterns.mdc)、[`src/style/index.scss`](mdc:src/style/index.scss)（`*` 说明）。

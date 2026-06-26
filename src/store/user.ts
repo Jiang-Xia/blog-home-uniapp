@@ -56,6 +56,6 @@ export const useUserStore = defineStore(
     }
   },
   {
-    persist: true,
+    persist: { pick: ['userInfo'] },
   },
 )

@@ -13,6 +13,7 @@
 - 自动修复代码格式：`pnpm lint:fix`
 - 使用 eslint 格式化代码
 - 遵循 TypeScript 严格模式
+- **注释**：新功能/复杂逻辑须中文 JSDoc，见 [uniapp-20-commenting-hard-requirement.mdc](uniapp-20-commenting-hard-requirement.mdc)
 
 ## 构建和部署
 - H5 构建：`pnpm build:h5`
@@ -32,6 +33,7 @@
 - 利用 Vue DevTools 调试组件状态
 - 使用网络面板调试 API 请求
 - 平台差异测试和兼容性检查
+- **功能交付前必做 H5 浏览器冒烟**：见 [uniapp-19-h5-browser-test.mdc](uniapp-19-h5-browser-test.mdc)，`node scripts/smoke-h5.mjs`
 
 ## 性能优化
 - 使用懒加载和代码分割
