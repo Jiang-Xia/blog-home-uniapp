@@ -45,6 +45,70 @@
   overflow-x: auto;
 }
 
+/* highlight.js 代码高亮（小程序 mp-html） */
+.markdown-body-mp .hljs,
+.markdown-body-mp .md-pre {
+  color: #e6edf3;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 24rpx;
+  line-height: 1.6;
+}
+
+.markdown-body-mp .hljs-comment,
+.markdown-body-mp .hljs-quote {
+  color: #8b949e;
+  font-style: italic;
+}
+
+.markdown-body-mp .hljs-keyword,
+.markdown-body-mp .hljs-selector-tag,
+.markdown-body-mp .hljs-built_in {
+  color: #ff7b72;
+}
+
+.markdown-body-mp .hljs-string,
+.markdown-body-mp .hljs-regexp,
+.markdown-body-mp .hljs-addition {
+  color: #a5d6ff;
+}
+
+.markdown-body-mp .hljs-number,
+.markdown-body-mp .hljs-literal {
+  color: #79c0ff;
+}
+
+.markdown-body-mp .hljs-title,
+.markdown-body-mp .hljs-section,
+.markdown-body-mp .hljs-name {
+  color: #d2a8ff;
+}
+
+.markdown-body-mp .hljs-attr,
+.markdown-body-mp .hljs-attribute,
+.markdown-body-mp .hljs-variable,
+.markdown-body-mp .hljs-template-variable {
+  color: #ffa657;
+}
+
+.markdown-body-mp .hljs-type,
+.markdown-body-mp .hljs-class .hljs-title {
+  color: #ffa657;
+}
+
+.markdown-body-mp .hljs-symbol,
+.markdown-body-mp .hljs-bullet,
+.markdown-body-mp .hljs-link {
+  color: #79c0ff;
+}
+
+.markdown-body-mp .hljs-meta {
+  color: #8b949e;
+}
+
+.markdown-body-mp .hljs-deletion {
+  color: #ffa198;
+}
+
 .markdown-body-mp .md-code-inline {
   padding: 4rpx 10rpx;
   border-radius: 6rpx;
@@ -156,6 +220,21 @@
   .md-editor-preview pre {
     border-radius: 8px;
     border: 1px solid var(--tech-border);
+    background: #0d1117 !important;
+  }
+
+  .md-editor-preview pre code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .md-editor-preview :not(pre) > code {
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #f472b6;
+    font-size: 0.9em;
   }
 }
 /* #endif */

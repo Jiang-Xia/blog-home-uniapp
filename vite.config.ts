@@ -66,7 +66,7 @@ export default defineConfig(({ command, mode }) => {
     VITE_APP_PROXY_PREFIX,
     VITE_COPY_NATIVE_RES_ENABLE,
   } = env
-  const { WECHAT_DEVTOOLS_CLI_PATH } = localEnv
+  const { WECHAT_DEVTOOLS_CLI_PATH, ALIPAY_DEVTOOLS_PATH } = localEnv
   console.log('环境变量 env -> ', env)
 
   return defineConfig({
@@ -162,6 +162,7 @@ export default defineConfig(({ command, mode }) => {
       SKIP_OPEN_DEVTOOLS !== 'true' && openDevTools({
         mode,
         wechatDevtoolsCliPath: WECHAT_DEVTOOLS_CLI_PATH,
+        alipayDevtoolsPath: ALIPAY_DEVTOOLS_PATH,
       }),
     ],
     define: {

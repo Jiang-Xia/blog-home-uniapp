@@ -156,6 +156,17 @@ page {
 }
 
 .cyber-card-pad-menu {
+  padding: 16rpx 32rpx !important;
+}
+
+/** 单 cell 卡片：收紧内边距，避免单行菜单过高 */
+.cyber-card-pad-menu--solo,
+.cyber-card-pad-menu--compact {
+  padding: 20rpx 32rpx !important;
+}
+
+/** 多行分组卡片：略增内边距，与行间距配合 */
+.cyber-card-pad-menu--group {
   padding: 24rpx 32rpx !important;
 }
 
@@ -190,18 +201,52 @@ page {
   justify-content: space-between;
   width: 100%;
   box-sizing: border-box;
-  padding: 28rpx 0;
-  border-bottom: 1px solid var(--tech-border);
+  min-height: auto;
+  padding: 0;
+  border-bottom: none;
   color: var(--tech-fg);
 }
 
-.cyber-menu-item:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+/** 多行分组：加大行内 padding + 行间下边距，避免副标题与下一行图标贴紧 */
+.cyber-menu-list--multi .cyber-menu-item {
+  padding: 24rpx 0;
+  border-bottom: 1px solid var(--tech-border);
 }
 
-.cyber-menu-item:first-child {
-  padding-top: 0;
+.cyber-menu-list--multi .cyber-menu-item:first-child {
+  padding-top: 8rpx;
+}
+
+.cyber-menu-list--multi .cyber-menu-item:last-child {
+  padding-bottom: 8rpx;
+  border-bottom: none;
+}
+
+.cyber-menu-list--multi .cyber-menu-item:not(:last-child) {
+  margin-bottom: 28rpx;
+}
+
+/** 单卡片仅一行 cell：高度由卡片内边距决定 */
+.cyber-menu-list .cyber-menu-item:only-child {
+  padding: 0;
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+/** 独立单行 cell：不继承分组行高，由卡片内边距控制 */
+.cyber-menu-item.cyber-menu-item--solo {
+  min-height: auto;
+  padding: 0;
+  border-bottom: none;
+}
+
+.me-page-body {
+  padding-top: 32rpx;
+  padding-bottom: 32rpx;
+}
+
+.me-user-card-row {
+  width: 100%;
 }
 
 .cyber-menu-chevron {
@@ -242,13 +287,15 @@ page {
   display: block;
   font-size: 30rpx;
   font-weight: 500;
+  line-height: 1.45;
   color: var(--tech-fg);
 }
 
 .cyber-cell-desc {
   display: block;
-  margin-top: 4rpx;
+  margin-top: 8rpx;
   font-size: 24rpx;
+  line-height: 1.45;
   color: var(--tech-fg-muted);
 }
 
@@ -298,11 +345,78 @@ page {
 
 .me-section-title {
   display: block;
-  margin-bottom: 16rpx;
+  margin-bottom: 20rpx;
   padding-left: 8rpx;
   font-size: 26rpx;
   color: var(--tech-fg-muted);
 }
+
+.me-page-body .me-section + .me-section {
+  margin-top: 32rpx;
+}
+
+.me-page-body .me-section--tail {
+  margin-bottom: 32rpx;
+}
+
+/** 回到顶部浮动按钮 */
+.cyber-back-top {
+  position: fixed;
+  right: 32rpx;
+  bottom: 48rpx;
+  z-index: 35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  border: 1px solid rgba(34, 211, 238, 0.38);
+  background: rgba(17, 24, 39, 0.82);
+  box-shadow:
+    0 8rpx 24rpx rgba(0, 0, 0, 0.32),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.06);
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.cyber-back-top:active {
+  transform: scale(0.94);
+  background: rgba(34, 211, 238, 0.14);
+  border-color: rgba(34, 211, 238, 0.62);
+}
+
+.cyber-back-top-arrow {
+  width: 18rpx;
+  height: 18rpx;
+  margin-top: 6rpx;
+  border-top: 3rpx solid var(--tech-primary);
+  border-left: 3rpx solid var(--tech-primary);
+  transform: rotate(45deg);
+}
+
+/* #ifdef H5 */
+.cyber-back-top {
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  backdrop-filter: blur(12px) saturate(1.1);
+  -webkit-backdrop-filter: blur(12px) saturate(1.1);
+}
+
+.cyber-back-top--tabbar {
+  bottom: calc(50px + 20px + env(safe-area-inset-bottom, 0px));
+}
+/* #endif */
+
+/* #ifdef MP-WEIXIN || MP-ALIPAY */
+.cyber-back-top {
+  bottom: calc(48rpx + constant(safe-area-inset-bottom));
+  bottom: calc(48rpx + env(safe-area-inset-bottom));
+}
+
+.cyber-back-top--tabbar {
+  bottom: calc(100rpx + 32rpx + constant(safe-area-inset-bottom));
+  bottom: calc(100rpx + 32rpx + env(safe-area-inset-bottom));
+}
+/* #endif */
 
 /** 卡片内横向行：左内容右箭头（flex 写在原生 view 上，勿写在 cyber-card 上） */
 .cyber-card-row {

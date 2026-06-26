@@ -16,13 +16,21 @@ withDefaults(defineProps<{
   /** 右侧辅助文案（如「登录后可用」） */
   value?: string
   badge?: string
-}>(), {})
+  /** 独立卡片内单行，无分组底边线 */
+  solo?: boolean
+}>(), {
+  solo: false,
+})
 
 const emit = defineEmits<{ click: [] }>()
 </script>
 
 <template>
-  <view class="cyber-menu-item" @click="emit('click')">
+  <view
+    class="cyber-menu-item"
+    :class="solo ? 'cyber-menu-item--solo' : ''"
+    @tap="emit('click')"
+  >
     <view class="cyber-cell-main">
       <view v-if="icon" class="cyber-cell-icon">
         <text>{{ icon }}</text>

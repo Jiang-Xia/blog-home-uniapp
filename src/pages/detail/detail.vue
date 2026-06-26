@@ -21,6 +21,7 @@ import ArticleAdjacentNav from '@/components/article-adjacent-nav/article-adjace
 import ArticleRelatedList from '@/components/article-related-list/article-related-list.vue'
 import ArticleRpgFab from '@/components/article-rpg-fab/article-rpg-fab.vue'
 import ArticleToc from '@/components/article-toc/article-toc.vue'
+import CyberBackTop from '@/components/cyber/cyber-back-top.vue'
 import MarkdownView from '@/components/markdown-view/markdown-view.vue'
 import { ROUTE_CATEGORY_LIST, ROUTE_DETAIL, ROUTE_TAG_LIST } from '@/router/routes'
 import { useUserStore } from '@/store'
@@ -54,6 +55,9 @@ const tocTopics = ref<ArticleTocItem[]>([])
 const scrollTop = ref(0)
 const scrollToTop = ref(0)
 const fabRef = ref<InstanceType<typeof ArticleRpgFab> | null>(null)
+const backTopRef = ref<InstanceType<typeof CyberBackTop> | null>(null)
+
+const DEFAULT_AVATAR = '/static/images/default-avatar.png'
 
 const currentUserId = computed(() => userStore.userInfo.userId)
 const coverUrl = computed(() => resolveStaticUrl(String(article.value?.cover ?? '')))
@@ -96,6 +100,7 @@ onLoad((query) => {
 function onDetailScroll(e: { detail: { scrollTop: number } }) {
   scrollTop.value = e.detail.scrollTop
   fabRef.value?.onPageScroll(e.detail.scrollTop)
+  backTopRef.value?.onPageScroll(e.detail.scrollTop)
 }
 
 function handleGoTop() {
@@ -248,6 +253,11 @@ function goTag(id: number) {
 function goCategory(id: number) {
   uni.navigateTo({ url: `${ROUTE_CATEGORY_LIST}?id=${id}` })
 }
+
+function commentAvatar(item: { userInfo?: { avatar?: string }, avatar?: string }) {
+  const url = item.userInfo?.avatar || item.avatar || DEFAULT_AVATAR
+  return resolveStaticUrl(String(url))
+}
 </script>
 
 <template>
@@ -317,49 +327,59 @@ function goCategory(id: number) {
             </wd-button>
           </view>
           <view v-for="c in comments" :key="c.id" class="cyber-glass-card cyber-card-pad-sm mb-3">
-            <view class="flex items-center justify-between">
-              <view class="u-gap-2 min-w-0 flex flex-1 items-center">
-                <text class="text-sm text-tech font-medium">{{ c.nickname || c.username || c.userInfo?.nickname }}</text>
-                <text v-if="c.createTime" class="text-xs text-tech-subtle">{{ formatRelativeTime(c.createTime) }}</text>
-              </view>
-              <view class="detail-comment-actions">
-                <view class="action-link action-link--primary" @tap="startReply(c)">
-                  <text>回复</text>
+            <view class="u-gap-2 flex items-start">
+              <image :src="commentAvatar(c)" class="detail-comment-avatar shrink-0" mode="aspectFill" />
+              <view class="min-w-0 flex-1">
+                <view class="flex items-center justify-between">
+                  <view class="u-gap-2 min-w-0 flex flex-1 items-center">
+                    <text class="text-sm text-tech font-medium">{{ c.nickname || c.username || c.userInfo?.nickname }}</text>
+                    <text v-if="c.createTime" class="text-xs text-tech-subtle">{{ formatRelativeTime(c.createTime) }}</text>
+                  </view>
+                  <view class="detail-comment-actions">
+                    <view class="action-link action-link--primary" @tap="startReply(c)">
+                      <text>回复</text>
+                    </view>
+                    <view
+                      v-if="canDeleteItem(c)"
+                      class="action-link action-link--danger"
+                      @tap="handleDeleteComment(c.id)"
+                    >
+                      <text>删除</text>
+                    </view>
+                  </view>
                 </view>
-                <view
-                  v-if="canDeleteItem(c)"
-                  class="action-link action-link--danger"
-                  @tap="handleDeleteComment(c.id)"
-                >
-                  <text>删除</text>
-                </view>
-              </view>
-            </view>
-            <text class="mt-1 block text-sm text-tech-muted">{{ c.content }}</text>
+                <text class="mt-1 block text-sm text-tech-muted">{{ c.content }}</text>
 
-            <view v-for="r in c.replys || []" :key="r.id" class="cyber-glass-card cyber-card-pad-xs ml-4 mt-2">
-              <view class="flex items-center justify-between">
-                <view class="u-gap-2 min-w-0 flex flex-1 items-center">
-                  <text class="text-xs text-tech font-medium">
-                    {{ r.userInfo?.nickname }}
-                    <text v-if="r.tUserInfo?.nickname" class="text-tech-subtle"> @ {{ r.tUserInfo.nickname }}</text>
-                  </text>
-                  <text v-if="r.createTime" class="text-xs text-tech-subtle">{{ formatRelativeTime(r.createTime) }}</text>
-                </view>
-                <view class="detail-comment-actions">
-                  <view class="action-link action-link--primary" @tap="startReply(c, r)">
-                    <text>回复</text>
-                  </view>
-                  <view
-                    v-if="canDeleteItem(r)"
-                    class="action-link action-link--danger"
-                    @tap="handleDeleteReply(r.id)"
-                  >
-                    <text>删除</text>
+                <view v-for="r in c.replys || []" :key="r.id" class="cyber-glass-card cyber-card-pad-xs mt-2">
+                  <view class="u-gap-2 flex items-start">
+                    <image :src="commentAvatar(r)" class="detail-reply-avatar shrink-0" mode="aspectFill" />
+                    <view class="min-w-0 flex-1">
+                      <view class="flex items-center justify-between">
+                        <view class="u-gap-2 min-w-0 flex flex-1 items-center">
+                          <text class="text-xs text-tech font-medium">
+                            {{ r.userInfo?.nickname }}
+                            <text v-if="r.tUserInfo?.nickname" class="text-tech-subtle"> @ {{ r.tUserInfo.nickname }}</text>
+                          </text>
+                          <text v-if="r.createTime" class="text-xs text-tech-subtle">{{ formatRelativeTime(r.createTime) }}</text>
+                        </view>
+                        <view class="detail-comment-actions">
+                          <view class="action-link action-link--primary" @tap="startReply(c, r)">
+                            <text>回复</text>
+                          </view>
+                          <view
+                            v-if="canDeleteItem(r)"
+                            class="action-link action-link--danger"
+                            @tap="handleDeleteReply(r.id)"
+                          >
+                            <text>删除</text>
+                          </view>
+                        </view>
+                      </view>
+                      <text class="mt-1 block text-xs text-tech-muted">{{ r.content }}</text>
+                    </view>
                   </view>
                 </view>
               </view>
-              <text class="mt-1 block text-xs text-tech-muted">{{ r.content }}</text>
             </view>
           </view>
         </view>
@@ -372,10 +392,11 @@ function goCategory(id: number) {
       :article-id="article.id"
       :author-uid="authorUid"
       :likes="article.likes"
-      @go-top="handleGoTop"
       @update:likes="onLikesUpdate"
       @tipped="onTipped"
     />
+
+    <CyberBackTop ref="backTopRef" class="detail-back-top" @click="handleGoTop" />
 
     <!-- 回复弹层置于 scroll-view 外，避免小程序端输入/按钮无响应 -->
     <wd-popup v-model="showReplyPopup" position="bottom" closable @close="closeReply">
@@ -457,6 +478,30 @@ function goCategory(id: number) {
 .action-link--danger text {
   color: #f87171;
 }
+
+.detail-comment-avatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  border: 1px solid var(--tech-border);
+}
+
+.detail-reply-avatar {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  border: 1px solid var(--tech-border);
+}
+
+.detail-back-top {
+  bottom: 200rpx;
+}
+
+/* #ifdef H5 */
+.detail-back-top {
+  bottom: calc(200rpx + env(safe-area-inset-bottom));
+}
+/* #endif */
 
 /* #ifdef H5 */
 .reply-popup {

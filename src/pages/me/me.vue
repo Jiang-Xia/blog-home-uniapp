@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 /**
- * 我的 Tab：用户卡片 + 个人中心功能菜单（cell 列表）
+ * 我的 Tab：用户卡片 + 个人中心功能菜单（分组 cell 列表）
+ * - 单卡片内多行 cell，行间距由 margin-bottom 控制
  * - 未登录可见全部菜单，点击跳转登录并带 redirect
  * - 功能项由原个人中心六 Tab 拆出，详情仍在 profile 子页
  */
@@ -34,12 +35,6 @@ onShow(async () => {
   }
 })
 
-function menuValue(item: MeMenuItem) {
-  if (tokenStore.hasLogin)
-    return ''
-  return item.requiresLogin ? '登录后可用' : ''
-}
-
 function menuBadge(item: MeMenuItem) {
   if (item.tab === 'inbox' && unreadCount.value > 0)
     return unreadCount.value > 99 ? '99+' : String(unreadCount.value)
@@ -59,24 +54,10 @@ function handleMenuClick(item: MeMenuItem) {
 
 function goUserCard() {
   if (!tokenStore.hasLogin) {
-    void handleLogin()
+    uni.navigateTo({ url: LOGIN_PAGE })
     return
   }
   uni.navigateTo({ url: `${ROUTE_PROFILE}?tab=card` })
-}
-
-async function handleLogin() {
-  // #ifdef MP-WEIXIN
-  try {
-    await tokenStore.wxLogin()
-  }
-  catch {
-    uni.navigateTo({ url: LOGIN_PAGE })
-  }
-  // #endif
-  // #ifndef MP-WEIXIN
-  uni.navigateTo({ url: LOGIN_PAGE })
-  // #endif
 }
 
 function handleLogout() {
@@ -93,45 +74,54 @@ function handleLogout() {
 
 <template>
   <scroll-view scroll-y class="me-page cyber-page-grid u-page-scroll">
-    <view class="u-page-body u-stack-3 py-4">
+    <view class="u-page-body me-page-body">
       <!-- 用户卡片 -->
-      <cyber-card class="cyber-card-pad-menu" @click="goUserCard">
-        <view v-if="tokenStore.hasLogin" class="cyber-card-row u-gap-3">
-          <image :src="userInfo.avatar" class="h-14 w-14 shrink-0 border border-tech rounded-full" mode="aspectFill" />
-          <view class="u-flex-1 min-w-0">
-            <text class="block text-lg text-tech font-bold">{{ userInfo.nickname }}</text>
-            <text class="text-sm text-tech-muted">@{{ userInfo.username }}</text>
+      <view class="me-section">
+        <cyber-card class="cyber-card-pad-menu--solo">
+          <view class="cyber-card-row u-gap-3 me-user-card-row" @tap="goUserCard">
+            <template v-if="tokenStore.hasLogin">
+              <image :src="userInfo.avatar" class="h-14 w-14 shrink-0 border border-tech rounded-full" mode="aspectFill" />
+              <view class="u-flex-1 min-w-0">
+                <text class="block text-lg text-tech font-bold">{{ userInfo.nickname }}</text>
+                <text class="text-sm text-tech-muted">@{{ userInfo.username }}</text>
+              </view>
+              <text class="cyber-menu-chevron">›</text>
+            </template>
+            <template v-else>
+              <view class="me-guest-avatar">
+                👤
+              </view>
+              <view class="u-flex-1 min-w-0">
+                <text class="block text-tech font-semibold">登录 / 注册</text>
+                <text class="mt-1 block text-xs text-tech-muted">登录后管理资料、文章与互动数据</text>
+              </view>
+              <text class="cyber-menu-chevron">›</text>
+            </template>
           </view>
-          <text class="cyber-menu-chevron">›</text>
-        </view>
-        <view v-else class="cyber-card-row u-gap-3">
-          <view class="me-guest-avatar">
-            👤
-          </view>
-          <view class="u-flex-1 min-w-0">
-            <text class="block text-tech font-semibold">登录 / 注册</text>
-            <text class="mt-1 block text-xs text-tech-muted">登录后管理资料、文章与互动数据</text>
-          </view>
-          <text class="cyber-menu-chevron">›</text>
-        </view>
-      </cyber-card>
+        </cyber-card>
+      </view>
 
-      <!-- 功能菜单 -->
+      <!-- 功能菜单：分组单卡片，cell 下边距拉开行距 -->
       <view
         v-for="section in meMenuSections"
         :key="section.title"
         class="me-section"
       >
         <text class="me-section-title">{{ section.title }}</text>
-        <cyber-card class="cyber-card-pad-menu">
-          <view class="cyber-menu-list">
+        <cyber-card
+          class="cyber-card-pad-menu"
+          :class="section.items.length === 1 ? 'cyber-card-pad-menu--compact' : 'cyber-card-pad-menu--group'"
+        >
+          <view
+            class="cyber-menu-list"
+            :class="section.items.length > 1 ? 'cyber-menu-list--multi' : ''"
+          >
             <cyber-cell
               v-for="item in section.items"
               :key="item.title"
               :icon="item.icon"
               :title="item.title"
               :desc="item.desc"
-              :value="menuValue(item)"
               :badge="menuBadge(item)"
               @click="handleMenuClick(item)"
             />
@@ -140,8 +130,8 @@ function handleLogout() {
       </view>
 
       <!-- 退出登录 -->
-      <view v-if="tokenStore.hasLogin" class="me-section">
-        <cyber-card class="cyber-card-pad-menu">
+      <view v-if="tokenStore.hasLogin" class="me-section me-section--tail">
+        <cyber-card class="cyber-card-pad-menu cyber-card-pad-menu--compact">
           <view class="cyber-menu-list">
             <cyber-cell
               icon="🚪"

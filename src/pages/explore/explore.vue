@@ -80,18 +80,22 @@ function handleEntry(item: ExploreItem) {
       </view>
 
       <view class="u-stack-3 mt-2">
-        <cyber-alert variant="warning">
-          <text class="text-sm text-tech-muted">
-            <text class="text-tech font-semibold">新用户提示：</text>
-            注册登录后可以发表文章、评论互动，在「我的」页管理你的内容。
-          </text>
-        </cyber-alert>
-        <cyber-alert variant="info">
-          <text class="text-sm text-tech-muted">
-            <text class="text-tech font-semibold">冒险玩法：</text>
-            登录后进入「冒险」页签到、做任务、抽奖开宝箱，阅读评论也能推进任务进度。
-          </text>
-        </cyber-alert>
+        <view>
+          <cyber-alert variant="warning">
+            <text class="text-sm text-tech-muted">
+              <text class="text-tech font-semibold">新用户提示：</text>
+              注册登录后可以发表文章、评论互动，在「我的」页管理你的内容。
+            </text>
+          </cyber-alert>
+        </view>
+        <view>
+          <cyber-alert variant="info">
+            <text class="text-sm text-tech-muted">
+              <text class="text-tech font-semibold">冒险玩法：</text>
+              登录后进入「冒险」页签到、做任务、抽奖开宝箱，阅读评论也能推进任务进度。
+            </text>
+          </cyber-alert>
+        </view>
       </view>
     </cyber-page-container>
   </scroll-view>

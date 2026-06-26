@@ -2,6 +2,7 @@
 import { getArticleList } from '@/api/article'
 import type { ArticleItem } from '@/api/article'
 import ArticleCard from '@/components/article-card/article-card.vue'
+import CyberBackTop from '@/components/cyber/cyber-back-top.vue'
 import { gushici, TOOL_COUNT } from '@/config/site-constant'
 import { ROUTE_RPG_ENTRY, ROUTE_RPG_GUIDE, ROUTE_SEARCH } from '@/router/routes'
 
@@ -12,7 +13,8 @@ definePage({
 
 const articleList = ref<ArticleItem[]>([])
 const articleTotal = ref(0)
-const pagingRef = ref<{ complete: (list: ArticleItem[]) => void, completeByTotal?: (list: ArticleItem[], total: number) => void, scrollToY?: (y: number) => void } | null>(null)
+const pagingRef = ref<{ complete: (list: ArticleItem[]) => void, completeByTotal?: (list: ArticleItem[], total: number) => void, scrollToY?: (y: number) => void, scrollToTop?: (animate?: boolean) => void } | null>(null)
+const backTopRef = ref<InstanceType<typeof CyberBackTop> | null>(null)
 
 const poetryContent = ref('每日诗词')
 const poetryAuthor = ref('')
@@ -80,6 +82,14 @@ function scrollToArticles() {
   pagingRef.value?.scrollToY?.(420)
 }
 
+function onScrollTopChange(top: number) {
+  backTopRef.value?.onPageScroll(top)
+}
+
+function handleGoTop() {
+  pagingRef.value?.scrollToTop?.(true)
+}
+
 onMounted(() => {
   void loadPoetry()
 })
@@ -92,6 +102,7 @@ onMounted(() => {
     bg-color="#050505"
     :default-page-size="12"
     @query="queryList"
+    @scroll-top-change="onScrollTopChange"
   >
     <view class="home-page cyber-page-grid">
       <!-- Hero 首屏 -->
@@ -179,6 +190,7 @@ onMounted(() => {
       </view>
     </view>
   </z-paging>
+  <CyberBackTop ref="backTopRef" above-tabbar @click="handleGoTop" />
 </template>
 
 <style scoped lang="scss">

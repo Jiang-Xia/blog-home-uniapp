@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 /**
  * 文章详情浮动操作（对齐 blog-home-nuxt ArticleRpgFab）
- * - 点赞 / 收藏 / 打赏 / 返回顶部
+ * - 点赞 / 收藏 / 打赏
  * - 固定于右下角，展开后显示子操作按钮
  */
 import { checkCollected, checkLiked, toggleCollect, toggleLike } from '@/api/article'
@@ -18,7 +18,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'tipped': []
-  'goTop': []
   'update:likes': [count: number]
 }>()
 
@@ -29,11 +28,10 @@ const liked = ref(false)
 const collected = ref(false)
 const collectLoading = ref(false)
 const showTipPopup = ref(false)
-const showBackTop = ref(false)
 
-/** 监听 scroll-view 滚动，控制回顶按钮显示 */
-function onPageScroll(scrollTop: number) {
-  showBackTop.value = scrollTop > 320
+/** 监听 scroll-view 滚动（保留 expose 供父页调用，当前 FAB 无回顶子项） */
+function onPageScroll(_scrollTop: number) {
+  /* noop */
 }
 
 defineExpose({ onPageScroll })
@@ -108,22 +106,11 @@ function onTipped() {
 function toggleFab() {
   fabOpen.value = !fabOpen.value
 }
-
-function handleGoTop() {
-  emit('goTop')
-  fabOpen.value = false
-}
 </script>
 
 <template>
   <view v-show="!showTipPopup" class="article-rpg-fab-wrap">
     <view v-if="fabOpen" class="fab-actions">
-      <view v-if="showBackTop" class="fab-action-item">
-        <view class="fab-action-btn fab-action-btn--secondary" @tap="handleGoTop">
-          <text class="fab-action-icon">↑</text>
-        </view>
-        <text class="fab-action-label">回顶</text>
-      </view>
       <view class="fab-action-item">
         <view
           class="fab-action-btn"

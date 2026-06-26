@@ -5,14 +5,18 @@ import { formatDate } from '@/utils/date-time'
 import { apiDisplayLabel } from '@/utils/display-label'
 import { resolveStaticUrl } from '@/utils/static-url'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   item: ArticleItem & {
     commentCount?: number
     userInfo?: { nickname?: string, avatar?: string }
     category?: { id: number, name?: string, label?: string, color?: string }
     tags?: { id: number, name?: string, label?: string, color?: string }[]
   }
-}>()
+  /** compact：左封面右文案，用于搜索页等紧凑列表 */
+  layout?: 'default' | 'compact'
+}>(), {
+  layout: 'default',
+})
 
 const coverUrl = computed(() => resolveStaticUrl(String(props.item.cover ?? '')))
 
@@ -38,47 +42,91 @@ function goDetail(id: number) {
 </script>
 
 <template>
-  <view class="article-card cyber-glass-card cyber-glass-card-flush mb-3 overflow-hidden" @click="goDetail(item.id)">
-    <view v-if="coverUrl" class="article-card-cover p-2">
-      <image :src="coverUrl" mode="aspectFill" class="article-card-cover-img w-full rounded-lg" />
-    </view>
-    <view class="article-card-body px-3 pb-3">
-      <text class="article-card-title block text-base text-tech font-semibold leading-snug">{{ item.title }}</text>
-      <text v-if="item.description" class="line-clamp-2 mt-2 block text-sm text-tech-muted leading-relaxed">
-        {{ item.description }}
-      </text>
-
-      <view v-if="item.category || item.tags?.length" class="article-card-chips u-gap-1 mt-3 flex flex-wrap">
-        <text
-          v-if="item.category?.id"
-          class="article-meta-badge"
-          :style="metaBadgeStyle(item.category.color || '#4ade80')"
-        >
-          {{ categoryLabel(item.category) }}
-        </text>
-        <text
-          v-for="tag in (item.tags || []).slice(0, 3)"
-          :key="tag.id"
-          class="article-meta-badge"
-          :style="metaBadgeStyle(tag.color || '#60a5fa')"
-        >
-          {{ tagLabel(tag) }}
-        </text>
-        <text
-          v-if="(item.tags?.length || 0) > 3"
-          class="article-meta-badge article-meta-badge--more"
-        >
-          +{{ (item.tags?.length || 0) - 3 }}
-        </text>
+  <view
+    class="article-card cyber-glass-card cyber-glass-card-flush mb-3 overflow-hidden"
+    :class="layout === 'compact' ? 'article-card--compact' : ''"
+    @click="goDetail(item.id)"
+  >
+    <view v-if="layout === 'compact'" class="article-card-compact-row u-gap-3">
+      <view v-if="coverUrl" class="article-card-compact-cover shrink-0">
+        <image :src="coverUrl" mode="aspectFill" class="article-card-compact-cover-img" />
       </view>
-
-      <view class="article-card-stats mt-3 flex flex-wrap items-center text-xs text-tech-subtle">
-        <text v-if="item.views != null">👁 {{ item.views }}</text>
-        <text v-if="item.likes != null">♥ {{ item.likes }}</text>
-        <text v-if="item.commentCount != null">💬 {{ item.commentCount }}</text>
-        <text v-if="item.createTime" class="ml-auto">{{ formatDate(item.createTime) }}</text>
+      <view v-else class="article-card-compact-cover article-card-compact-cover--placeholder shrink-0">
+        <text class="article-card-compact-cover-placeholder">📄</text>
+      </view>
+      <view class="article-card-body article-card-body--compact min-w-0 flex-1">
+        <text class="article-card-title block text-base text-tech font-semibold leading-snug">{{ item.title }}</text>
+        <view v-if="item.category || item.tags?.length" class="article-card-chips u-gap-1 mt-2 flex flex-wrap">
+          <text
+            v-if="item.category?.id"
+            class="article-meta-badge"
+            :style="metaBadgeStyle(item.category.color || '#4ade80')"
+          >
+            {{ categoryLabel(item.category) }}
+          </text>
+          <text
+            v-for="tag in (item.tags || []).slice(0, 2)"
+            :key="tag.id"
+            class="article-meta-badge"
+            :style="metaBadgeStyle(tag.color || '#60a5fa')"
+          >
+            {{ tagLabel(tag) }}
+          </text>
+          <text
+            v-if="(item.tags?.length || 0) > 2"
+            class="article-meta-badge article-meta-badge--more"
+          >
+            +{{ (item.tags?.length || 0) - 2 }}
+          </text>
+        </view>
+        <view class="article-card-stats mt-2 flex flex-wrap items-center text-xs text-tech-subtle">
+          <text v-if="item.views != null">👁 {{ item.views }}</text>
+          <text v-if="item.createTime" class="ml-auto">{{ formatDate(item.createTime) }}</text>
+        </view>
       </view>
     </view>
+    <template v-else>
+      <view v-if="coverUrl" class="article-card-cover p-2">
+        <image :src="coverUrl" mode="aspectFill" class="article-card-cover-img w-full rounded-lg" />
+      </view>
+      <view class="article-card-body px-3 pb-3">
+        <text class="article-card-title block text-base text-tech font-semibold leading-snug">{{ item.title }}</text>
+        <text v-if="item.description" class="line-clamp-2 mt-2 block text-sm text-tech-muted leading-relaxed">
+          {{ item.description }}
+        </text>
+
+        <view v-if="item.category || item.tags?.length" class="article-card-chips u-gap-1 mt-3 flex flex-wrap">
+          <text
+            v-if="item.category?.id"
+            class="article-meta-badge"
+            :style="metaBadgeStyle(item.category.color || '#4ade80')"
+          >
+            {{ categoryLabel(item.category) }}
+          </text>
+          <text
+            v-for="tag in (item.tags || []).slice(0, 3)"
+            :key="tag.id"
+            class="article-meta-badge"
+            :style="metaBadgeStyle(tag.color || '#60a5fa')"
+          >
+            {{ tagLabel(tag) }}
+          </text>
+          <text
+            v-if="(item.tags?.length || 0) > 3"
+            class="article-meta-badge article-meta-badge--more"
+          >
+            +{{ (item.tags?.length || 0) - 3 }}
+          </text>
+        </view>
+
+        <view class="article-card-stats mt-3 flex flex-wrap items-center text-xs text-tech-subtle">
+          <text v-if="item.views != null">👁 {{ item.views }}</text>
+          <text v-if="item.likes != null">♥ {{ item.likes }}</text>
+          <text v-if="item.commentCount != null">💬 {{ item.commentCount }}</text>
+          <text v-if="item.createTime" class="ml-auto">{{ formatDate(item.createTime) }}</text>
+        </view>
+      </view>
+    </template>
   </view>
 </template>
 
@@ -121,5 +169,45 @@ function goDetail(id: number) {
   border-color: var(--tech-border);
   color: var(--tech-fg-muted);
   background: transparent;
+}
+
+.article-card--compact {
+  padding: 20rpx;
+}
+
+.article-card-compact-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.article-card-compact-cover {
+  width: 168rpx;
+  height: 126rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  border: 1px solid var(--tech-border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.article-card-compact-cover--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.article-card-compact-cover-placeholder {
+  font-size: 40rpx;
+  line-height: 1;
+}
+
+.article-card-compact-cover-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.article-card-body--compact {
+  padding: 0;
 }
 </style>
