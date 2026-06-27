@@ -27,6 +27,7 @@ onShow(async () => {
     unreadCount.value = 0
     return
   }
+  await userStore.fetchUserInfo().catch(() => {})
   try {
     unreadCount.value = (await getUnreadCount())?.count ?? 0
   }
@@ -80,19 +81,21 @@ function handleLogout() {
         <cyber-card class="cyber-card-pad-menu--solo">
           <view class="cyber-card-row me-user-card-row" @tap="goUserCard">
             <template v-if="tokenStore.hasLogin">
-              <view class="me-user-card-main u-gap-3 min-w-0 flex flex-1 items-center">
-                <image :src="userInfo.avatar" class="h-14 w-14 shrink-0 border border-tech rounded-full" mode="aspectFill" />
+              <view class="me-user-card-main u-flex-row-center u-gap-3 min-w-0 flex-1">
+                <image :src="userInfo.avatar" class="me-user-avatar shrink-0 border border-tech rounded-full" mode="aspectFill" />
                 <view class="u-flex-1 min-w-0">
                   <text class="block text-lg text-tech font-bold">{{ userInfo.nickname }}</text>
                   <text class="text-sm text-tech-muted">@{{ userInfo.username }}</text>
                 </view>
               </view>
               <view class="me-user-card-trail">
-                <cyber-chevron />
+                <view class="cyber-cell-trail-icon">
+                  <cyber-chevron />
+                </view>
               </view>
             </template>
             <template v-else>
-              <view class="me-user-card-main u-gap-3 min-w-0 flex flex-1 items-center">
+              <view class="me-user-card-main u-flex-row-center u-gap-3 min-w-0 flex-1">
                 <view class="me-guest-avatar">
                   <cyber-icon name="user" size="84rpx" />
                 </view>
@@ -102,7 +105,9 @@ function handleLogout() {
                 </view>
               </view>
               <view class="me-user-card-trail">
-                <cyber-chevron />
+                <view class="cyber-cell-trail-icon">
+                  <cyber-chevron />
+                </view>
               </view>
             </template>
           </view>

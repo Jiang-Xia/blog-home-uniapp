@@ -72,8 +72,8 @@ export const meMenuSections: MeMenuSection[] = [
       },
       {
         icon: 'inbox',
-        title: '收件箱',
-        desc: '系统通知与文章评论',
+        title: '收到评论',
+        desc: '读者在你文章下的留言',
         tab: 'inbox',
         requiresLogin: true,
       },

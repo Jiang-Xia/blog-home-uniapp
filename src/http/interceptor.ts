@@ -30,8 +30,10 @@ const httpInterceptor = {
     if (!options.url.startsWith('http')) {
       // #ifdef H5
       if (JSON.parse(import.meta.env.VITE_APP_PROXY_ENABLE)) {
-        // 自动拼接代理前缀
-        options.url = import.meta.env.VITE_APP_PROXY_PREFIX + options.url
+        // zone-server 走 /x-zone 代理；blog-server 走 /fg-api 代理（避免 localhost 直连线上 CORS）
+        if (!options.url.startsWith('/x-zone/')) {
+          options.url = import.meta.env.VITE_APP_PROXY_PREFIX + options.url
+        }
       }
       else {
         options.url = baseUrl + options.url

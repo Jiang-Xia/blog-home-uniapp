@@ -48,7 +48,9 @@ const emit = defineEmits<{ click: [] }>()
         {{ badge }}
       </view>
       <text v-if="value" class="cyber-cell-value">{{ value }}</text>
-      <cyber-chevron />
+      <view class="cyber-cell-trail-icon">
+        <cyber-chevron />
+      </view>
     </view>
   </view>
 </template>

@@ -64,10 +64,30 @@ export default defineConfig(({ command, mode }) => {
     VITE_APP_PUBLIC_BASE,
     VITE_APP_PROXY_ENABLE,
     VITE_APP_PROXY_PREFIX,
+    VITE_WS_ORIGIN,
     VITE_COPY_NATIVE_RES_ENABLE,
   } = env
   const { WECHAT_DEVTOOLS_CLI_PATH, ALIPAY_DEVTOOLS_PATH } = localEnv
   console.log('环境变量 env -> ', env)
+
+  /** H5 devServer 代理：拼完整 API 路径（兼容 /api/v1 与 /x-blog/api/v1） */
+  function buildH5DevProxy() {
+    const apiUrl = new URL(VITE_SERVER_BASEURL)
+    const apiPathPrefix = apiUrl.pathname.replace(/\/$/, '')
+    const zoneOrigin = (VITE_WS_ORIGIN || apiUrl.origin).replace(/\/$/, '')
+
+    return {
+      [VITE_APP_PROXY_PREFIX]: {
+        target: apiUrl.origin,
+        changeOrigin: true,
+        rewrite: (p: string) => apiPathPrefix + p.replace(new RegExp(`^${VITE_APP_PROXY_PREFIX}`), ''),
+      },
+      '/x-zone': {
+        target: zoneOrigin,
+        changeOrigin: true,
+      },
+    }
+  }
 
   return defineConfig({
     envDir: './env', // 自定义env目录
@@ -191,15 +211,7 @@ export default defineConfig(({ command, mode }) => {
       port: Number.parseInt(VITE_APP_PORT, 10),
       // 仅 H5 端生效，其他端不生效（其他端走build，不走devServer)
       proxy: JSON.parse(VITE_APP_PROXY_ENABLE)
-        ? {
-            [VITE_APP_PROXY_PREFIX]: {
-              target: VITE_SERVER_BASEURL,
-              changeOrigin: true,
-              // 后端有/api前缀则不做处理，没有则需要去掉
-              rewrite: path =>
-                path.replace(new RegExp(`^${VITE_APP_PROXY_PREFIX}`), ''),
-            },
-          }
+        ? buildH5DevProxy()
         : undefined,
     },
     esbuild: {

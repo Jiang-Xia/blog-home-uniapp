@@ -1,0 +1,178 @@
+/**
+ * Wot UI Cyber 深色主题 — 对齐 cyber-theme.scss 的 --tech-* 设计令牌
+ * wot 默认在 page 上同时注入 light/dark 语义色，light 会覆盖 dark；此处全局覆写为赛博深色。
+ * 挂载点：page / .wot-theme-dark / H5 :root（portal 弹层继承）
+ */
+
+@mixin wot-cyber-theme-vars {
+  /* 主色阶：赛博青（对齐 --tech-primary #22d3ee） */
+  --wot-primary-1: rgba(34, 211, 238, 0.1);
+  --wot-primary-2: rgba(34, 211, 238, 0.18);
+  --wot-primary-3: rgba(34, 211, 238, 0.28);
+  --wot-primary-4: #06b6d4;
+  --wot-primary-5: #22d3ee;
+  --wot-primary-6: #22d3ee;
+  --wot-primary-7: #06b6d4;
+  --wot-primary-8: #0891b2;
+  --wot-primary-9: #0e7490;
+  --wot-primary-10: #164e63;
+
+  /* 功能色（深色模式下略提亮） */
+  --wot-danger-main: #fb7185;
+  --wot-danger-hover: #f87171;
+  --wot-danger-clicked: #f43f5e;
+  --wot-danger-disabled: rgba(251, 113, 133, 0.35);
+  --wot-danger-particular: rgba(251, 113, 133, 0.15);
+  --wot-danger-surface: rgba(251, 113, 133, 0.08);
+
+  --wot-success-main: var(--tech-success);
+  --wot-success-hover: #86efac;
+  --wot-success-clicked: #22c55e;
+  --wot-success-disabled: rgba(74, 222, 128, 0.35);
+  --wot-success-particular: rgba(74, 222, 128, 0.15);
+  --wot-success-surface: rgba(74, 222, 128, 0.08);
+
+  --wot-warning-main: var(--tech-rpg-amber);
+  --wot-warning-hover: #fcd34d;
+  --wot-warning-clicked: #f59e0b;
+  --wot-warning-disabled: rgba(251, 191, 36, 0.35);
+  --wot-warning-particular: rgba(251, 191, 36, 0.15);
+  --wot-warning-surface: rgba(251, 191, 36, 0.08);
+
+  /* 文字 / 图标 */
+  --wot-text-main: var(--tech-fg);
+  --wot-text-secondary: var(--tech-fg-muted);
+  --wot-text-auxiliary: var(--tech-fg-subtle);
+  --wot-text-disabled: var(--tech-fg-faint);
+  --wot-text-placeholder: var(--tech-fg-subtle);
+  --wot-text-white: #ffffff;
+
+  --wot-icon-main: var(--tech-fg);
+  --wot-icon-secondary: var(--tech-fg-muted);
+  --wot-icon-auxiliary: var(--tech-fg-subtle);
+  --wot-icon-disabled: var(--tech-fg-faint);
+  --wot-icon-placeholder: var(--tech-fg-subtle);
+  --wot-icon-white: #ffffff;
+
+  /* 边框 / 填充 / 分割 */
+  --wot-border-extra-strong: rgba(255, 255, 255, 0.25);
+  --wot-border-strong: rgba(255, 255, 255, 0.18);
+  --wot-border-main: var(--tech-border);
+  --wot-border-light: rgba(255, 255, 255, 0.06);
+  --wot-border-white: #ffffff;
+  --wot-border-zero: transparent;
+
+  --wot-filled-extra-strong: rgba(255, 255, 255, 0.14);
+  --wot-filled-strong: rgba(255, 255, 255, 0.1);
+  --wot-filled-content: rgba(255, 255, 255, 0.06);
+  --wot-filled-bottom: var(--tech-shell);
+  --wot-filled-oppo: var(--tech-input-bg);
+  --wot-filled-zero: transparent;
+
+  --wot-divider-main: var(--tech-border);
+  --wot-divider-light: rgba(255, 255, 255, 0.06);
+  --wot-divider-strong: rgba(255, 255, 255, 0.14);
+  --wot-divider-white: #ffffff;
+
+  --wot-feedback-hover: rgba(255, 255, 255, 0.04);
+  --wot-feedback-active: rgba(255, 255, 255, 0.08);
+  --wot-feedback-accent: rgba(34, 211, 238, 0.12);
+
+  --wot-opacfilled-tooltip-toast-cover: rgba(0, 0, 0, 0.75);
+  --wot-opacfilled-main-cover: rgba(0, 0, 0, 0.55);
+  --wot-opacfilled-light-cover: rgba(0, 0, 0, 0.3);
+
+  --wot-picker-view-mask-start-color: rgba(5, 5, 5, 0.85);
+  --wot-picker-view-mask-end-color: rgba(5, 5, 5, 0.2);
+
+  /* 输入框 / 文本域 */
+  --wot-input-bg: var(--tech-input-bg);
+  --wot-input-inner-color: var(--tech-fg);
+  --wot-input-inner-placeholder-color: var(--tech-fg-subtle);
+  --wot-input-icon-color: var(--tech-fg-subtle);
+  --wot-input-disabled-color: var(--tech-fg-faint);
+  --wot-input-count-color: var(--tech-fg-muted);
+
+  --wot-textarea-bg: var(--tech-input-bg);
+  --wot-textarea-inner-color: var(--tech-fg);
+  --wot-textarea-inner-placeholder-color: var(--tech-fg-subtle);
+  --wot-textarea-icon-color: var(--tech-fg-subtle);
+  --wot-textarea-disabled-color: var(--tech-fg-faint);
+  --wot-textarea-count-color: var(--tech-fg-muted);
+
+  /* 单元格 */
+  --wot-cell-bg: transparent;
+  --wot-cell-bg-active: rgba(255, 255, 255, 0.04);
+  --wot-cell-tap-bg: rgba(255, 255, 255, 0.06);
+  --wot-cell-border-color: var(--tech-border);
+  --wot-cell-title-color: var(--tech-fg);
+  --wot-cell-label-color: var(--tech-fg-muted);
+  --wot-cell-value-color: var(--tech-fg-muted);
+  --wot-cell-placeholder-color: var(--tech-fg-subtle);
+  --wot-cell-arrow-color: var(--tech-fg-subtle);
+  --wot-cell-icon-color: var(--tech-fg-muted);
+  --wot-cell-theme-color: var(--tech-primary);
+
+  --wot-cell-group-bg: transparent;
+  --wot-cell-group-title-color: var(--tech-section-label);
+  --wot-cell-group-value-color: var(--tech-fg-muted);
+
+  /* 按钮：实心 primary 用深字色（对齐 cyber-btn-primary） */
+  --wot-button-primary-bg: var(--tech-primary);
+  --wot-button-primary-bg-active: #06b6d4;
+  --wot-button-primary-color: var(--tech-primary);
+  --wot-button-primary-color-active: #06b6d4;
+  --wot-button-primary-plain-bg: transparent;
+  --wot-button-primary-plain-bg-active: rgba(34, 211, 238, 0.1);
+  --wot-button-primary-plain-border: var(--tech-primary);
+  --wot-button-primary-plain-border-active: #06b6d4;
+  --wot-button-primary-soft-bg: rgba(34, 211, 238, 0.1);
+  --wot-button-primary-soft-bg-active: rgba(34, 211, 238, 0.18);
+  --wot-button-main-color: #0f172a;
+  --wot-button-radius-main: 12px;
+
+  --wot-button-info-bg: rgba(255, 255, 255, 0.06);
+  --wot-button-info-bg-active: rgba(255, 255, 255, 0.1);
+  --wot-button-info-color: var(--tech-fg);
+  --wot-button-info-color-active: var(--tech-fg-muted);
+  --wot-button-info-plain-border: var(--tech-btn-secondary-border);
+
+  /* 弹层 / 遮罩 */
+  --wot-popup-bg: var(--tech-dropdown-bg);
+  --wot-popup-close-color: var(--tech-fg-muted);
+  --wot-popup-radius: 16px;
+
+  --wot-overlay-bg: rgba(0, 0, 0, 0.55);
+
+  /* 加载 / 提示 */
+  --wot-loading-color: var(--tech-primary);
+  --wot-toast-bg: var(--tech-dropdown-bg);
+  --wot-toast-color: var(--tech-fg);
+}
+
+page {
+  @include wot-cyber-theme-vars;
+}
+
+.wot-theme-dark,
+.wot-theme-dark .wd-root-portal {
+  @include wot-cyber-theme-vars;
+}
+
+/* #ifdef H5 */
+:root {
+  @include wot-cyber-theme-vars;
+}
+/* #endif */
+
+/** wot 组件全局微调（语义变量未覆盖的细节） */
+.wd-input,
+.wd-textarea {
+  border-radius: 16rpx;
+  border: 1px solid var(--tech-input-border);
+  box-sizing: border-box;
+}
+
+.wd-button.is-primary {
+  box-shadow: 0 0 30px var(--tech-primary-glow);
+}
