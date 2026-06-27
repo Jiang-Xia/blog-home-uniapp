@@ -89,21 +89,24 @@ export const experienceFeatureModules: FeatureModule[] = [
   {
     icon: 'tools',
     title: '实用工具箱',
-    desc: '加密、编码、二维码、水印等效率工具，H5 端能力最全。',
+    desc: '加密、条码/二维码、水印、光影边框、AI 摘要等跨端效率工具。',
     tags: ['工具'],
     route: ROUTE_TOOL_INDEX,
   },
 ]
 
 export const toolFeatureLinks = [
-  { title: '编码转换', route: '/pages-tool/codes/index' },
+  { title: '条形/二维码', route: '/pages-tool/codes/index' },
+  { title: 'PDF 电子签名', route: '/pages-tool/pdf/index' },
+  { title: '批量水印', route: '/pages-tool/watermark/index' },
+  { title: '光影边框', route: '/pages-tool/photos/index' },
+  { title: '音频可视化', route: '/pages-tool/audio-visualized/index' },
+  { title: '切片上传', route: '/pages-tool/upload-slice/index' },
   { title: 'RSA 加解密', route: '/pages-tool/rsa/index' },
   { title: '对称加密', route: '/pages-tool/crypto/index' },
   { title: '国密 SM2', route: '/pages-tool/sm/index' },
-  { title: '二维码', route: '/pages-tool/qrcode/index' },
+  { title: 'AI 对话', route: '/pages-tool/ai/index' },
   { title: 'AI 摘要', route: '/pages-tool/ai-summary/index' },
-  { title: '批量水印', route: '/pages-tool/watermark/index' },
-  { title: 'PDF 预览', route: '/pages-tool/pdf/index' },
 ] as const
 
 export const getStartedSteps = [

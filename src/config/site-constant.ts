@@ -2,8 +2,8 @@ import { getWsOrigin } from '@/utils/ws-origin'
 
 export const SiteTitle = '江夏的Blog'
 
-/** 工具箱数量（对齐 nuxt TOOL_LINKS） */
-export const TOOL_COUNT = 14
+/** 工具箱数量（对齐 nuxt TOOL_LINKS，WebRTC 暂未迁移） */
+export const TOOL_COUNT = 13
 
 const GUSHICI_FALLBACK = {
   content: '黄河远上白云间，一片孤城万仞山。',

@@ -1979,3 +1979,11 @@ page {
   font-size: 22rpx;
   color: var(--tech-fg-subtle);
 }
+
+/** 工具箱加密面板 — 对齐 Nuxt cyber-crypto-panel */
+.cyber-crypto-panel {
+  border: 1px solid var(--tech-border, rgba(255, 255, 255, 0.12));
+  border-radius: 12rpx;
+  background: var(--tech-input-bg, rgba(255, 255, 255, 0.04));
+  overflow: hidden;
+}

@@ -138,8 +138,8 @@ export const exploreSections: ExploreSection[] = [
       },
       {
         icon: 'lock',
-        title: '编码转换',
-        desc: 'Base64 等',
+        title: '条形/二维码',
+        desc: '条码与二维码',
         route: '/pages-tool/codes/index',
         phase: 1,
         color: 'from-violet-500 to-purple-500',
