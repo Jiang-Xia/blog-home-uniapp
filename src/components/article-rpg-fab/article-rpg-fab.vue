@@ -112,12 +112,9 @@ function toggleFab() {
   <view v-show="!showTipPopup" class="article-rpg-fab-wrap">
     <view v-if="fabOpen" class="fab-actions">
       <view class="fab-action-item">
-        <view
-          class="fab-action-btn"
-          :class="liked ? 'fab-action-btn--liked' : 'fab-action-btn--ghost'"
-          @tap="handleLike"
-        >
-          <text class="fab-action-icon">{{ liked ? '♥' : '♡' }}</text>
+        <view class="fab-action-btn" :class="liked ? 'fab-action-btn--liked' : 'fab-action-btn--ghost'" @tap="handleLike">
+          <cyber-icon v-if="liked" name="heart" size="40rpx" class="fab-action-icon" />
+          <wd-icon v-else name="heart" custom-class="fab-action-icon fab-action-icon--wd" color="var(--tech-fg-muted)" />
         </view>
         <text class="fab-action-label">{{ liked ? '取消' : '点赞' }}</text>
       </view>
@@ -127,26 +124,30 @@ function toggleFab() {
           :class="collected ? 'fab-action-btn--collected' : 'fab-action-btn--ghost'"
           @tap="handleCollect"
         >
-          <text class="fab-action-icon">{{ collected ? '🔖' : '📑' }}</text>
+          <cyber-icon name="bookmark" size="40rpx" class="fab-action-icon" :class="collected ? '' : 'fab-action-icon--dim'" />
         </view>
         <text class="fab-action-label">{{ collected ? '已藏' : '收藏' }}</text>
       </view>
       <view class="fab-action-item">
         <view class="fab-action-btn fab-action-btn--tip" @tap="openTipPopup">
-          <text class="fab-action-icon">💎</text>
+          <cyber-icon name="gem" size="40rpx" class="fab-action-icon" />
         </view>
         <text class="fab-action-label">打赏</text>
       </view>
     </view>
 
     <view class="fab-main-btn" @tap="toggleFab">
-      <text class="fab-main-icon">{{ fabOpen ? '✕' : '⚔️' }}</text>
+      <cyber-icon v-if="!fabOpen" name="sword" size="44rpx" class="fab-main-icon" />
+      <wd-icon v-else name="close" custom-class="fab-main-icon fab-main-icon--wd" color="var(--tech-fg)" />
     </view>
   </view>
 
   <wd-popup v-model="showTipPopup" position="bottom" closable @close="showTipPopup = false">
     <view class="tip-popup cyber-page p-4">
-      <text class="mb-3 block text-tech font-medium">💎 打赏作者</text>
+      <view class="tip-popup-title u-gap-2 mb-3 flex items-center">
+        <cyber-icon name="gem" size="36rpx" />
+        <text class="text-tech font-medium">打赏作者</text>
+      </view>
       <RpgArticleTip
         :article-id="Number(articleId)"
         :author-uid="authorUid"
@@ -225,8 +226,19 @@ function toggleFab() {
 }
 
 .fab-action-icon {
-  font-size: 32rpx;
   line-height: 1;
+}
+
+.fab-action-icon--dim {
+  opacity: 0.55;
+}
+
+.fab-action-icon--wd {
+  font-size: 32rpx !important;
+}
+
+.fab-main-icon--wd {
+  font-size: 40rpx !important;
 }
 
 .fab-main-btn {

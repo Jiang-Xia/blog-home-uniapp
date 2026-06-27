@@ -1,8 +1,11 @@
 <script setup lang="ts">
 /**
  * 赛博风列表 Cell：左图标+标题，右辅助文案+箭头
- * - 配合 cyber-menu-list / cyber-card-pad-menu 使用
+ * - 彩色图标用 cyber-icon（SVG）；箭头用 cyber-chevron（wot-ui）
+ * - 多行时须外包 cyber-menu-list-row（MP 选择器兼容）
  */
+import type { AppIconName } from '@/config/app-icons'
+
 defineOptions({
   // #ifdef MP-WEIXIN
   virtualHost: true,
@@ -10,7 +13,7 @@ defineOptions({
 })
 
 withDefaults(defineProps<{
-  icon?: string
+  icon?: AppIconName
   title: string
   desc?: string
   /** 右侧辅助文案（如「登录后可用」） */
@@ -33,7 +36,7 @@ const emit = defineEmits<{ click: [] }>()
   >
     <view class="cyber-cell-main">
       <view v-if="icon" class="cyber-cell-icon">
-        <text>{{ icon }}</text>
+        <cyber-icon :name="icon" size="60rpx" />
       </view>
       <view class="cyber-cell-text">
         <text class="cyber-cell-title">{{ title }}</text>
@@ -45,7 +48,7 @@ const emit = defineEmits<{ click: [] }>()
         {{ badge }}
       </view>
       <text v-if="value" class="cyber-cell-value">{{ value }}</text>
-      <text class="cyber-menu-chevron">›</text>
+      <cyber-chevron />
     </view>
   </view>
 </template>

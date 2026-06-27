@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="bookmark-g" x1="12" y1="8" x2="36" y2="42" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ff6bf0"/>
+      <stop offset="100%" stop-color="#d946ef"/>
+    </linearGradient>
+    <filter id="bookmark-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2.2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <path fill="#d946ef" opacity="0.25" d="M12 8h24v34l-12-8-12 8V8z"/>
+  <path fill="url(#bookmark-g)" filter="url(#bookmark-glow)" d="M14 10h20v28l-10-7-10 7V10z"/>
+  <path fill="#a855f7" d="M14 10h6v22l-6-4V10z"/>
+  <path fill="none" stroke="#f5d0fe" stroke-width="1" opacity="0.65" d="M14 10h20v28l-10-7-10 7V10z"/>
+  <rect x="20" y="16" width="10" height="2.5" rx="1.25" fill="#fff"/>
+  <rect x="20" y="22" width="8" height="2.5" rx="1.25" fill="#faf5ff" opacity="0.85"/>
+</svg>

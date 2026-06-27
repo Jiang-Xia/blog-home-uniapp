@@ -80,7 +80,10 @@ function goDetail(id: number) {
           </text>
         </view>
         <view class="article-card-stats mt-2 flex flex-wrap items-center text-xs text-tech-subtle">
-          <text v-if="item.views != null">👁 {{ item.views }}</text>
+          <text v-if="item.views != null" class="article-card-stat">
+            <wd-icon name="browse" size="14px" color="var(--tech-fg-subtle)" />
+            <text class="ml-1">{{ item.views }}</text>
+          </text>
           <text v-if="item.createTime" class="ml-auto">{{ formatDate(item.createTime) }}</text>
         </view>
       </view>
@@ -120,9 +123,18 @@ function goDetail(id: number) {
         </view>
 
         <view class="article-card-stats mt-3 flex flex-wrap items-center text-xs text-tech-subtle">
-          <text v-if="item.views != null">👁 {{ item.views }}</text>
-          <text v-if="item.likes != null">♥ {{ item.likes }}</text>
-          <text v-if="item.commentCount != null">💬 {{ item.commentCount }}</text>
+          <text v-if="item.views != null" class="article-card-stat">
+            <wd-icon name="browse" size="14px" color="var(--tech-fg-subtle)" />
+            <text class="ml-1">{{ item.views }}</text>
+          </text>
+          <text v-if="item.likes != null" class="article-card-stat ml-3">
+            <cyber-icon name="heart" size="24rpx" />
+            <text class="ml-1">{{ item.likes }}</text>
+          </text>
+          <text v-if="item.commentCount != null" class="article-card-stat ml-3">
+            <cyber-icon name="comment" size="24rpx" />
+            <text class="ml-1">{{ item.commentCount }}</text>
+          </text>
           <text v-if="item.createTime" class="ml-auto">{{ formatDate(item.createTime) }}</text>
         </view>
       </view>
@@ -142,6 +154,11 @@ function goDetail(id: number) {
 .article-card-cover-img {
   display: block;
   height: 288rpx;
+}
+
+.article-card-stat {
+  display: inline-flex;
+  align-items: center;
 }
 
 .article-card-stats > text {

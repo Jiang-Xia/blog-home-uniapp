@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="sword-g" x1="8" y1="8" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#fff176"/>
+      <stop offset="35%" stop-color="#ffea00"/>
+      <stop offset="100%" stop-color="#00f5ff"/>
+    </linearGradient>
+    <filter id="sword-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <path fill="#00f5ff" opacity="0.2" d="M30 6l14 14-20 20-8-8L30 6z"/>
+  <path fill="url(#sword-g)" filter="url(#sword-glow)" d="M32 8l8 8-16 16-6-2 2-6L32 8z"/>
+  <path fill="none" stroke="#fff9c4" stroke-width="1" opacity="0.75" d="M32 8l8 8-16 16-6-2 2-6L32 8z"/>
+  <path fill="#ff9500" filter="url(#sword-glow)" d="M10 32l6 6-3 3-6-6 3-3z"/>
+  <rect x="28" y="10" width="4" height="4" transform="rotate(45 30 12)" fill="#fff"/>
+</svg>

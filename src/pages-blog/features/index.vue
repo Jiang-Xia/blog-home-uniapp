@@ -35,7 +35,7 @@ function goRoute(route: string) {
 
       <cyber-card class="mt-6 !p-4">
         <view class="u-gap-3 flex items-start">
-          <text class="text-3xl">{{ rpgFeatureModule.icon }}</text>
+          <cyber-icon :name="rpgFeatureModule.icon" size="56rpx" class="shrink-0" />
           <view class="flex-1">
             <text class="block text-xs text-tech-primary">核心玩法</text>
             <text class="mt-1 block text-lg text-tech font-bold">{{ rpgFeatureModule.title }}</text>
@@ -64,7 +64,7 @@ function goRoute(route: string) {
       >
         <cyber-card class="!p-4">
           <view class="u-gap-3 flex items-start">
-            <text class="text-2xl">{{ item.icon }}</text>
+            <cyber-icon :name="item.icon" size="48rpx" class="shrink-0" />
             <view class="min-w-0 flex-1">
               <text class="block text-tech font-medium">{{ item.title }}</text>
               <text class="mt-1 block text-sm text-tech-muted">{{ item.desc }}</text>
@@ -85,7 +85,7 @@ function goRoute(route: string) {
       >
         <cyber-card class="!p-4">
           <view class="u-gap-3 flex items-start">
-            <text class="text-2xl">{{ item.icon }}</text>
+            <cyber-icon :name="item.icon" size="48rpx" class="shrink-0" />
             <view class="min-w-0 flex-1">
               <text class="block text-tech font-medium">{{ item.title }}</text>
               <text class="mt-1 block text-sm text-tech-muted">{{ item.desc }}</text>

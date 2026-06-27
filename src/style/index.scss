@@ -14,7 +14,14 @@
 
 /* #ifdef H5 */
 :root,
+html,
+body,
+#app {
+  min-height: 100%;
+  background-color: #050505;
+}
 /* #endif */
+
 page {
   // cyber 主题色在 cyber-theme.scss 中定义
 }

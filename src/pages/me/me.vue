@@ -78,24 +78,32 @@ function handleLogout() {
       <!-- 用户卡片 -->
       <view class="me-section">
         <cyber-card class="cyber-card-pad-menu--solo">
-          <view class="cyber-card-row u-gap-3 me-user-card-row" @tap="goUserCard">
+          <view class="cyber-card-row me-user-card-row" @tap="goUserCard">
             <template v-if="tokenStore.hasLogin">
-              <image :src="userInfo.avatar" class="h-14 w-14 shrink-0 border border-tech rounded-full" mode="aspectFill" />
-              <view class="u-flex-1 min-w-0">
-                <text class="block text-lg text-tech font-bold">{{ userInfo.nickname }}</text>
-                <text class="text-sm text-tech-muted">@{{ userInfo.username }}</text>
+              <view class="me-user-card-main u-gap-3 min-w-0 flex flex-1 items-center">
+                <image :src="userInfo.avatar" class="h-14 w-14 shrink-0 border border-tech rounded-full" mode="aspectFill" />
+                <view class="u-flex-1 min-w-0">
+                  <text class="block text-lg text-tech font-bold">{{ userInfo.nickname }}</text>
+                  <text class="text-sm text-tech-muted">@{{ userInfo.username }}</text>
+                </view>
               </view>
-              <text class="cyber-menu-chevron">›</text>
+              <view class="me-user-card-trail">
+                <cyber-chevron />
+              </view>
             </template>
             <template v-else>
-              <view class="me-guest-avatar">
-                👤
+              <view class="me-user-card-main u-gap-3 min-w-0 flex flex-1 items-center">
+                <view class="me-guest-avatar">
+                  <cyber-icon name="user" size="84rpx" />
+                </view>
+                <view class="u-flex-1 min-w-0">
+                  <text class="block text-tech font-semibold">登录 / 注册</text>
+                  <text class="mt-1 block text-xs text-tech-muted">登录后管理资料、文章与互动数据</text>
+                </view>
               </view>
-              <view class="u-flex-1 min-w-0">
-                <text class="block text-tech font-semibold">登录 / 注册</text>
-                <text class="mt-1 block text-xs text-tech-muted">登录后管理资料、文章与互动数据</text>
+              <view class="me-user-card-trail">
+                <cyber-chevron />
               </view>
-              <text class="cyber-menu-chevron">›</text>
             </template>
           </view>
         </cyber-card>
@@ -116,15 +124,19 @@ function handleLogout() {
             class="cyber-menu-list"
             :class="section.items.length > 1 ? 'cyber-menu-list--multi' : ''"
           >
-            <cyber-cell
+            <view
               v-for="item in section.items"
               :key="item.title"
-              :icon="item.icon"
-              :title="item.title"
-              :desc="item.desc"
-              :badge="menuBadge(item)"
-              @click="handleMenuClick(item)"
-            />
+              class="cyber-menu-list-row"
+            >
+              <cyber-cell
+                :icon="item.icon"
+                :title="item.title"
+                :desc="item.desc"
+                :badge="menuBadge(item)"
+                @click="handleMenuClick(item)"
+              />
+            </view>
           </view>
         </cyber-card>
       </view>
@@ -133,12 +145,14 @@ function handleLogout() {
       <view v-if="tokenStore.hasLogin" class="me-section me-section--tail">
         <cyber-card class="cyber-card-pad-menu cyber-card-pad-menu--compact">
           <view class="cyber-menu-list">
-            <cyber-cell
-              icon="🚪"
-              title="退出登录"
-              desc="退出当前账号"
-              @click="handleLogout"
-            />
+            <view class="cyber-menu-list-row">
+              <cyber-cell
+                icon="logout"
+                title="退出登录"
+                desc="退出当前账号"
+                @click="handleLogout"
+              />
+            </view>
           </view>
         </cyber-card>
       </view>

@@ -9,12 +9,13 @@ import {
   ROUTE_RPG_GUIDE,
   ROUTE_TOOL_INDEX,
 } from '@/router/routes'
+import type { AppIconName } from '@/config/app-icons'
 
 /** 发现页入口阶段：1=可跳转，4=即将上线 */
 export type QuickEntryPhase = 1 | 2 | 4
 
 export interface ExploreItem {
-  icon: string
+  icon: AppIconName
   title: string
   /** 副标题（网格格内短描述） */
   desc: string
@@ -27,7 +28,7 @@ export interface ExploreItem {
 }
 
 export interface ExploreSection {
-  icon: string
+  icon: AppIconName
   title: string
   subtitle: string
   /** 分区头图渐变 */
@@ -41,13 +42,13 @@ export interface ExploreSection {
  */
 export const exploreSections: ExploreSection[] = [
   {
-    icon: '📚',
+    icon: 'archive',
     title: '博客阅读',
     subtitle: '归档浏览与能力一览',
     color: 'from-blue-500 to-cyan-500',
     items: [
       {
-        icon: '📚',
+        icon: 'archive',
         title: '文章归档',
         desc: '按时间浏览',
         route: ROUTE_ARCHIVES,
@@ -55,7 +56,7 @@ export const exploreSections: ExploreSection[] = [
         color: 'from-blue-500 to-cyan-500',
       },
       {
-        icon: '✨',
+        icon: 'sparkle',
         title: '系统特性',
         desc: '能力总览',
         route: ROUTE_FEATURES,
@@ -63,7 +64,7 @@ export const exploreSections: ExploreSection[] = [
         color: 'from-fuchsia-500 to-violet-500',
       },
       {
-        icon: 'ℹ️',
+        icon: 'info',
         title: '关于作者',
         desc: '站点与作者',
         route: ROUTE_ABOUT,
@@ -73,13 +74,13 @@ export const exploreSections: ExploreSection[] = [
     ],
   },
   {
-    icon: '⚔️',
+    icon: 'sword',
     title: 'RPG 冒险',
     subtitle: '签到任务与玩法奖励',
     color: 'from-amber-500 to-orange-500',
     items: [
       {
-        icon: '⚔️',
+        icon: 'sword',
         title: '冒险中心',
         desc: '签到抽奖',
         route: ROUTE_RPG_FULL,
@@ -88,7 +89,7 @@ export const exploreSections: ExploreSection[] = [
         requiresLogin: true,
       },
       {
-        icon: '📖',
+        icon: 'book',
         title: '玩法说明',
         desc: '规则指南',
         route: ROUTE_RPG_GUIDE,
@@ -98,13 +99,13 @@ export const exploreSections: ExploreSection[] = [
     ],
   },
   {
-    icon: '💬',
+    icon: 'comment',
     title: '社区互动',
     subtitle: '友链申请与留言交流',
     color: 'from-emerald-500 to-teal-500',
     items: [
       {
-        icon: '💬',
+        icon: 'comment',
         title: '留言板',
         desc: '互动交流',
         route: ROUTE_MSGBOARD,
@@ -112,7 +113,7 @@ export const exploreSections: ExploreSection[] = [
         color: 'from-emerald-500 to-teal-500',
       },
       {
-        icon: '🔗',
+        icon: 'link',
         title: '友情链接',
         desc: '发现站点',
         route: ROUTE_LINKS,
@@ -122,13 +123,13 @@ export const exploreSections: ExploreSection[] = [
     ],
   },
   {
-    icon: '🛠️',
+    icon: 'tools',
     title: '实用工具',
     subtitle: '加密编码与效率工具',
     color: 'from-purple-500 to-pink-500',
     items: [
       {
-        icon: '🛠️',
+        icon: 'tools',
         title: '工具箱',
         desc: '全部工具',
         route: ROUTE_TOOL_INDEX,
@@ -136,7 +137,7 @@ export const exploreSections: ExploreSection[] = [
         color: 'from-purple-500 to-pink-500',
       },
       {
-        icon: '🔐',
+        icon: 'lock',
         title: '编码转换',
         desc: 'Base64 等',
         route: '/pages-tool/codes/index',
@@ -144,7 +145,7 @@ export const exploreSections: ExploreSection[] = [
         color: 'from-violet-500 to-purple-500',
       },
       {
-        icon: '🔑',
+        icon: 'key',
         title: 'RSA',
         desc: '非对称加密',
         route: '/pages-tool/rsa/index',
@@ -152,7 +153,7 @@ export const exploreSections: ExploreSection[] = [
         color: 'from-blue-500 to-indigo-500',
       },
       {
-        icon: '🤖',
+        icon: 'robot',
         title: 'AI 摘要',
         desc: '长文摘要',
         route: '/pages-tool/ai-summary/index',
@@ -162,13 +163,13 @@ export const exploreSections: ExploreSection[] = [
     ],
   },
   {
-    icon: '📦',
+    icon: 'package',
     title: '项目介绍',
     subtitle: '开源合作与多端展示',
     color: 'from-cyan-500 to-blue-500',
     items: [
       {
-        icon: '📦',
+        icon: 'package',
         title: '开源合作',
         desc: '三端说明',
         route: '/pages-blog/open-source/index',
@@ -176,7 +177,7 @@ export const exploreSections: ExploreSection[] = [
         color: 'from-emerald-500 to-teal-500',
       },
       {
-        icon: '📊',
+        icon: 'dashboard',
         title: '项目展示',
         desc: 'Demo 体验',
         route: ROUTE_PROJECTS,

@@ -17,7 +17,12 @@ import { formatRelativeTime } from '@/utils/date-time'
 import { resolveStaticUrl } from '@/utils/static-url'
 
 definePage({
-  style: { navigationBarTitleText: '个人中心' },
+  style: {
+    navigationBarTitleText: '个人中心',
+    backgroundColor: '#050505',
+    backgroundColorTop: '#050505',
+    backgroundColorBottom: '#050505',
+  },
 })
 
 const tokenStore = useTokenStore()
@@ -33,6 +38,8 @@ const authorStats = ref<any>(null)
 const inboxComments = ref<any[]>([])
 const avatarUploading = ref(false)
 const deletingArticleId = ref<number | null>(null)
+/** 首屏 / Tab 切换拉数时的整页加载，避免内容区高度不足露白底 */
+const pageLoading = ref(true)
 
 const avatarDisplayUrl = computed(() => resolveStaticUrl(userStore.userInfo.avatar || ''))
 
@@ -57,7 +64,13 @@ onShow(async () => {
     uni.navigateTo({ url: '/pages/auth/login' })
     return
   }
-  await loadTabData()
+  pageLoading.value = true
+  try {
+    await loadTabData()
+  }
+  finally {
+    pageLoading.value = false
+  }
 })
 
 /** 按当前 Tab 懒加载数据 */
@@ -178,7 +191,13 @@ function goEditArticle(id: number) {
 </script>
 
 <template>
-  <view class="profile-page cyber-page-grid">
+  <view
+    v-if="pageLoading"
+    class="profile-page cyber-page-grid u-page-scroll u-page-loading-center"
+  >
+    <text class="text-tech-subtle">加载中...</text>
+  </view>
+  <view v-else class="profile-page cyber-page-grid">
     <scroll-view scroll-x class="cyber-tabs">
       <view class="flex px-2 py-2">
         <text
@@ -220,7 +239,10 @@ function goEditArticle(id: number) {
 
     <view v-else-if="activeTab === 'article'" class="p-3">
       <cyber-button size="small" class="mb-3 inline-flex" variant="secondary" @click="goWriteArticle">
-        ✍️ 写文章
+        <view class="flex items-center">
+          <cyber-icon name="edit-pen" size="28rpx" />
+          <text class="ml-2">写文章</text>
+        </view>
       </cyber-button>
       <cyber-card v-for="item in articles" :key="item.id" class="mb-3 !p-2">
         <ArticleCard :item="item" />

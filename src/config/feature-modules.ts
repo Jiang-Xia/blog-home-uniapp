@@ -7,9 +7,10 @@ import {
   ROUTE_RPG_FULL,
   ROUTE_TOOL_INDEX,
 } from '@/router/routes'
+import type { AppIconName } from '@/config/app-icons'
 
 export interface FeatureModule {
-  icon: string
+  icon: AppIconName
   title: string
   desc: string
   tags: string[]
@@ -18,7 +19,7 @@ export interface FeatureModule {
 
 /** 博客特性页模块数据（路由为 uniapp 路径） */
 export const rpgFeatureModule: FeatureModule = {
-  icon: '⚔️',
+  icon: 'sword',
   title: 'RPG 冒险体系',
   desc: '签到升级、成就任务、背包装扮、抽奖 Buff、钻石经济、公会赛季与排行榜——博客即冒险世界。',
   tags: ['签到', '任务', '抽奖', '钻石', '公会', '排行榜'],
@@ -27,35 +28,35 @@ export const rpgFeatureModule: FeatureModule = {
 
 export const coreFeatureModules: FeatureModule[] = [
   {
-    icon: '📝',
+    icon: 'article',
     title: '文章系统',
     desc: 'Markdown 编辑与预览、分类标签、全文检索、按时间归档，支持用户前台创作与管理。',
     tags: ['Markdown', '归档', '标签'],
     route: ROUTE_ARCHIVES,
   },
   {
-    icon: '💬',
+    icon: 'comment',
     title: '评论与互动',
     desc: '文章评论与回复、收藏点赞（需登录），互动数据驱动 RPG 经验与文章成长。',
     tags: ['评论', '收藏', '点赞'],
     route: ROUTE_HOME,
   },
   {
-    icon: '👤',
+    icon: 'user',
     title: '用户中心',
     desc: '个人资料编辑、前台文章创作、公开主页展示 RPG 状态与互动记录。',
     tags: ['注册登录', '个人主页', '发文'],
     route: ROUTE_PROFILE,
   },
   {
-    icon: '🔗',
+    icon: 'link',
     title: '友链与留言',
     desc: '友情链接申请与展示、树形留言板，支持回复与 RPG 经验联动。',
     tags: ['友链', '留言板'],
     route: ROUTE_MSGBOARD,
   },
   {
-    icon: '📊',
+    icon: 'dashboard',
     title: '项目展示',
     desc: '嵌入 Blog Admin、Zone 等多端演示，扫码体验 App / H5 / 小程序。',
     tags: ['Demo', '多端'],
@@ -65,28 +66,28 @@ export const coreFeatureModules: FeatureModule[] = [
 
 export const experienceFeatureModules: FeatureModule[] = [
   {
-    icon: '🤖',
+    icon: 'robot',
     title: 'AI 文章摘要',
     desc: '多风格、多长度 AI 摘要生成，支持历史记录与 Markdown 导出。',
     tags: ['AI', 'DeepSeek'],
     route: '/pages-tool/ai-summary/index',
   },
   {
-    icon: '📖',
+    icon: 'book',
     title: '阅读进度与目录',
     desc: '文章详情目录跳转、代码高亮与封面预览。',
     tags: ['阅读体验'],
     route: ROUTE_HOME,
   },
   {
-    icon: '📡',
+    icon: 'broadcast',
     title: '实时推送',
     desc: 'Socket.IO /realtime 命名空间，升级、成就、禁言、站内通知等即时推送。',
     tags: ['WebSocket'],
     route: ROUTE_RPG_FULL,
   },
   {
-    icon: '🛠️',
+    icon: 'tools',
     title: '实用工具箱',
     desc: '加密、编码、二维码、水印等效率工具，H5 端能力最全。',
     tags: ['工具'],

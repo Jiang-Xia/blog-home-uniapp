@@ -8,6 +8,9 @@ export default defineUniPages({
     navigationBarBackgroundColor: '#050505',
     navigationBarTextStyle: 'white',
     backgroundColor: '#050505',
+    /** 分包/页面过渡加载时窗口上下拉背景，避免 MP 底部露白 */
+    backgroundColorTop: '#050505',
+    backgroundColorBottom: '#050505',
   },
   easycom: {
     autoscan: true,

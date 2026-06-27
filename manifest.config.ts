@@ -16,6 +16,7 @@ const {
   VITE_APP_TITLE,
   VITE_UNI_APPID,
   VITE_WX_APPID,
+  VITE_ALIPAY_APPID,
   VITE_APP_PUBLIC_BASE,
   VITE_FALLBACK_LOCALE,
 } = env
@@ -136,6 +137,7 @@ export default defineManifestConfig({
     // __usePrivacyCheck__: true,
   },
   'mp-alipay': {
+    appid: VITE_ALIPAY_APPID,
     usingComponents: true,
     styleIsolation: 'shared',
     optimization: {

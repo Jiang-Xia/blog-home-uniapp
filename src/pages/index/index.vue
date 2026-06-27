@@ -110,7 +110,7 @@ onMounted(() => {
         <view class="home-hero-brand flex justify-center">
           <view class="home-hero-brand-chip">
             <view class="home-hero-brand-icon site-logo-badge">
-              <text class="home-hero-brand-emoji">⚔️</text>
+              <cyber-icon name="sword" size="40rpx" />
             </view>
             <view class="home-hero-status-dot" />
             <text class="home-hero-brand-label">Blog × RPG · 签到 · 任务 · 抽奖 · 排行榜</text>
@@ -140,12 +140,18 @@ onMounted(() => {
           <view class="home-hero-buttons mt-4 flex flex-wrap items-center justify-center">
             <view>
               <cyber-button size="small" variant="primary" @click="goRpg">
-                ⚔️ 开始冒险
+                <view class="flex items-center">
+                  <cyber-icon name="sword" size="32rpx" />
+                  <text class="ml-2">开始冒险</text>
+                </view>
               </cyber-button>
             </view>
             <view>
               <cyber-button size="small" variant="secondary" @click="scrollToArticles">
-                📖 浏览文章
+                <view class="flex items-center">
+                  <cyber-icon name="book" size="32rpx" />
+                  <text class="ml-2">浏览文章</text>
+                </view>
               </cyber-button>
             </view>
             <view>
@@ -227,11 +233,6 @@ onMounted(() => {
   height: 40rpx;
   width: 40rpx;
   border-radius: 8rpx;
-}
-
-.home-hero-brand-emoji {
-  font-size: 22rpx;
-  line-height: 1;
 }
 
 .home-hero-status-dot {

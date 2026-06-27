@@ -60,7 +60,10 @@ async function submitTip() {
 
 <template>
   <view v-if="canTip" :class="embedded ? 'tip-panel-embedded' : 'tip-panel cyber-glass-card cyber-card-pad-sm mt-4'">
-    <text v-if="!embedded" class="mb-2 block text-sm text-tech font-medium">💎 打赏作者</text>
+    <view v-if="!embedded" class="mb-2 flex items-center">
+      <cyber-icon name="gem" size="32rpx" />
+      <text class="ml-2 text-sm text-tech font-medium">打赏作者</text>
+    </view>
     <view class="u-captcha-row u-captcha-row-flush">
       <view class="u-captcha-input-wrap">
         <wd-input v-model.number="amount" type="number" placeholder="钻石数量" />

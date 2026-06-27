@@ -26,7 +26,7 @@ const emit = defineEmits<{
         class="adjacent-link adjacent-link--prev cyber-glass-card cyber-card-pad-xs"
         @tap="emit('navigate', prev.id)"
       >
-        <text class="adjacent-arrow text-tech-faint">‹</text>
+        <cyber-chevron direction="left" size="md" class="adjacent-arrow" />
         <text class="adjacent-label text-xs text-tech-muted">上一篇</text>
         <text class="adjacent-title truncate text-sm text-tech">{{ prev.title }}</text>
       </view>
@@ -38,7 +38,7 @@ const emit = defineEmits<{
       >
         <text class="adjacent-title truncate text-sm text-tech">{{ next.title }}</text>
         <text class="adjacent-label text-xs text-tech-muted">下一篇</text>
-        <text class="adjacent-arrow text-tech-faint">›</text>
+        <cyber-chevron size="md" class="adjacent-arrow" />
       </view>
     </view>
   </view>

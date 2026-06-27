@@ -74,7 +74,10 @@ function goGuide() {
           <cyber-card v-if="status" class="mb-4 !p-5">
             <text class="cyber-gradient-text-amber block text-xl font-bold">Lv.{{ status.level }} 冒险者</text>
             <text class="mt-2 block text-sm text-tech-muted">经验 {{ status.exp }} · 生命 {{ status.lifeValue }}</text>
-            <text class="mt-1 block text-sm text-tech-primary">💎 {{ status.currency ?? 0 }}</text>
+            <view class="mt-1 flex items-center text-sm text-tech-primary">
+              <cyber-icon name="gem" size="28rpx" />
+              <text class="ml-1">{{ status.currency ?? 0 }}</text>
+            </view>
             <text class="mt-3 block text-xs text-tech-subtle">
               {{ signInfo?.signedToday ? '今日已签到 ✓' : '今日尚未签到' }} · 连续 {{ status.consecutiveSignDays }} 天
             </text>
@@ -83,7 +86,10 @@ function goGuide() {
           <view class="u-form-actions">
             <view class="u-form-action-item">
               <cyber-button block variant="primary" @click="goRpg">
-                ⚔️ 进入冒险中心
+                <view class="flex items-center justify-center">
+                  <cyber-icon name="sword" size="32rpx" />
+                  <text class="ml-2">进入冒险中心</text>
+                </view>
               </cyber-button>
             </view>
             <view class="u-form-action-item">

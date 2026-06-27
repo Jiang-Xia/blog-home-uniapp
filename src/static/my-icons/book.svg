@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="book-g" x1="10" y1="8" x2="38" y2="42" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#e879f9"/>
+      <stop offset="100%" stop-color="#9333ea"/>
+    </linearGradient>
+    <filter id="book-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2.2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <path fill="#bf00ff" opacity="0.22" d="M10 8h28v6H10z"/>
+  <path fill="url(#book-g)" filter="url(#book-glow)" d="M10 8h28v4H10z"/>
+  <path fill="#7c3aed" filter="url(#book-glow)" d="M12 12h24v28a3 3 0 01-3 3H15a3 3 0 01-3-3V12z"/>
+  <path fill="none" stroke="#e9d5ff" stroke-width="1" opacity="0.6" d="M12 12h24v28a3 3 0 01-3 3H15a3 3 0 01-3-3V12z"/>
+  <rect x="18" y="18" width="12" height="2.5" rx="1.25" fill="#faf5ff"/>
+  <rect x="18" y="24" width="12" height="2.5" rx="1.25" fill="#e9d5ff"/>
+  <rect x="18" y="30" width="8" height="2.5" rx="1.25" fill="#00f5ff" opacity="0.95"/>
+</svg>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="comment-g" x1="6" y1="10" x2="42" y2="38" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00ff9f"/>
+      <stop offset="100%" stop-color="#00d4aa"/>
+    </linearGradient>
+    <filter id="comment-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2.2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <path fill="#00ff9f" opacity="0.22" d="M8 10h32a4 4 0 014 4v14a4 4 0 01-4 4H20l-8 8v-8H8a4 4 0 01-4-4V14a4 4 0 014-4z"/>
+  <path fill="url(#comment-g)" filter="url(#comment-glow)" d="M10 12h28a2 2 0 012 2v12a2 2 0 01-2 2H22l-6 6v-6h-6a2 2 0 01-2-2V14a2 2 0 012-2z"/>
+  <path fill="none" stroke="#a7f3d0" stroke-width="1" opacity="0.7" d="M10 12h28a2 2 0 012 2v12a2 2 0 01-2 2H22l-6 6v-6h-6a2 2 0 01-2-2V14a2 2 0 012-2z"/>
+  <circle cx="17" cy="21" r="2.2" fill="#fff"/>
+  <circle cx="24" cy="21" r="2.2" fill="#fff"/>
+  <circle cx="31" cy="21" r="2.2" fill="#fff"/>
+</svg>

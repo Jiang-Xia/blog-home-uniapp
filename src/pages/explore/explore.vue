@@ -43,10 +43,10 @@ function handleEntry(item: ExploreItem) {
         >
           <view class="cyber-explore-section-header">
             <view
-              class="cyber-explore-section-icon flex shrink-0 items-center justify-center bg-gradient-to-br text-lg"
+              class="cyber-explore-section-icon flex shrink-0 items-center justify-center bg-gradient-to-br"
               :class="section.color"
             >
-              {{ section.icon }}
+              <cyber-icon :name="section.icon" size="60rpx" />
             </view>
             <view class="u-flex-1 min-w-0">
               <view class="u-gap-2 flex items-center">
@@ -69,7 +69,7 @@ function handleEntry(item: ExploreItem) {
                   class="cyber-explore-tile-icon flex items-center justify-center bg-gradient-to-br"
                   :class="item.color"
                 >
-                  <text class="text-lg">{{ item.icon }}</text>
+                  <cyber-icon :name="item.icon" size="60rpx" />
                 </view>
                 <text class="cyber-explore-tile-title">{{ item.title }}</text>
                 <text class="cyber-explore-tile-desc">{{ item.desc }}</text>

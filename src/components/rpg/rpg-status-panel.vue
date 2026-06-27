@@ -38,9 +38,18 @@ const expPercent = computed(() => {
       <text class="mt-1 block text-xs text-tech-subtle">EXP {{ status.exp }} / {{ status.expToNext ?? '—' }}</text>
     </view>
     <view class="u-gap-3 mt-3 flex flex-wrap text-sm text-tech-muted">
-      <text>❤️ {{ status.lifeValue }}</text>
-      <text>💎 {{ status.currency ?? 0 }}</text>
-      <text>⭐ {{ status.reputation ?? 0 }}</text>
+      <view class="flex items-center">
+        <cyber-icon name="heart" size="28rpx" />
+        <text class="ml-1">{{ status.lifeValue }}</text>
+      </view>
+      <view class="flex items-center">
+        <cyber-icon name="gem" size="28rpx" />
+        <text class="ml-1">{{ status.currency ?? 0 }}</text>
+      </view>
+      <view class="flex items-center">
+        <cyber-icon name="star" size="28rpx" />
+        <text class="ml-1">{{ status.reputation ?? 0 }}</text>
+      </view>
     </view>
     <view v-if="banStatus?.banned" class="cyber-alert cyber-alert-warning mt-3 text-xs !p-2">
       禁言中{{ banStatus.banEndTime ? ` · 至 ${formatDateMinute(banStatus.banEndTime)}` : '' }}

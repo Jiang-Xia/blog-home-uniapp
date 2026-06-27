@@ -278,9 +278,18 @@ function commentAvatar(item: { userInfo?: { avatar?: string }, avatar?: string }
         <text class="block text-xl text-tech font-bold leading-snug">{{ article.title }}</text>
         <text class="mt-2 block text-xs text-tech-subtle">{{ formatDate(article.createTime || article.uTime) }}</text>
         <view class="detail-stats mt-3">
-          <text class="detail-stat">👁 {{ article.views ?? 0 }} 阅读</text>
-          <text class="detail-stat">♥ {{ article.likes ?? 0 }} 点赞</text>
-          <text v-if="article.tipTotal" class="detail-stat">💎 {{ article.tipTotal }} 打赏</text>
+          <view class="detail-stat flex items-center">
+            <wd-icon name="browse" size="14px" color="var(--tech-fg-subtle)" />
+            <text class="ml-1">{{ article.views ?? 0 }} 阅读</text>
+          </view>
+          <view class="detail-stat flex items-center">
+            <cyber-icon name="heart" size="28rpx" />
+            <text class="ml-1">{{ article.likes ?? 0 }} 点赞</text>
+          </view>
+          <view v-if="article.tipTotal" class="detail-stat flex items-center">
+            <cyber-icon name="gem" size="28rpx" />
+            <text class="ml-1">{{ article.tipTotal }} 打赏</text>
+          </view>
         </view>
         <image
           v-if="coverUrl"

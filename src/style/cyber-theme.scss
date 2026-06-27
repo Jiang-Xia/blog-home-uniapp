@@ -207,27 +207,27 @@ page {
   color: var(--tech-fg);
 }
 
-/** 多行分组：加大行内 padding + 行间下边距，避免副标题与下一行图标贴紧 */
-.cyber-menu-list--multi .cyber-menu-item {
+/** 多行分组：行间距与分隔线写在原生 view 行容器上，避免 MP 组件包裹导致 :only-child/:last-child 误匹配 */
+.cyber-menu-list--multi .cyber-menu-list-row {
   padding: 24rpx 0;
   border-bottom: 1px solid var(--tech-border);
 }
 
-.cyber-menu-list--multi .cyber-menu-item:first-child {
+.cyber-menu-list--multi .cyber-menu-list-row:first-child {
   padding-top: 8rpx;
 }
 
-.cyber-menu-list--multi .cyber-menu-item:last-child {
+.cyber-menu-list--multi .cyber-menu-list-row:last-child {
   padding-bottom: 8rpx;
   border-bottom: none;
 }
 
-.cyber-menu-list--multi .cyber-menu-item:not(:last-child) {
-  margin-bottom: 28rpx;
-}
 
-/** 单卡片仅一行 cell：高度由卡片内边距决定 */
-.cyber-menu-list .cyber-menu-item:only-child {
+/**
+ * 单 cell 卡片（无 --multi）：行高由卡片内边距决定。
+ * 勿用 :only-child：MP 下 cyber-cell 有组件包裹层，每个 item 都会成为其父级唯一子节点而误匹配。
+ */
+.cyber-menu-list:not(.cyber-menu-list--multi) .cyber-menu-item {
   padding: 0;
   margin-bottom: 0;
   border-bottom: none;
@@ -249,11 +249,36 @@ page {
   width: 100%;
 }
 
-.cyber-menu-chevron {
+/** 用户卡右侧箭头区，对齐 cyber-cell-trail */
+.me-user-card-trail {
+  display: flex;
   flex-shrink: 0;
-  font-size: 32rpx;
+  align-items: center;
+  margin-left: 16rpx;
+}
+
+/** wot-ui 箭头（cyber-chevron，字号由 wd-icon size 控制） */
+.cyber-chevron {
+  flex-shrink: 0;
   line-height: 1;
-  color: var(--tech-fg-faint);
+}
+
+/** 彩色 SVG 图标（cyber-icon） */
+.cyber-icon {
+  display: block;
+  flex-shrink: 0;
+  line-height: 0;
+  vertical-align: middle;
+}
+
+/** 未指定 size 时默认可视尺寸（非图标盒场景） */
+.cyber-icon:not([style*='width']) {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.cyber-alert-icon {
+  flex-shrink: 0;
 }
 
 .cyber-cell-main {
@@ -269,13 +294,18 @@ page {
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   width: 72rpx;
   height: 72rpx;
+  padding: 6rpx;
   border: 1px solid var(--tech-border);
   border-radius: 18rpx;
   background: rgba(34, 211, 238, 0.06);
-  font-size: 36rpx;
-  line-height: 1;
+}
+
+.cyber-cell-icon .cyber-icon {
+  width: 100%;
+  height: 100%;
 }
 
 .cyber-cell-text {
@@ -334,13 +364,18 @@ page {
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   width: 112rpx;
   height: 112rpx;
+  padding: 14rpx;
   border: 1px solid var(--tech-border);
   border-radius: 50%;
   background: rgba(34, 211, 238, 0.06);
-  font-size: 48rpx;
-  line-height: 1;
+}
+
+.me-guest-avatar .cyber-icon {
+  width: 100%;
+  height: 100%;
 }
 
 .me-section-title {
@@ -548,13 +583,14 @@ page {
 }
 
 /* #ifdef MP-WEIXIN || MP-ALIPAY */
-.cyber-page,
-.cyber-page-grid {
-  min-height: 100%;
+page {
+  min-height: 100vh;
+  background-color: var(--tech-shell);
 }
 
-page {
-  height: 100%;
+.cyber-page,
+.cyber-page-grid {
+  min-height: 100vh;
 }
 /* #endif */
 
@@ -1037,10 +1073,20 @@ page {
 }
 
 .cyber-explore-section-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
   width: 72rpx;
   height: 72rpx;
   margin-right: 16rpx;
+  padding: 6rpx;
   border-radius: 16rpx;
+}
+
+.cyber-explore-section-icon .cyber-icon {
+  width: 100%;
+  height: 100%;
 }
 
 .cyber-explore-section-count {
@@ -1072,11 +1118,20 @@ page {
 }
 
 .cyber-explore-tile-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
   width: 72rpx;
   height: 72rpx;
   margin-bottom: 10rpx;
+  padding: 6rpx;
   border-radius: 16rpx;
-  font-size: 32rpx;
+}
+
+.cyber-explore-tile-icon .cyber-icon {
+  width: 100%;
+  height: 100%;
 }
 
 .cyber-explore-tile-title {
@@ -1138,6 +1193,14 @@ page {
 /** 进度条轨道底（替代 bg-white/20） */
 .u-bg-white-20 {
   background-color: rgba(255, 255, 255, 0.2);
+}
+
+/** 整页加载占位：满屏居中，与 cyber-page-grid 同色 */
+.u-page-loading-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 /** 页面满高 scroll-view（替代 height: 100vh） */
