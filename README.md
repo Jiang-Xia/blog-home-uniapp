@@ -59,6 +59,8 @@ VITE_SERVER_BASEURL = 'http://localhost:5000/api/v1'
 | `pnpm dev:mp` | 微信小程序开发 |
 | `pnpm build` | 生产构建（H5） |
 | `pnpm build:mp` | 微信小程序生产构建 |
+| `pnpm run deploy` | H5 一键部署到生产（见下方） |
+| `pnpm run rollback` | 回滚上一版 H5 静态包 |
 | `pnpm lint` | ESLint 检查 |
 | `pnpm lint:fix` | ESLint 自动修复 |
 | `pnpm type-check` | Vue TSC 类型检查 |
@@ -151,6 +153,16 @@ blog-home-uniapp/
 | `/pages/about/about` | 关于 |
 
 路由常量见 `src/router/routes.ts`；发现页分区见 `src/config/quick-entries.ts`，我的页菜单见 `src/config/me-menu.ts`。
+
+## 一键部署（H5 生产）
+
+与 blog-admin 同机：`/opt/jxapp/front/blog-uniapp` → 主域 `https://jiang-xia.top/blog-uniapp/`（Nginx 见 `blog-server/deploy/nginx/conf.d/jiang-xia.top.conf`）
+
+```powershell
+pnpm run deploy
+```
+
+build 读 `env/.env.production`；SSH 见 `deploy/pm2/deploy.local.env`（从 `deploy.local.env.example` 复制）。详见 [deploy/pm2/README.md](deploy/pm2/README.md)。
 
 ## Git 提交规范
 

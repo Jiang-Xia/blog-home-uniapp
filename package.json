@@ -105,7 +105,10 @@
     "lint:fix": "eslint --fix",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:smoke:h5": "node scripts/smoke-h5.mjs"
+    "test:smoke:h5": "node scripts/smoke-h5.mjs",
+    "deploy": "powershell -ExecutionPolicy Bypass -File deploy/pm2/deploy.ps1",
+    "rollback": "powershell -ExecutionPolicy Bypass -File deploy/pm2/rollback.ps1",
+    "rollback:list": "powershell -ExecutionPolicy Bypass -File deploy/pm2/rollback.ps1 -List"
   },
   "dependencies": {
     "@alova/adapter-uniapp": "^2.0.14",

@@ -103,13 +103,13 @@ async function exportZip() {
     </wd-button>
   </scroll-view>
 </template>
-
-<script lang="ts" setup>
-definePage({ style: { navigationBarTitleText: '批量水印' } })
-</script>
 <!-- #endif -->
 
 <!-- #ifndef H5 -->
+<script lang="ts" setup>
+definePage({ style: { navigationBarTitleText: '批量水印' } })
+</script>
+
 <template>
   <view class="watermark-page cyber-page-grid p-8 text-center text-tech-subtle">
     批量水印请在浏览器 H5 版使用
