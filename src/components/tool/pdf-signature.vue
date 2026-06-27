@@ -67,15 +67,16 @@ async function fetchPdfBuffer(src: string): Promise<ArrayBuffer> {
   // #endif
 }
 
+/** pdf.js 仅 H5 按需加载；小程序端不引入 pdfjs-dist，避免主包 vendor 与微信 ES5 转译冲突 */
 async function loadPdfJs() {
-  const pdfjs = await import('pdfjs-dist')
   // #ifdef H5
+  const pdfjs = await import('pdfjs-dist')
   pdfjs.GlobalWorkerOptions.workerSrc = new URL(
     'pdfjs-dist/build/pdf.worker.min.mjs',
     import.meta.url,
   ).href
-  // #endif
   return pdfjs
+  // #endif
 }
 
 /** 渲染 PDF 各页为预览图（H5 canvas / MP 暂用占位） */
@@ -92,13 +93,13 @@ async function reloadPdf(src = props.pdfSrc) {
   try {
     const buffer = await fetchPdfBuffer(src)
     pdfSourceBuffer.value = buffer.slice(0)
+
+    // #ifdef H5
     const pdfjs = await loadPdfJs()
     const pdfDocument = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise
     totalPageCount.value = pdfDocument.numPages
     currentPage.value = 1
     const images: string[] = []
-
-    // #ifdef H5
     for (let pageIndex = 1; pageIndex <= pdfDocument.numPages; pageIndex++) {
       const page = await pdfDocument.getPage(pageIndex)
       const viewport = page.getViewport({ scale: 1.5 })
@@ -113,16 +114,14 @@ async function reloadPdf(src = props.pdfSrc) {
     }
     minScale.value = 0.8
     scaleFactor.value = 1
+    pdfPageImages.value = images
     // #endif
 
     // #ifndef H5
-    for (let pageIndex = 1; pageIndex <= pdfDocument.numPages; pageIndex++) {
-      images.push('')
-    }
-    loadError.value = images.length ? '' : 'PDF 页数为 0'
+    totalPageCount.value = 1
+    currentPage.value = 1
+    pdfPageImages.value = ['']
     // #endif
-
-    pdfPageImages.value = images
   }
   catch (err) {
     console.error('[pdf-signature] PDF 渲染失败:', err)
@@ -271,6 +270,11 @@ function signatureToPngDataUrl(): string {
 }
 
 async function editPdf() {
+  // #ifndef H5
+  uni.showToast({ title: 'PDF 签名请在 H5 浏览器完成', icon: 'none' })
+  return
+  // #endif
+  // #ifdef H5
   if (!pdfSourceBuffer.value) {
     uni.showToast({ title: 'PDF 尚未加载', icon: 'none' })
     return
@@ -314,14 +318,15 @@ async function editPdf() {
   finally {
     signing.value = false
   }
+  // #endif
 }
 
 async function reloadPdfFromBuffer(bytes: Uint8Array) {
+  // #ifdef H5
   const pdfjs = await loadPdfJs()
   const pdfDocument = await pdfjs.getDocument({ data: bytes }).promise
   totalPageCount.value = pdfDocument.numPages
   const images: string[] = []
-  // #ifdef H5
   for (let pageIndex = 1; pageIndex <= pdfDocument.numPages; pageIndex++) {
     const page = await pdfDocument.getPage(pageIndex)
     const viewport = page.getViewport({ scale: 1.5 })
@@ -332,8 +337,8 @@ async function reloadPdfFromBuffer(bytes: Uint8Array) {
     await page.render({ canvasContext: ctx, viewport, canvas }).promise
     images.push(canvas.toDataURL('image/png'))
   }
-  // #endif
   pdfPageImages.value = images
+  // #endif
 }
 
 async function finishSignature() {
