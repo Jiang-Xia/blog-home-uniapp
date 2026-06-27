@@ -1,0 +1,271 @@
+/**
+ * RPG 冒险模块样式 — 微信小程序安全写法（无 * / :deep / color-mix）
+ * 对齐 blog-home-nuxt/assets/css/rpg-theme.css 核心视觉
+ */
+
+/* ── 稀有度徽章 ── */
+.rpg-rarity-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2rpx 12rpx;
+  border-radius: 8rpx;
+  border-width: 1px;
+  border-style: solid;
+  font-size: 20rpx;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.rpg-rarity-badge--common {
+  background: linear-gradient(145deg, #475569, #94a3b8) !important;
+  color: #f1f5f9 !important;
+  border-color: #64748b !important;
+}
+
+.rpg-rarity-badge--rare {
+  background: linear-gradient(145deg, #15803d, #4ade80) !important;
+  color: #dcfce7 !important;
+  border-color: #22c55e !important;
+}
+
+.rpg-rarity-badge--epic {
+  background: linear-gradient(145deg, #6d28d9, #a78bfa) !important;
+  color: #ede9fe !important;
+  border-color: #8b5cf6 !important;
+}
+
+.rpg-rarity-badge--legendary {
+  background: linear-gradient(145deg, #b45309, #fcd34d) !important;
+  color: #fef3c7 !important;
+  border-color: #f59e0b !important;
+}
+
+/* ── 排行榜名次 ── */
+.rpg-rank--gold {
+  color: #fbbf24;
+  font-weight: 700;
+  text-shadow: 0 0 8rpx rgba(251, 191, 36, 0.45);
+}
+
+.rpg-rank--silver {
+  color: #cbd5e1;
+  font-weight: 700;
+}
+
+.rpg-rank--bronze {
+  color: #d97706;
+  font-weight: 700;
+}
+
+/* ── 等级徽章 ── */
+.rpg-level-badge {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 2rpx 12rpx;
+  border-radius: 8rpx;
+  font-size: 20rpx;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #fbbf24, #d97706);
+  box-shadow: 0 2rpx 6rpx rgba(217, 119, 6, 0.3);
+}
+
+/* ── 面板加载动画 ── */
+.rpg-panel-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.rpg-panel-loading--compact {
+  padding: 40rpx 24rpx;
+}
+
+.rpg-panel-loading__visual {
+  position: relative;
+  width: 84rpx;
+  height: 84rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20rpx;
+}
+
+.rpg-panel-loading--compact .rpg-panel-loading__visual {
+  width: 68rpx;
+  height: 68rpx;
+}
+
+.rpg-panel-loading__ring {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: #fbbf24;
+  border-right-color: rgba(139, 92, 246, 0.65);
+  animation: rpg-load-spin 0.9s linear infinite;
+}
+
+.rpg-panel-loading__ring--inner {
+  top: 14rpx;
+  right: 14rpx;
+  bottom: 14rpx;
+  left: 14rpx;
+  border-top-color: #8b5cf6;
+  border-right-color: rgba(251, 191, 36, 0.55);
+  animation-direction: reverse;
+  animation-duration: 1.15s;
+}
+
+.rpg-panel-loading--compact .rpg-panel-loading__ring--inner {
+  top: 12rpx;
+  right: 12rpx;
+  bottom: 12rpx;
+  left: 12rpx;
+}
+
+.rpg-panel-loading__core {
+  font-size: 30rpx;
+  line-height: 1;
+  animation: rpg-load-pulse 1.2s ease-in-out infinite;
+}
+
+.rpg-panel-loading--compact .rpg-panel-loading__core {
+  font-size: 26rpx;
+}
+
+.rpg-panel-loading__label {
+  font-size: 24rpx;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+@keyframes rpg-load-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rpg-load-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+/* ── 战利品卡片（基础） ── */
+.rpg-loot-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 22rpx;
+  margin-bottom: 16rpx;
+  border-radius: 24rpx;
+  background: rgba(17, 24, 39, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2rpx 8rpx rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+}
+
+.rpg-loot-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rpg-loot-card--locked {
+  opacity: 0.55;
+}
+
+.rpg-loot-card--done {
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+.rpg-loot-card--gold {
+  border-color: rgba(251, 191, 36, 0.45);
+  background: linear-gradient(135deg, rgba(255, 251, 235, 0.08), rgba(254, 243, 199, 0.06));
+}
+
+.rpg-loot-card--claimed {
+  opacity: 0.65;
+}
+
+.rpg-loot-card--claimable {
+  border-color: rgba(34, 197, 94, 0.45);
+}
+
+.rpg-loot-name {
+  font-size: 24rpx;
+  font-weight: 800;
+  color: var(--tech-text, #e5e7eb);
+  line-height: 1.35;
+}
+
+.rpg-loot-desc {
+  font-size: 20rpx;
+  color: var(--tech-text-muted, #9ca3af);
+  line-height: 1.4;
+}
+
+/* ── 物品图标 ── */
+.rpg-loot-icon {
+  flex-shrink: 0;
+  width: 68rpx;
+  height: 68rpx;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2rpx 6rpx rgba(15, 23, 42, 0.12);
+}
+
+.rpg-loot-icon__emoji {
+  font-size: 32rpx;
+  line-height: 1;
+}
+
+.rpg-loot-icon--sm {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 16rpx;
+}
+
+.rpg-loot-icon--sm .rpg-loot-icon__emoji {
+  font-size: 28rpx;
+}
+
+.rpg-loot-icon--lg {
+  width: 104rpx;
+  height: 104rpx;
+  border-radius: 28rpx;
+}
+
+.rpg-loot-icon--lg .rpg-loot-icon__emoji {
+  font-size: 56rpx;
+}
+
+.rpg-loot-icon--tinted {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+.rpg-loot-icon--silver {
+  color: #334155;
+  background: linear-gradient(145deg, #e2e8f0, #94a3b8);
+  border-color: #cbd5e1;
+}

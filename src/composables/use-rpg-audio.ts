@@ -1,20 +1,26 @@
 /**
- * RPG 音效 composable（简化版）
- * - H5 Web Audio 提示音；音量/静音写入 uni.storage
- * - BGM 素材未打包，playBgm 暂为占位
+ * RPG 音效 composable（InnerAudioContext + H5 Web Audio 合成 fallback）
  */
 import { computed, ref } from 'vue'
-import { RPG_AUDIO_STORAGE_KEY, RPG_SFX_VOLUME } from '@/constants/rpg-audio'
-import type { RpgBgmKey, RpgSfxKey } from '@/constants/rpg-audio'
+import {
+  RPG_AUDIO_STORAGE_KEY,
+  RPG_BGM,
+  RPG_FILE_SFX,
+  RPG_SYNTH_SFX,
+} from '@/constants/rpg-audio'
+import type { RpgBgmKey, RpgFileSfxKey, RpgSfxKey, RpgSynthSfxKey } from '@/constants/rpg-audio'
 
 interface RpgAudioSettings {
   muted: boolean
   sfxVolume: number
+  bgmVolume: number
 }
 
-const DEFAULT: RpgAudioSettings = { muted: false, sfxVolume: 0.85 }
+const DEFAULT: RpgAudioSettings = { muted: false, sfxVolume: 0.85, bgmVolume: 0 }
 const settings = ref<RpgAudioSettings>(readSettings())
+let bgmCtx: UniApp.InnerAudioContext | null = null
 const audioPool: UniApp.InnerAudioContext[] = []
+const MAX_POOL = 6
 
 function readSettings(): RpgAudioSettings {
   try {
@@ -22,7 +28,11 @@ function readSettings(): RpgAudioSettings {
     if (!raw)
       return { ...DEFAULT }
     const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw
-    return { muted: !!parsed.muted, sfxVolume: Math.min(1, Math.max(0, parsed.sfxVolume ?? DEFAULT.sfxVolume)) }
+    return {
+      muted: !!parsed.muted,
+      sfxVolume: Math.min(1, Math.max(0, parsed.sfxVolume ?? DEFAULT.sfxVolume)),
+      bgmVolume: Math.min(1, Math.max(0, parsed.bgmVolume ?? DEFAULT.bgmVolume)),
+    }
   }
   catch {
     return { ...DEFAULT }
@@ -33,33 +43,59 @@ function persist() {
   uni.setStorageSync(RPG_AUDIO_STORAGE_KEY, JSON.stringify(settings.value))
 }
 
-function playTone(freq: number, durationMs = 120) {
+function playSynthTone(key: RpgSynthSfxKey) {
+  const base = RPG_SYNTH_SFX[key]?.volume ?? 0.4
+  const vol = settings.value.sfxVolume * base
+  if (vol <= 0)
+    return
+  const freqMap: Partial<Record<RpgSynthSfxKey, number>> = {
+    uiClick: 880,
+    signIn: 660,
+    levelUp: 523,
+    questReward: 740,
+    tabSwitch: 520,
+    lotteryCharge: 440,
+    lotterySpin: 320,
+    lotteryRevealCommon: 520,
+    lotteryRevealRare: 620,
+    lotteryRevealEpic: 740,
+    achievement: 680,
+    petHatch: 590,
+    rankUp: 700,
+    currencyGain: 650,
+  }
   // #ifdef H5
   try {
     const ctx = new AudioContext()
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
-    osc.frequency.value = freq
-    gain.gain.value = settings.value.sfxVolume * 0.15
+    osc.frequency.value = freqMap[key] ?? 600
+    gain.gain.value = vol * 0.15
     osc.connect(gain)
     gain.connect(ctx.destination)
     osc.start()
     setTimeout(() => {
       osc.stop()
       void ctx.close()
-    }, durationMs)
+    }, 120)
   }
   catch { /* ignore */ }
   // #endif
 }
 
-const sfxFreq: Partial<Record<RpgSfxKey, number>> = {
-  uiClick: 880,
-  signIn: 660,
-  levelUp: 523,
-  questReward: 740,
-  lotteryRevealLegendary: 988,
-  tabSwitch: 520,
+function playFileSfx(key: RpgFileSfxKey) {
+  const def = RPG_FILE_SFX[key]
+  if (!def)
+    return
+  const ctx = uni.createInnerAudioContext()
+  ctx.src = def.src
+  ctx.volume = settings.value.sfxVolume * (def.volume ?? 0.6)
+  ctx.onEnded(() => ctx.destroy())
+  ctx.onError(() => ctx.destroy())
+  ctx.play()
+  audioPool.push(ctx)
+  if (audioPool.length > MAX_POOL)
+    audioPool.shift()?.destroy()
 }
 
 export function useRpgAudio() {
@@ -68,30 +104,75 @@ export function useRpgAudio() {
     set: (v: boolean) => {
       settings.value.muted = v
       persist()
+      if (v)
+        stopBgm()
     },
   })
+
+  const sfxVolume = computed({
+    get: () => settings.value.sfxVolume,
+    set: (v: number) => {
+      settings.value.sfxVolume = Math.min(1, Math.max(0, v))
+      persist()
+    },
+  })
+
+  const bgmVolume = computed({
+    get: () => settings.value.bgmVolume,
+    set: (v: number) => {
+      settings.value.bgmVolume = Math.min(1, Math.max(0, v))
+      persist()
+      if (bgmCtx)
+        bgmCtx.volume = settings.value.bgmVolume * (RPG_BGM.adventure.volume ?? 0.18)
+    },
+  })
+
+  function initAudio() {
+    // 预读设置，MP 端首次 play 需用户手势；冒险页 onLoad 调用即可
+    readSettings()
+  }
 
   function playSfx(key: RpgSfxKey) {
     if (settings.value.muted)
       return
-    const base = RPG_SFX_VOLUME[key] ?? 0.4
-    const vol = settings.value.sfxVolume * base
-    if (vol <= 0)
-      return
-    playTone(sfxFreq[key] ?? 600)
+    if (key in RPG_FILE_SFX)
+      playFileSfx(key as RpgFileSfxKey)
+    else
+      playSynthTone(key as RpgSynthSfxKey)
   }
 
-  function playBgm(_key: RpgBgmKey = 'adventure') {
-    // BGM 素材未打包进 uniapp，暂用静音占位；后续可放 static/audio/rpg/bgm-adventure.wav
+  function playBgm(key: RpgBgmKey = 'adventure') {
+    if (settings.value.muted || settings.value.bgmVolume <= 0)
+      return
+    const def = RPG_BGM[key]
+    if (!def)
+      return
+    if (!bgmCtx) {
+      bgmCtx = uni.createInnerAudioContext()
+      bgmCtx.loop = def.loop ?? true
+      bgmCtx.onError(() => { /* 素材缺失时静默 */ })
+    }
+    bgmCtx.src = def.src
+    bgmCtx.volume = settings.value.bgmVolume * (def.volume ?? 0.18)
+    bgmCtx.play()
   }
 
   function stopBgm() {
-    audioPool.forEach(a => a.stop())
+    bgmCtx?.stop()
   }
 
   function toggleMute() {
     muted.value = !muted.value
   }
 
-  return { muted, playSfx, playBgm, stopBgm, toggleMute }
+  return {
+    muted,
+    sfxVolume,
+    bgmVolume,
+    initAudio,
+    playSfx,
+    playBgm,
+    stopBgm,
+    toggleMute,
+  }
 }

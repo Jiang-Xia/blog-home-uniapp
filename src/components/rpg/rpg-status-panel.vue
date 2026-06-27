@@ -1,6 +1,7 @@
 <script lang="ts" setup>
+import BanWarning from '@/components/rpg/ban-warning.vue'
+import LifeIndicator from '@/components/rpg/life-indicator.vue'
 import type { BanStatus, RpgStatus, SignInfo } from '@/types/rpg'
-import { formatDateMinute } from '@/utils/date-time'
 
 const props = defineProps<{
   status: RpgStatus
@@ -37,11 +38,8 @@ const expPercent = computed(() => {
       </view>
       <text class="mt-1 block text-xs text-tech-subtle">EXP {{ status.exp }} / {{ status.expToNext ?? '—' }}</text>
     </view>
+    <LifeIndicator :life-value="status.lifeValue" class="mt-3" />
     <view class="u-gap-3 mt-3 flex flex-wrap text-sm text-tech-muted">
-      <view class="flex items-center">
-        <cyber-icon name="heart" size="28rpx" />
-        <text class="ml-1">{{ status.lifeValue }}</text>
-      </view>
       <view class="flex items-center">
         <cyber-icon name="gem" size="28rpx" />
         <text class="ml-1">{{ status.currency ?? 0 }}</text>
@@ -51,9 +49,7 @@ const expPercent = computed(() => {
         <text class="ml-1">{{ status.reputation ?? 0 }}</text>
       </view>
     </view>
-    <view v-if="banStatus?.banned" class="cyber-alert cyber-alert-warning mt-3 text-xs !p-2">
-      禁言中{{ banStatus.banEndTime ? ` · 至 ${formatDateMinute(banStatus.banEndTime)}` : '' }}
-    </view>
+    <BanWarning v-if="banStatus?.banned" :ban-status="banStatus" class="mt-3" />
     <wd-button
       size="small"
       class="mt-4"

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { getRpgSignInfo, getRpgStatus } from '@/api/rpg'
+import RpgPreviewDemo from '@/components/rpg/rpg-preview-demo.vue'
 import { ROUTE_RPG_FULL, ROUTE_RPG_GUIDE } from '@/router/routes'
 import { useTokenStore } from '@/store/token'
 import type { RpgStatus, SignInfo } from '@/types/rpg'
@@ -30,7 +31,7 @@ onShow(() => {
   void loadStatus()
 })
 
-function goRpg() {
+function goRpg(tab?: string) {
   if (!tokenStore.hasLogin) {
     // #ifdef MP-WEIXIN
     void tokenStore.wxLogin().catch(() => uni.navigateTo({ url: '/pages/auth/login' }))
@@ -40,7 +41,8 @@ function goRpg() {
     // #endif
     return
   }
-  uni.navigateTo({ url: ROUTE_RPG_FULL })
+  const url = tab ? `${ROUTE_RPG_FULL}?tab=${tab}` : ROUTE_RPG_FULL
+  uni.navigateTo({ url })
 }
 
 function goGuide() {
@@ -57,12 +59,15 @@ function goGuide() {
         subtitle="签到升级 · 任务奖励 · 抽奖开宝箱"
       />
 
-      <view v-if="!tokenStore.hasLogin" class="mt-6 text-center">
-        <cyber-card class="!p-6">
-          <text class="block text-tech-muted">登录后即可进入冒险中心</text>
-          <cyber-button class="mt-4 inline-flex" variant="primary" @click="goRpg">
-            去登录
-          </cyber-button>
+      <view v-if="!tokenStore.hasLogin" class="mt-6">
+        <RpgPreviewDemo />
+        <cyber-card class="mt-4 text-center !p-6">
+          <text class="block text-tech-muted">登录后即可保存进度并参与全站玩法</text>
+          <view class="mt-4">
+            <cyber-button variant="primary" @click="goRpg()">
+              去登录 / 开始冒险
+            </cyber-button>
+          </view>
         </cyber-card>
       </view>
 
@@ -85,7 +90,7 @@ function goGuide() {
 
           <view class="u-form-actions">
             <view class="u-form-action-item">
-              <cyber-button block variant="primary" @click="goRpg">
+              <cyber-button block variant="primary" @click="goRpg()">
                 <view class="flex items-center justify-center">
                   <cyber-icon name="sword" size="32rpx" />
                   <text class="ml-2">进入冒险中心</text>
@@ -95,6 +100,11 @@ function goGuide() {
             <view class="u-form-action-item">
               <cyber-button block variant="secondary" @click="goGuide">
                 冒险攻略
+              </cyber-button>
+            </view>
+            <view class="u-form-action-item">
+              <cyber-button block variant="secondary" @click="goRpg('leaderboard')">
+                查看排行榜
               </cyber-button>
             </view>
           </view>

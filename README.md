@@ -141,18 +141,38 @@ blog-home-uniapp/
 | `/pages-blog/links/index` | 友链 |
 | `/pages-blog/open-source/index` | 开源与合作 |
 | `/pages-tool/index/index` | 工具箱 |
-| `/pages-tool/codes/index` | 编码转换 |
+| `/pages-tool/codes/index` | 条形/二维码 |
 | `/pages-tool/rsa/index` | RSA 加解密 |
 | `/pages-tool/crypto/index` | 对称加密（AES/DES） |
 | `/pages-tool/sm/index` | 国密 SM2 |
-| `/pages-tool/qrcode/index` | 二维码生成 |
+| `/pages-tool/qrcode/index` | 二维码（重定向至 codes） |
 | `/pages-tool/ai-summary/index` | AI 文章摘要 |
-| `/pages-tool/watermark/index` | 批量水印（H5） |
-| `/pages-tool/h5-web/index` | Web 工具跳转（光影边框/WebRTC 等） |
-| `/pages-tool/pdf/index` | PDF 预览（H5） |
+| `/pages-tool/ai/index` | AI 对话 |
+| `/pages-tool/watermark/index` | 批量水印 |
+| `/pages-tool/photos/index` | 光影边框 |
+| `/pages-tool/audio-visualized/index` | 音频可视化 |
+| `/pages-tool/upload-slice/index` | 切片上传 |
+| `/pages-tool/other/index` | 其他工具 |
+| `/pages-tool/test/index` | 开发测试 |
+| `/pages-tool/pdf/index` | PDF 电子签名 |
+| `/pages-tool/h5-web/index` | Web 工具外链兜底 |
 | `/pages/about/about` | 关于 |
 
 路由常量见 `src/router/routes.ts`；发现页分区见 `src/config/quick-entries.ts`，我的页菜单见 `src/config/me-menu.ts`。
+
+## 冒险中心（RPG）
+
+与 blog-home-nuxt `/rpg` 功能对齐，组件位于 `src/components/rpg/`：
+
+| Tab | 能力 |
+| --- | --- |
+| 状态 | 签到、等级奖励路线图、抽奖宝箱（单/十连动画）、任务分组、成就、Buff、赛季/天气 Banner、命中记录 |
+| 背包 | 类型筛选、穿戴称号/头像框、充值入口 |
+| 宠物 | 宠物蛋孵化、钻石兑换、出战/休息、改名 |
+| 公会 | 创建/加入/退出、成员列表 |
+| 排行 | 五维度 × 四周期、跳转公开主页 |
+
+全站 `RpgGlobalInit`（`App.vue`）登录后连接 Socket.IO，WS 庆祝动画（升级/成就/抽奖/社交等）与 Nuxt 同级。音效：`use-rpg-audio`（InnerAudioContext + H5 合成 fallback），冒险页可开 BGM。静态图标：`static/rpg/icons/`。WXSS 须遵守 `.cursor/rules/uniapp-21-wxss-forbidden-css.mdc`，改样式后请在微信开发者工具编译验证。
 
 ## 一键部署（H5 生产）
 
