@@ -134,11 +134,14 @@ function previewPoster(activity: RpgActivitySummary) {
               >
                 ×{{ activity.expBuffRate }}
               </text>
-              <view v-if="resolvePosterUrl(activity.posterUrl)">
-                <wd-button size="small" @click="previewPoster(activity)">
-                  查看海报
-                </wd-button>
-              </view>
+              <text
+                v-if="resolvePosterUrl(activity.posterUrl)"
+                class="season-banner__rate season-banner__rate--action"
+                :class="activity.activityType === 'season' ? 'season-banner__rate--season' : 'season-banner__rate--limited'"
+                @click="previewPoster(activity)"
+              >
+                查看海报
+              </text>
             </view>
           </view>
         </view>
@@ -329,6 +332,10 @@ function previewPoster(activity: RpgActivitySummary) {
   color: #fde68a;
   background: rgba(251, 191, 36, 0.25);
   border: 1px solid rgba(253, 224, 71, 0.4);
+}
+
+.season-banner__rate--action {
+  cursor: pointer;
 }
 
 .season-banner__tabs {

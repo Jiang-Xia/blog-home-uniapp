@@ -48,10 +48,10 @@ function goDetail(id: number) {
     @click="goDetail(item.id)"
   >
     <view v-if="layout === 'compact'" class="article-card-compact-row u-gap-3">
-      <view v-if="coverUrl" class="article-card-compact-cover shrink-0">
-        <image :src="coverUrl" mode="aspectFill" class="article-card-compact-cover-img" />
+      <view v-if="coverUrl" class="article-card-compact-cover article-cover-wrap shrink-0">
+        <image :src="coverUrl" mode="aspectFill" class="article-card-compact-cover-img article-cover-wrap__img" />
       </view>
-      <view v-else class="article-card-compact-cover article-card-compact-cover--placeholder shrink-0">
+      <view v-else class="article-card-compact-cover article-card-compact-cover--placeholder article-cover-wrap shrink-0">
         <text class="article-card-compact-cover-placeholder">📄</text>
       </view>
       <view class="article-card-body article-card-body--compact min-w-0 flex-1">
@@ -80,17 +80,19 @@ function goDetail(id: number) {
           </text>
         </view>
         <view class="article-card-stats mt-2 flex flex-wrap items-center text-xs text-tech-subtle">
-          <text v-if="item.views != null" class="article-card-stat">
-            <wd-icon name="browse" size="14px" color="var(--tech-fg-subtle)" />
+          <view v-if="item.views != null" class="article-card-stat">
+            <wd-icon name="eye" size="14px" color="var(--tech-fg-subtle)" />
             <text class="ml-1">{{ item.views }}</text>
-          </text>
+          </view>
           <text v-if="item.createTime" class="ml-auto">{{ formatDate(item.createTime) }}</text>
         </view>
       </view>
     </view>
     <template v-else>
       <view v-if="coverUrl" class="article-card-cover p-2">
-        <image :src="coverUrl" mode="aspectFill" class="article-card-cover-img w-full rounded-lg" />
+        <view class="article-cover-wrap">
+          <image :src="coverUrl" mode="aspectFill" class="article-card-cover-img article-cover-wrap__img" />
+        </view>
       </view>
       <view class="article-card-body px-3 pb-3">
         <text class="article-card-title block text-base text-tech font-semibold leading-snug">{{ item.title }}</text>
@@ -123,18 +125,18 @@ function goDetail(id: number) {
         </view>
 
         <view class="article-card-stats mt-3 flex flex-wrap items-center text-xs text-tech-subtle">
-          <text v-if="item.views != null" class="article-card-stat">
-            <wd-icon name="browse" size="14px" color="var(--tech-fg-subtle)" />
-            <text class="ml-1">{{ item.views }}</text>
-          </text>
-          <text v-if="item.likes != null" class="article-card-stat ml-3">
-            <cyber-icon name="heart" size="24rpx" />
-            <text class="ml-1">{{ item.likes }}</text>
-          </text>
-          <text v-if="item.commentCount != null" class="article-card-stat ml-3">
-            <cyber-icon name="comment" size="24rpx" />
-            <text class="ml-1">{{ item.commentCount }}</text>
-          </text>
+          <view class="article-card-stat">
+            <wd-icon name="eye" size="14px" color="var(--tech-fg-subtle)" />
+            <text class="ml-1">{{ item.views ?? 0 }}</text>
+          </view>
+          <view class="article-card-stat ml-3">
+            <wd-icon name="thumb-up" size="14px" color="var(--tech-fg-subtle)" />
+            <text class="ml-1">{{ item.likes ?? 0 }}</text>
+          </view>
+          <view class="article-card-stat ml-3">
+            <wd-icon name="message" size="14px" color="var(--tech-fg-subtle)" />
+            <text class="ml-1">{{ item.commentCount ?? 0 }}</text>
+          </view>
           <text v-if="item.createTime" class="ml-auto">{{ formatDate(item.createTime) }}</text>
         </view>
       </view>
@@ -159,9 +161,6 @@ function goDetail(id: number) {
 .article-card-stat {
   display: inline-flex;
   align-items: center;
-}
-
-.article-card-stats > text {
   margin-right: 32rpx;
   margin-bottom: 8rpx;
 }
@@ -195,15 +194,13 @@ function goDetail(id: number) {
 .article-card-compact-row {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
+  min-height: 126rpx;
 }
 
 .article-card-compact-cover {
   width: 168rpx;
   height: 126rpx;
-  border-radius: 12rpx;
-  overflow: hidden;
-  border: 1px solid var(--tech-border);
   background: rgba(255, 255, 255, 0.04);
 }
 

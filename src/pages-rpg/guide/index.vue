@@ -1,12 +1,24 @@
 <script lang="ts" setup>
 /**
  * RPG 冒险攻略（对齐 blog-home-nuxt pages/features/rpg-guide.vue，12 章静态说明）
+ * - 目录联动：小程序用 scroll-into-view 跳转；scrollTop + createSelectorQuery 做滚动高亮
  */
+import {
+
+  measureScrollSectionOffsets,
+  nativeScrollSectionQuerySelector,
+  resolveActiveTocId,
+} from '@/utils/article-toc'
+import type { ArticleTocItem } from '@/utils/article-toc'
 import { ROUTE_RPG_ENTRY, ROUTE_RPG_FULL } from '@/router/routes'
 
 definePage({
   style: { navigationBarTitleText: 'RPG 玩法说明' },
 })
+
+const GUIDE_SCROLL_SELECTOR = '#guide-scroll'
+const GUIDE_TOC_SCROLL_OFFSET = 12
+const guideSectionSelector = (id: string) => nativeScrollSectionQuerySelector(GUIDE_SCROLL_SELECTOR, id)
 
 const toc = [
   { id: 'overview', label: '系统概述' },
@@ -63,10 +75,81 @@ function goRpg() {
 function goEntry() {
   uni.switchTab({ url: ROUTE_RPG_ENTRY })
 }
+
+const scrollTop = ref(0)
+const scrollIntoViewId = ref('')
+const activeId = ref(toc[0]?.id ?? '')
+const headingOffsets = ref<Record<string, number>>({})
+let syncTimer: ReturnType<typeof setTimeout> | null = null
+
+const tocTopics = computed<ArticleTocItem[]>(() =>
+  toc.map(item => ({ level: '1', id: item.id, text: item.label })),
+)
+
+/** 测量各章节在 scroll-view 内的偏移，供滚动高亮 */
+async function refreshSectionOffsets() {
+  await nextTick()
+  headingOffsets.value = await measureScrollSectionOffsets(
+    GUIDE_SCROLL_SELECTOR,
+    tocTopics.value,
+    guideSectionSelector,
+  )
+  syncActiveId()
+}
+
+function syncActiveId() {
+  activeId.value = resolveActiveTocId(
+    tocTopics.value,
+    scrollTop.value,
+    headingOffsets.value,
+    GUIDE_TOC_SCROLL_OFFSET,
+  )
+}
+
+function scheduleSyncActiveId() {
+  if (syncTimer)
+    return
+  syncTimer = setTimeout(() => {
+    syncTimer = null
+    syncActiveId()
+  }, 80)
+}
+
+function onGuideScroll(e: { detail: { scrollTop: number } }) {
+  scrollTop.value = e.detail.scrollTop
+  scheduleSyncActiveId()
+}
+
+/** 点击目录：小程序 scroll-into-view 比 scroll-top 更可靠 */
+function scrollToSection(id: string) {
+  activeId.value = id
+  scrollIntoViewId.value = ''
+  nextTick(() => {
+    scrollIntoViewId.value = id
+  })
+}
+
+onReady(() => {
+  setTimeout(() => {
+    void refreshSectionOffsets()
+  }, 100)
+})
+
+onBeforeUnmount(() => {
+  if (syncTimer)
+    clearTimeout(syncTimer)
+})
 </script>
 
 <template>
-  <scroll-view scroll-y class="guide-page cyber-page-grid u-page-scroll">
+  <scroll-view
+    id="guide-scroll"
+    scroll-y
+    class="guide-page cyber-page-grid u-page-scroll"
+    :scroll-into-view="scrollIntoViewId"
+    scroll-with-animation
+    @scroll="onGuideScroll"
+  >
     <view class="u-page-body py-4">
       <cyber-section-header
         label="GUIDE"
@@ -93,102 +176,135 @@ function goEntry() {
         </view>
       </cyber-card>
 
-      <scroll-view scroll-x class="toc-scroll mb-4">
-        <view class="flex">
-          <text v-for="item in toc" :key="item.id" class="toc-item mr-2 shrink-0">{{ item.label }}</text>
+      <view class="guide-toc u-gap-2 mb-4 flex flex-wrap">
+        <view
+          v-for="item in toc"
+          :key="item.id"
+          class="toc-item"
+          :class="{ 'toc-item--active': activeId === item.id }"
+          @tap="scrollToSection(item.id)"
+        >
+          <text>{{ item.label }}</text>
         </view>
-      </scroll-view>
+      </view>
 
-      <cyber-card id="overview" class="guide-section mb-4 !p-4">
-        <text class="block text-tech-primary font-medium">系统概述</text>
-        <text class="mt-2 block text-sm text-tech-muted leading-relaxed">
-          七大维度：签到等级、任务成就、背包装扮、抽奖 Buff、文章成长、钻石经济、社交互动与赛季排行。数据与 Web 端实时同步。
-        </text>
-      </cyber-card>
+      <view id="overview" class="guide-section mb-4">
+        <cyber-card class="!p-4">
+          <text class="block text-tech-primary font-medium">系统概述</text>
+          <text class="mt-2 block text-sm text-tech-muted leading-relaxed">
+            七大维度：签到等级、任务成就、背包装扮、抽奖 Buff、文章成长、钻石经济、社交互动与赛季排行。数据与 Web 端实时同步。
+          </text>
+        </cyber-card>
+      </view>
 
-      <cyber-card id="start" class="guide-section mb-4 !p-4">
-        <text class="block text-tech-primary font-medium">新手入门</text>
-        <text class="mt-2 block text-sm text-tech-muted">1. 登录账号 → 2. Tab「冒险」进入中心 → 3. 每日签到 → 4. 完成日常任务 → 5. 抽奖或穿戴装扮。</text>
-      </cyber-card>
+      <view id="start" class="guide-section mb-4">
+        <cyber-card class="!p-4">
+          <text class="block text-tech-primary font-medium">新手入门</text>
+          <text class="mt-2 block text-sm text-tech-muted">1. 登录账号 → 2. Tab「冒险」进入中心 → 3. 每日签到 → 4. 完成日常任务 → 5. 抽奖或穿戴装扮。</text>
+        </cyber-card>
+      </view>
 
-      <cyber-card id="sign" class="guide-section mb-4 !p-4">
-        <text class="block text-tech-primary font-medium">签到与等级</text>
-        <text class="mb-3 mt-2 block text-sm text-tech-muted">连续签到有额外 EXP；升级解锁等级奖励（头像框、称号、钻石）。</text>
-        <view v-for="row in levelRewards" :key="row.level" class="mb-2 table-row">
-          <text class="text-xs text-tech">{{ row.level }}</text>
-          <text class="text-xs text-tech-muted">{{ row.frame }} · {{ row.title }} · {{ row.currency }}</text>
-        </view>
-      </cyber-card>
+      <view id="sign" class="guide-section mb-4">
+        <cyber-card class="!p-4">
+          <text class="block text-tech-primary font-medium">签到与等级</text>
+          <text class="mb-3 mt-2 block text-sm text-tech-muted">连续签到有额外 EXP；升级解锁等级奖励（头像框、称号、钻石）。</text>
+          <view v-for="row in levelRewards" :key="row.level" class="mb-2 table-row">
+            <text class="text-xs text-tech">{{ row.level }}</text>
+            <text class="text-xs text-tech-muted">{{ row.frame }} · {{ row.title }} · {{ row.currency }}</text>
+          </view>
+        </cyber-card>
+      </view>
 
-      <cyber-card id="quest" class="guide-section mb-4 !p-4">
-        <text class="block text-tech-primary font-medium">任务与成就</text>
-        <text class="mb-3 mt-2 block text-sm text-tech-muted">任务分日常/悬赏/周常/特殊；完成后手动领取。成就为长期目标。</text>
-        <view v-for="q in dailyQuests" :key="q.name" class="mb-2 flex table-row justify-between">
-          <text class="text-xs text-tech">{{ q.name }}</text>
-          <text class="text-xs text-tech-subtle">{{ q.target }} · +{{ q.exp }} EXP</text>
-        </view>
-      </cyber-card>
+      <view id="quest" class="guide-section mb-4">
+        <cyber-card class="!p-4">
+          <text class="block text-tech-primary font-medium">任务与成就</text>
+          <text class="mb-3 mt-2 block text-sm text-tech-muted">任务分日常/悬赏/周常/特殊；完成后手动领取。成就为长期目标。</text>
+          <view v-for="q in dailyQuests" :key="q.name" class="mb-2 flex table-row justify-between">
+            <text class="text-xs text-tech">{{ q.name }}</text>
+            <text class="text-xs text-tech-subtle">{{ q.target }} · +{{ q.exp }} EXP</text>
+          </view>
+        </cyber-card>
+      </view>
 
-      <cyber-card id="inventory" class="guide-section mb-4 !p-4">
-        <text class="block text-tech-primary font-medium">背包与装扮</text>
-        <text class="mt-2 block text-sm text-tech-muted">背包按类型筛选；称号与头像框可装备，宠物蛋在宠物 Tab 孵化。</text>
-      </cyber-card>
+      <view id="inventory" class="guide-section mb-4">
+        <cyber-card class="!p-4">
+          <text class="block text-tech-primary font-medium">背包与装扮</text>
+          <text class="mt-2 block text-sm text-tech-muted">背包按类型筛选；称号与头像框可装备，宠物蛋在宠物 Tab 孵化。</text>
+        </cyber-card>
+      </view>
 
-      <cyber-card id="lottery" class="guide-section mb-4 !p-4">
-        <text class="block text-tech-primary font-medium">抽奖与 Buff</text>
-        <text class="mt-2 block text-sm text-tech-muted">单抽/十连，抽奖券或钻石支付；史诗/传说有保底计数。经验 Buff 需手动激活。</text>
-      </cyber-card>
+      <view id="lottery" class="guide-section mb-4">
+        <cyber-card class="!p-4">
+          <text class="block text-tech-primary font-medium">抽奖与 Buff</text>
+          <text class="mt-2 block text-sm text-tech-muted">单抽/五连，抽奖券或钻石支付；史诗/传说有保底计数。经验 Buff 需手动激活。</text>
+        </cyber-card>
+      </view>
 
-      <cyber-card id="article" class="guide-section mb-4 !p-4">
-        <text class="block text-tech-primary font-medium">文章成长</text>
-        <text class="mb-3 mt-2 block text-sm text-tech-muted">发文、互动获得 EXP，推进任务与成就。</text>
-        <view v-for="row in expSources" :key="row.source" class="mb-2 flex table-row justify-between">
-          <text class="text-xs text-tech">{{ row.source }}</text>
-          <text class="text-xs text-tech-subtle">{{ row.exp }} · {{ row.limit }}</text>
-        </view>
-      </cyber-card>
+      <view id="article" class="guide-section mb-4">
+        <cyber-card class="!p-4">
+          <text class="block text-tech-primary font-medium">文章成长</text>
+          <text class="mb-3 mt-2 block text-sm text-tech-muted">发文、互动获得 EXP，推进任务与成就。</text>
+          <view v-for="row in expSources" :key="row.source" class="mb-2 flex table-row justify-between">
+            <text class="text-xs text-tech">{{ row.source }}</text>
+            <text class="text-xs text-tech-subtle">{{ row.exp }} · {{ row.limit }}</text>
+          </view>
+        </cyber-card>
+      </view>
 
-      <cyber-card id="economy" class="guide-section mb-4 !p-4">
-        <text class="block text-tech-primary font-medium">钻石经济</text>
-        <text class="mt-2 block text-sm text-tech-muted">充值获得钻石，用于抽奖、社交、宠物兑换等。支付成功后 WebSocket 推送到账。</text>
-      </cyber-card>
+      <view id="economy" class="guide-section mb-4">
+        <cyber-card class="!p-4">
+          <text class="block text-tech-primary font-medium">钻石经济</text>
+          <text class="mt-2 block text-sm text-tech-muted">充值获得钻石，用于抽奖、社交、宠物兑换等。支付成功后 WebSocket 推送到账。</text>
+        </cyber-card>
+      </view>
 
-      <cyber-card id="social" class="guide-section mb-4 !p-4">
-        <text class="block text-tech-primary font-medium">社交互动</text>
-        <view v-for="s in socialActions" :key="s.action" class="mb-2 table-row">
-          <text class="text-xs text-tech font-medium">{{ s.action }}</text>
-          <text class="text-xs text-tech-muted">{{ s.effect }} · {{ s.cost }} · {{ s.limit }}</text>
-        </view>
-      </cyber-card>
+      <view id="social" class="guide-section mb-4">
+        <cyber-card class="!p-4">
+          <text class="block text-tech-primary font-medium">社交互动</text>
+          <view v-for="s in socialActions" :key="s.action" class="mb-2 table-row">
+            <text class="text-xs text-tech font-medium">{{ s.action }}</text>
+            <text class="text-xs text-tech-muted">{{ s.effect }} · {{ s.cost }} · {{ s.limit }}</text>
+          </view>
+        </cyber-card>
+      </view>
 
-      <cyber-card id="season" class="guide-section mb-4 !p-4">
-        <text class="block text-tech-primary font-medium">赛季与排行</text>
-        <text class="mt-2 block text-sm text-tech-muted">经验/声望/钻石/等级/签到五维度；总榜/赛季/周/月四周期。赛季活动提供 EXP 加成。</text>
-      </cyber-card>
+      <view id="season" class="guide-section mb-4">
+        <cyber-card class="!p-4">
+          <text class="block text-tech-primary font-medium">赛季与排行</text>
+          <text class="mt-2 block text-sm text-tech-muted">经验/声望/钻石/等级/签到五维度；总榜/赛季/周/月四周期。赛季活动提供 EXP 加成。</text>
+        </cyber-card>
+      </view>
 
-      <cyber-card id="punish" class="guide-section mb-4 !p-4">
-        <text class="block text-tech-primary font-medium">生命值与禁言</text>
-        <text class="mt-2 block text-sm text-tech-muted">敏感词命中扣生命；生命归零可能禁言。签到与 Buff 可恢复生命。</text>
-      </cyber-card>
+      <view id="punish" class="guide-section mb-4">
+        <cyber-card class="!p-4">
+          <text class="block text-tech-primary font-medium">生命值与禁言</text>
+          <text class="mt-2 block text-sm text-tech-muted">敏感词命中扣生命；生命归零可能禁言。签到与 Buff 可恢复生命。</text>
+        </cyber-card>
+      </view>
 
-      <cyber-card id="tips" class="guide-section mb-4 !p-4">
-        <text class="block text-tech-primary font-medium">进阶技巧</text>
-        <text class="mt-2 block text-sm text-tech-muted">优先完成高 EXP 任务；十连抽奖更省券；赛季初冲榜；宠物出战提供加成；加入公会参与协作。</text>
-      </cyber-card>
+      <view id="tips" class="guide-section mb-4">
+        <cyber-card class="!p-4">
+          <text class="block text-tech-primary font-medium">进阶技巧</text>
+          <text class="mt-2 block text-sm text-tech-muted">优先完成高 EXP 任务；五连抽奖更省操作；赛季初冲榜；宠物出战提供加成；加入公会参与协作。</text>
+        </cyber-card>
+      </view>
     </view>
   </scroll-view>
 </template>
 
 <style scoped>
-.toc-scroll {
-  white-space: nowrap;
-}
 .toc-item {
-  font-size: 12px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
   color: rgba(226, 232, 240, 0.7);
+}
+.toc-item--active {
+  border-color: rgba(34, 211, 238, 0.45);
+  background: rgba(34, 211, 238, 0.12);
+  color: var(--tech-primary);
 }
 .table-row {
   padding: 4px 0;

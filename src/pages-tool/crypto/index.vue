@@ -25,10 +25,30 @@ const outputType = ref<'Hex' | 'Base64'>('Hex')
 const plaintext = ref('')
 const ciphertext = ref('')
 
+const encryptionLabels = encryptionList.map(item => item.label)
+const outputTypeOptions = ['Hex', 'Base64'] as const
+
+const encryptionIndex = computed(() =>
+  Math.max(0, encryptionList.findIndex(item => item.value === encryption.value)),
+)
+
+const outputTypeIndex = computed(() =>
+  outputTypeOptions.findIndex(item => item === outputType.value),
+)
+
 /** 切换算法时清空密文，避免跨算法误解密 */
 watch(encryption, () => {
   ciphertext.value = ''
 })
+
+function onEncryptionChange(e: { detail: { value: number } }) {
+  encryption.value = encryptionList[Number(e.detail.value)]?.value ?? 'AES'
+}
+
+function onOutputTypeChange(e: { detail: { value: number } }) {
+  outputType.value = outputTypeOptions[Number(e.detail.value)] ?? 'Hex'
+  ciphertext.value = ''
+}
 
 function createKey() {
   secretKey.value = CryptoJS.lib.WordArray.random(16).toString(CryptoJS.enc.Hex)
@@ -104,19 +124,13 @@ onMounted(createKey)
       <tool-section-header label="KEY CONFIG">
         <view class="cyber-glass-card p-3">
           <view class="u-stack-3">
-            <view class="u-stack-1">
-              <text class="block text-xs text-tech-muted">加密算法</text>
-              <view class="u-gap-2 mt-1 flex flex-wrap">
-                <view v-for="item in encryptionList" :key="item.value">
-                  <wd-button
-                    size="small"
-                    :type="encryption === item.value ? 'primary' : undefined"
-                    @click="encryption = item.value"
-                  >
-                    {{ item.label }}
-                  </wd-button>
+            <view>
+              <text class="mb-1 block text-xs text-tech-muted">加密算法</text>
+              <picker :range="encryptionLabels" :value="encryptionIndex" @change="onEncryptionChange">
+                <view class="cyber-input-like rounded px-3 py-2 text-sm text-tech">
+                  {{ encryptionLabels[encryptionIndex] }}
                 </view>
-              </view>
+              </picker>
             </view>
             <wd-input v-model="secretKey" label="秘钥" placeholder="输入或生成秘钥" />
             <wd-input v-model="offset" label="偏移量 (IV)" placeholder="偏移量" />
@@ -139,27 +153,23 @@ onMounted(createKey)
           output-placeholder="加密结果将显示在这里..."
         >
           <template #actions>
-            <view class="u-gap-2 flex flex-wrap justify-center">
-              <wd-button
-                size="small"
-                :type="outputType === 'Hex' ? 'primary' : undefined"
-                @click="outputType = 'Hex'; ciphertext = ''"
-              >
-                Hex
-              </wd-button>
-              <wd-button
-                size="small"
-                :type="outputType === 'Base64' ? 'primary' : undefined"
-                @click="outputType = 'Base64'; ciphertext = ''"
-              >
-                Base64
-              </wd-button>
-              <wd-button size="small" @click="encryptText">
-                加密 →
-              </wd-button>
-              <wd-button size="small" @click="decryptText">
-                ← 解密
-              </wd-button>
+            <view class="crypto-action-row u-gap-2 flex flex-wrap justify-center">
+              <view class="crypto-action-field">
+                <text class="mb-1 block text-xs text-tech-muted">输出格式</text>
+                <picker :range="outputTypeOptions" :value="outputTypeIndex" @change="onOutputTypeChange">
+                  <view class="cyber-input-like rounded px-3 py-2 text-sm text-tech">
+                    {{ outputType }}
+                  </view>
+                </picker>
+              </view>
+              <view class="crypto-action-btns u-gap-2 flex flex-wrap justify-center">
+                <wd-button size="small" @click="encryptText">
+                  加密 →
+                </wd-button>
+                <wd-button size="small" @click="decryptText">
+                  ← 解密
+                </wd-button>
+              </view>
             </view>
           </template>
         </crypto-workspace>
@@ -185,3 +195,19 @@ onMounted(createKey)
     </view>
   </scroll-view>
 </template>
+
+<style scoped lang="scss">
+.crypto-action-row {
+  width: 100%;
+}
+
+.crypto-action-field {
+  min-width: 140px;
+  flex: 1;
+}
+
+.crypto-action-btns {
+  flex: 1;
+  align-items: flex-end;
+}
+</style>

@@ -248,7 +248,9 @@ async function submit() {
         <wd-input v-model="form.description" label="摘要" placeholder="简短描述" class="mt-3" />
         <view class="mt-3">
           <text class="mb-1 block text-sm text-tech-muted">封面</text>
-          <image v-if="form.cover" :src="coverDisplayUrl" mode="aspectFill" class="mb-2 h-32 w-full border border-tech rounded-lg" />
+          <view v-if="form.cover" class="article-cover-wrap article-edit-cover mb-2">
+            <image :src="coverDisplayUrl" mode="aspectFill" class="article-cover-wrap__img article-edit-cover__img" />
+          </view>
           <wd-button size="small" @click="pickCover">
             选择封面
           </wd-button>

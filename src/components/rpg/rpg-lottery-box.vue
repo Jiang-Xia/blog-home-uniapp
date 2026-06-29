@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 /**
  * 抽奖宝箱主面板（对齐 Nuxt LotteryBox.vue）
- * - 单抽/十连、券/钻石切换、保底计数、抽奖记录
+ * - 单抽/五连、券/钻石切换、保底计数、抽奖记录
  * - 动画分阶段由 lottery/draw-overlay 承载
  */
 import type { DrawResult, LotteryPoolItem, LotteryRecord, RpgStatus } from '@/types/rpg'
@@ -11,6 +11,7 @@ import {
   LOTTERY_CURRENCY_COST,
   LOTTERY_EPIC_PITY_THRESHOLD,
   LOTTERY_LEGENDARY_PITY_THRESHOLD,
+  LOTTERY_MAX_DRAW_COUNT,
 } from '@/utils/rpg-economy'
 import { useRpgRecharge } from '@/composables/use-rpg-recharge'
 import { useRpgAudio } from '@/composables/use-rpg-audio'
@@ -78,6 +79,7 @@ function finishDrawAnimation() {
 }
 
 function handleDraw(count = 1) {
+  count = Math.min(Math.max(1, count), LOTTERY_MAX_DRAW_COUNT)
   if (props.drawing || isAnimating.value)
     return
   if (drawCurrency.value === 'currency' && !canDraw(count)) {
@@ -101,7 +103,13 @@ defineExpose({
       return
     }
     drawResults.value = results
+    // #ifdef MP-WEIXIN
+    // 微信小程序 CSS transform 滚轮动画不稳定，直接展示结果
+    drawPhase.value = pendingCount.value > 1 ? 'summary' : 'reveal'
+    // #endif
+    // #ifndef MP-WEIXIN
     drawPhase.value = 'spinning'
+    // #endif
   },
   cancelDrawAnimation: () => {
     finishDrawAnimation()
@@ -198,8 +206,12 @@ function badgeClass(fields: { rarity?: string, rarityLabel?: string, rarityColor
           </wd-button>
         </view>
         <view class="draw-btn-wrap">
-          <wd-button size="small" :disabled="isDrawDisabled(10)" @click="handleDraw(10)">
-            十连 x10
+          <wd-button
+            size="small"
+            :disabled="isDrawDisabled(LOTTERY_MAX_DRAW_COUNT)"
+            @click="handleDraw(LOTTERY_MAX_DRAW_COUNT)"
+          >
+            五连 x{{ LOTTERY_MAX_DRAW_COUNT }}
           </wd-button>
         </view>
       </view>
@@ -221,17 +233,21 @@ function badgeClass(fields: { rarity?: string, rarityLabel?: string, rarityColor
           v-for="item in lotteryPool"
           :key="item.id"
           class="pool-chip"
-          :style="{ borderColor: item.rarityColor || getRarityFallbackColor() }"
         >
-          <text class="pool-chip-icon">{{ resolveRpgItemEmoji(item) }}</text>
           <view
-            class="pool-chip-badge"
-            :class="badgeClass(item)"
-            :style="badgeStyle(item)"
+            class="pool-chip-inner"
+            :style="{ borderColor: item.rarityColor || getRarityFallbackColor() }"
           >
-            <text class="pool-chip-badge-text">{{ item.rarityLabel || item.rarity }}</text>
+            <text class="pool-chip-icon">{{ resolveRpgItemEmoji(item) }}</text>
+            <view
+              class="pool-chip-badge"
+              :class="badgeClass(item)"
+              :style="badgeStyle(item)"
+            >
+              <text class="pool-chip-badge-text">{{ item.rarityLabel || item.rarity }}</text>
+            </view>
+            <text class="pool-chip-name">{{ item.name }}</text>
           </view>
-          <text class="pool-chip-name">{{ item.name }}</text>
         </view>
       </view>
     </cyber-card>
@@ -426,13 +442,16 @@ function badgeClass(fields: { rarity?: string, rarityLabel?: string, rarityColor
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  margin-right: -8px;
+  margin: 0 -4px;
 }
 
 .pool-chip {
-  width: calc(33.33% - 8px);
-  margin-right: 8px;
-  margin-bottom: 8px;
+  width: 33.333%;
+  box-sizing: border-box;
+  padding: 0 4px 8px;
+}
+
+.pool-chip-inner {
   display: flex;
   flex-direction: column;
   align-items: center;

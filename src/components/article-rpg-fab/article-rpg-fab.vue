@@ -109,7 +109,7 @@ function toggleFab() {
 </script>
 
 <template>
-  <view v-show="!showTipPopup" class="article-rpg-fab-wrap">
+  <view class="article-rpg-fab-wrap">
     <view v-if="fabOpen" class="fab-actions">
       <view class="fab-action-item">
         <view class="fab-action-btn" :class="liked ? 'fab-action-btn--liked' : 'fab-action-btn--ghost'" @tap="handleLike">
@@ -142,11 +142,15 @@ function toggleFab() {
     </view>
   </view>
 
-  <wd-popup v-model="showTipPopup" position="bottom" closable @close="showTipPopup = false">
-    <view class="tip-popup cyber-page p-4">
-      <view class="tip-popup-title u-gap-2 mb-3 flex items-center">
+  <view
+    v-if="showTipPopup"
+    class="tip-dialog-overlay u-overlay fixed inset-0 z-50 flex items-center justify-center"
+    @tap="showTipPopup = false"
+  >
+    <cyber-card class="tip-dialog cyber-card-pad-xl" @tap.stop>
+      <view class="tip-dialog-title u-gap-2 mb-3 flex items-center">
         <cyber-icon name="gem" size="36rpx" />
-        <text class="text-tech font-medium">打赏作者</text>
+        <text class="text-lg text-tech font-bold">打赏作者</text>
       </view>
       <RpgArticleTip
         :article-id="Number(articleId)"
@@ -154,8 +158,13 @@ function toggleFab() {
         embedded
         @tipped="onTipped"
       />
-    </view>
-  </wd-popup>
+      <view class="mt-4">
+        <wd-button block type="info" @click="showTipPopup = false">
+          关闭
+        </wd-button>
+      </view>
+    </cyber-card>
+  </view>
 </template>
 
 <style scoped>
@@ -258,15 +267,21 @@ function toggleFab() {
   line-height: 1;
 }
 
-.tip-popup {
-  padding-bottom: 48rpx;
+.tip-dialog-overlay {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.tip-dialog {
+  width: 85%;
+  max-width: 360px;
+}
+
+.tip-dialog-title {
+  line-height: 1.3;
 }
 
 /* #ifdef H5 */
-.tip-popup {
-  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
-}
-
 .article-rpg-fab-wrap {
   bottom: calc(48rpx + env(safe-area-inset-bottom));
 }

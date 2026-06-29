@@ -62,6 +62,7 @@ import { registerRpgRefresh } from '@/composables/use-rpg-realtime-handlers'
 import type { RpgRefreshScope } from '@/composables/use-realtime-socket'
 import { filterLinkedLotteryPool } from '@/utils/lottery-reel'
 import { lotteryRevealSfxKey } from '@/constants/rpg-audio'
+import { LOTTERY_MAX_DRAW_COUNT } from '@/utils/rpg-economy'
 
 export type RpgTabKey = 'status' | 'inventory' | 'pet' | 'guild' | 'leaderboard'
 
@@ -374,6 +375,7 @@ export function useRpgPage() {
   }
 
   async function handleDraw(count: number, currency: 'ticket' | 'currency'): Promise<DrawResult[]> {
+    count = Math.min(Math.max(1, count), LOTTERY_MAX_DRAW_COUNT)
     drawing.value = true
     try {
       const res = await lotteryDraw(count, currency)

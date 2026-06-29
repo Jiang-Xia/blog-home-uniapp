@@ -10,12 +10,30 @@ definePage({
 })
 
 const keySizes = ['512', '1024', '2048', '4096'] as const
+const outputTypeOptions = ['Hex', 'Base64'] as const
+
 const keySize = ref<string>('1024')
 const outputType = ref<'Hex' | 'Base64'>('Hex')
 const publicKey = ref('')
 const privateKey = ref('')
 const plaintext = ref('')
 const ciphertext = ref('')
+
+const keySizeIndex = computed(() =>
+  Math.max(0, keySizes.findIndex(size => size === keySize.value)),
+)
+
+const outputTypeIndex = computed(() =>
+  outputTypeOptions.findIndex(item => item === outputType.value),
+)
+
+function onKeySizeChange(e: { detail: { value: number } }) {
+  keySize.value = keySizes[Number(e.detail.value)] ?? '1024'
+}
+
+function onOutputTypeChange(e: { detail: { value: number } }) {
+  outputType.value = outputTypeOptions[Number(e.detail.value)] ?? 'Hex'
+}
 
 /** 按当前密钥长度生成 RSA 密钥对 */
 function createKey() {
@@ -56,17 +74,11 @@ onMounted(createKey)
         <template #toolbar>
           <view class="u-stack-1 min-w-0 flex-1">
             <text class="block text-xs text-tech-muted">密钥长度</text>
-            <view class="u-gap-2 mt-1 flex flex-wrap">
-              <view v-for="size in keySizes" :key="size">
-                <wd-button
-                  size="small"
-                  :type="keySize === size ? 'primary' : undefined"
-                  @click="keySize = size"
-                >
-                  {{ size }} bit
-                </wd-button>
+            <picker :range="keySizes" :value="keySizeIndex" @change="onKeySizeChange">
+              <view class="cyber-input-like mt-1 rounded px-3 py-2 text-sm text-tech">
+                {{ keySize }} bit
               </view>
-            </view>
+            </picker>
           </view>
           <view>
             <wd-button size="small" type="primary" @click="createKey">
@@ -86,27 +98,23 @@ onMounted(createKey)
           output-placeholder="加密结果将显示在这里..."
         >
           <template #actions>
-            <view class="u-gap-2 flex flex-wrap justify-center">
-              <wd-button
-                size="small"
-                :type="outputType === 'Hex' ? 'primary' : undefined"
-                @click="outputType = 'Hex'"
-              >
-                Hex
-              </wd-button>
-              <wd-button
-                size="small"
-                :type="outputType === 'Base64' ? 'primary' : undefined"
-                @click="outputType = 'Base64'"
-              >
-                Base64
-              </wd-button>
-              <wd-button size="small" @click="encryptText">
-                加密 →
-              </wd-button>
-              <wd-button size="small" @click="decryptText">
-                ← 解密
-              </wd-button>
+            <view class="crypto-action-row u-gap-2 flex flex-wrap justify-center">
+              <view class="crypto-action-field">
+                <text class="mb-1 block text-xs text-tech-muted">输出格式</text>
+                <picker :range="outputTypeOptions" :value="outputTypeIndex" @change="onOutputTypeChange">
+                  <view class="cyber-input-like rounded px-3 py-2 text-sm text-tech">
+                    {{ outputType }}
+                  </view>
+                </picker>
+              </view>
+              <view class="crypto-action-btns u-gap-2 flex flex-wrap justify-center">
+                <wd-button size="small" @click="encryptText">
+                  加密 →
+                </wd-button>
+                <wd-button size="small" @click="decryptText">
+                  ← 解密
+                </wd-button>
+              </view>
             </view>
           </template>
         </crypto-workspace>
@@ -128,3 +136,19 @@ onMounted(createKey)
     </view>
   </scroll-view>
 </template>
+
+<style scoped lang="scss">
+.crypto-action-row {
+  width: 100%;
+}
+
+.crypto-action-field {
+  min-width: 140px;
+  flex: 1;
+}
+
+.crypto-action-btns {
+  flex: 1;
+  align-items: flex-end;
+}
+</style>

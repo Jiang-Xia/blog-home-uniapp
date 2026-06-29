@@ -13,12 +13,36 @@ const keySizes = [
   { value: 66, label: '66 位 (压缩)' },
 ] as const
 
+const cipherModes = [
+  { value: 1, label: 'C1C3C2' },
+  { value: 0, label: 'C1C2C3' },
+] as const
+
 const keySize = ref<130 | 66>(130)
 const cipherMode = ref<0 | 1>(1)
 const publicKey = ref('')
 const privateKey = ref('')
 const plaintext = ref('')
 const ciphertext = ref('')
+
+const keySizeLabels = keySizes.map(item => item.label)
+const cipherModeLabels = cipherModes.map(item => item.label)
+
+const keySizeIndex = computed(() =>
+  Math.max(0, keySizes.findIndex(item => item.value === keySize.value)),
+)
+
+const cipherModeIndex = computed(() =>
+  Math.max(0, cipherModes.findIndex(item => item.value === cipherMode.value)),
+)
+
+function onKeySizeChange(e: { detail: { value: number } }) {
+  keySize.value = keySizes[Number(e.detail.value)]?.value ?? 130
+}
+
+function onCipherModeChange(e: { detail: { value: number } }) {
+  cipherMode.value = cipherModes[Number(e.detail.value)]?.value ?? 1
+}
 
 /** 生成 SM2 密钥对，66 位时使用 compressPublicKeyHex 压缩公钥 */
 function createKey() {
@@ -69,17 +93,11 @@ onMounted(createKey)
         <template #toolbar>
           <view class="u-stack-1 min-w-0 flex-1">
             <text class="block text-xs text-tech-muted">公钥格式</text>
-            <view class="u-gap-2 mt-1 flex flex-wrap">
-              <view v-for="item in keySizes" :key="item.value">
-                <wd-button
-                  size="small"
-                  :type="keySize === item.value ? 'primary' : undefined"
-                  @click="keySize = item.value"
-                >
-                  {{ item.label }}
-                </wd-button>
+            <picker :range="keySizeLabels" :value="keySizeIndex" @change="onKeySizeChange">
+              <view class="cyber-input-like mt-1 rounded px-3 py-2 text-sm text-tech">
+                {{ keySizeLabels[keySizeIndex] }}
               </view>
-            </view>
+            </picker>
           </view>
           <view>
             <wd-button size="small" type="primary" @click="createKey">
@@ -99,27 +117,23 @@ onMounted(createKey)
           output-placeholder="加密结果将显示在这里..."
         >
           <template #actions>
-            <view class="u-gap-2 flex flex-wrap justify-center">
-              <wd-button
-                size="small"
-                :type="cipherMode === 1 ? 'primary' : undefined"
-                @click="cipherMode = 1"
-              >
-                C1C3C2
-              </wd-button>
-              <wd-button
-                size="small"
-                :type="cipherMode === 0 ? 'primary' : undefined"
-                @click="cipherMode = 0"
-              >
-                C1C2C3
-              </wd-button>
-              <wd-button size="small" @click="encryptText">
-                加密 →
-              </wd-button>
-              <wd-button size="small" @click="decryptText">
-                ← 解密
-              </wd-button>
+            <view class="crypto-action-row u-gap-2 flex flex-wrap justify-center">
+              <view class="crypto-action-field">
+                <text class="mb-1 block text-xs text-tech-muted">密文顺序</text>
+                <picker :range="cipherModeLabels" :value="cipherModeIndex" @change="onCipherModeChange">
+                  <view class="cyber-input-like rounded px-3 py-2 text-sm text-tech">
+                    {{ cipherModeLabels[cipherModeIndex] }}
+                  </view>
+                </picker>
+              </view>
+              <view class="crypto-action-btns u-gap-2 flex flex-wrap justify-center">
+                <wd-button size="small" @click="encryptText">
+                  加密 →
+                </wd-button>
+                <wd-button size="small" @click="decryptText">
+                  ← 解密
+                </wd-button>
+              </view>
             </view>
           </template>
         </crypto-workspace>
@@ -141,3 +155,19 @@ onMounted(createKey)
     </view>
   </scroll-view>
 </template>
+
+<style scoped lang="scss">
+.crypto-action-row {
+  width: 100%;
+}
+
+.crypto-action-field {
+  min-width: 140px;
+  flex: 1;
+}
+
+.crypto-action-btns {
+  flex: 1;
+  align-items: flex-end;
+}
+</style>

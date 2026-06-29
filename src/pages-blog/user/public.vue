@@ -162,16 +162,18 @@ function itemEmoji(item: { icon?: string }) {
   </view>
   <scroll-view v-else scroll-y class="public-page cyber-page-grid u-page-scroll">
     <view class="u-page-body u-stack-4">
-      <cyber-card class="cyber-card-pad-sm">
-        <view class="u-gap-4 u-flex-row-center items-start">
-          <AvatarWithFrame
-            :avatar="avatarDisplayUrl"
-            :alt="user.nickname"
-            :frame="avatarFrame"
-            :size="160"
-            previewable
-          />
-          <view class="u-flex-1 min-w-0">
+      <cyber-card class="cyber-card-pad-sm public-profile-card">
+        <view class="public-profile-header">
+          <view class="public-profile-avatar-wrap">
+            <AvatarWithFrame
+              :avatar="avatarDisplayUrl"
+              :alt="user.nickname"
+              :frame="avatarFrame"
+              :size="160"
+              previewable
+            />
+          </view>
+          <view class="public-profile-body">
             <text class="block text-xl text-tech font-bold">{{ user.nickname }}</text>
             <view class="public-profile-meta u-gap-2 u-flex-row-center flex-wrap">
               <text class="public-profile-badge">Lv{{ user.level ?? 1 }}</text>
@@ -212,7 +214,7 @@ function itemEmoji(item: { icon?: string }) {
       </cyber-card>
 
       <cyber-card class="cyber-card-pad-sm">
-        <view class="u-action-row u-action-row--loose">
+        <view class="u-action-row u-action-row--loose mb-2">
           <view v-for="opt in tabOptions" :key="opt.key">
             <text
               class="cyber-tab"
@@ -234,13 +236,14 @@ function itemEmoji(item: { icon?: string }) {
             class="public-article-card"
             @tap="goDetail(item.id)"
           >
-            <image
-              v-if="item.cover"
-              :src="resolveStaticUrl(item.cover)"
-              class="public-article-card__cover"
-              mode="aspectFill"
-            />
-            <view v-else class="public-article-card__cover public-article-card__cover--placeholder">
+            <view v-if="item.cover" class="public-article-card__cover article-cover-wrap">
+              <image
+                :src="resolveStaticUrl(item.cover)"
+                class="article-cover-wrap__img public-article-card__cover-img"
+                mode="aspectFill"
+              />
+            </view>
+            <view v-else class="public-article-card__cover public-article-card__cover--placeholder article-cover-wrap">
               <text>📄</text>
             </view>
             <view class="u-flex-1 min-w-0">
@@ -251,8 +254,14 @@ function itemEmoji(item: { icon?: string }) {
               <text v-if="item.description" class="public-article-card__desc">{{ item.description }}</text>
               <view class="public-article-card__meta u-gap-2 u-flex-row-center flex-wrap">
                 <text>Lv{{ item.articleLevel || 1 }}</text>
-                <text>{{ item.views || 0 }} 阅读</text>
-                <text>{{ item.likes || 0 }} 点赞</text>
+                <view class="public-article-card__stat">
+                  <wd-icon name="eye" size="14px" color="var(--tech-fg-subtle)" />
+                  <text class="ml-1">{{ item.views || 0 }}</text>
+                </view>
+                <view class="public-article-card__stat">
+                  <wd-icon name="thumb-up" size="14px" color="var(--tech-fg-subtle)" />
+                  <text class="ml-1">{{ item.likes || 0 }}</text>
+                </view>
               </view>
             </view>
           </view>

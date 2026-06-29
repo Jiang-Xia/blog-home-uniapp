@@ -90,17 +90,17 @@ function rankDisplay(rank: number) {
     <view v-else-if="leaderboard.length === 0" class="leaderboard-panel__empty">
       <text class="text-sm text-tech-subtle">暂无排行数据</text>
     </view>
-    <view v-else class="u-stack-2">
-      <cyber-card
+    <view v-else class="leaderboard-list">
+      <view
         v-for="entry in leaderboard"
         :key="entry.uid"
-        class="rank-row cyber-card-pad-sm"
+        class="rank-row"
         :class="[
           entry.rank <= 3 ? 'rank-row--top' : '',
           getLeaderboardRankClass(entry.rank),
         ]"
       >
-        <view class="u-gap-3 u-flex-row-center">
+        <view class="u-gap-2 u-flex-row-center">
           <text class="rank-row__num">{{ rankDisplay(entry.rank) }}</text>
           <view class="rank-row__avatar" @click="goUserPublic(entry.uid)">
             <image
@@ -121,7 +121,7 @@ function rankDisplay(rank: number) {
             {{ formatLeaderboardScore(entry, activeType) }}
           </text>
         </view>
-      </cyber-card>
+      </view>
     </view>
   </view>
 </template>
@@ -148,17 +148,32 @@ function rankDisplay(rank: number) {
   text-align: center;
 }
 
+.leaderboard-list .rank-row {
+  margin-bottom: 16rpx;
+}
+
+.leaderboard-list .rank-row:last-child {
+  margin-bottom: 0;
+}
+
+.rank-row {
+  padding: 20rpx 24rpx;
+  border-radius: 16rpx;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+}
+
 .rank-row__num {
-  min-width: 28px;
+  min-width: 24px;
   text-align: center;
   font-weight: 800;
-  font-size: 14px;
+  font-size: 13px;
   color: rgba(255, 255, 255, 0.45);
 }
 
 .rank-row__avatar {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.08);
@@ -186,10 +201,12 @@ function rankDisplay(rank: number) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 13px;
 }
 
 .rank-row__score {
   font-weight: 700;
+  font-size: 12px;
   color: #fbbf24;
   white-space: nowrap;
 }

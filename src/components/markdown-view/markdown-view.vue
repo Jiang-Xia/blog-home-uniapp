@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Markdown 正文渲染
- * - H5：md-editor MdPreview（cyanosis 预览主题 + dark，对齐 nuxt 详情页）
+ * - H5：md-editor MdPreview（default 预览主题 + dark，对齐 blog-home-nuxt 详情页）
  * - 小程序/App：markdown-it + mp-html（见 mp-markdown-renderer，禁用 highlight.js 全量包）
  */
 import type { ArticleTocItem } from '@/utils/article-toc'
@@ -22,10 +22,23 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   catalog: [items: ArticleTocItem[]]
+  /** mp-html DOM 就绪（小程序测量目录偏移依赖此时机） */
+  rendered: []
 }>()
 
 // #ifndef H5
-const htmlContent = computed(() => renderMpMarkdown(props.content))
+const mpRender = computed(() => renderMpMarkdown(props.content))
+const htmlContent = computed(() => mpRender.value.html)
+
+watch(
+  () => mpRender.value.catalog,
+  catalog => emit('catalog', catalog),
+  { immediate: true },
+)
+
+function onMpHtmlLoad() {
+  emit('rendered')
+}
 // #endif
 
 /** mp-html 标签样式，对齐 md-editor-v3 预览排版 */
@@ -57,30 +70,32 @@ const mpTagStyle = {
 /** MdPreview 提取目录，供详情页 ArticleToc 使用 */
 function onGetCatalog(list: Array<{ level?: number | string, text: string }>) {
   emit('catalog', mapMdCatalog(list))
+  nextTick(() => emit('rendered'))
 }
 // #endif
 </script>
 
 <template>
   <!-- #ifdef H5 -->
-  <view class="markdown-body-h5 x-md-editor">
-    <MdPreview
-      :model-value="content"
-      language="zh-CN"
-      preview-only
-      theme="dark"
-      preview-theme="cyanosis"
-      :md-heading-id="mdHeadingId"
-      @on-get-catalog="onGetCatalog"
-    />
-  </view>
+  <MdPreview
+    class="x-md-editor article-md-content"
+    :model-value="content"
+    language="zh-CN"
+    preview-only
+    theme="dark"
+    preview-theme="default"
+    :md-heading-id="mdHeadingId"
+    @on-get-catalog="onGetCatalog"
+  />
   <!-- #endif -->
   <!-- #ifndef H5 -->
-  <view class="markdown-body-mp">
+  <view class="markdown-body-mp article-md-content">
     <mp-html
       :content="htmlContent"
+      :use-anchor="true"
       preview-img
       :tag-style="mpTagStyle"
+      @load="onMpHtmlLoad"
     />
   </view>
   <!-- #endif -->

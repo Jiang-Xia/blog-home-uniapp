@@ -33,6 +33,7 @@ export interface ArticleItem {
   category?: { id: number, name?: string, label?: string }
   views?: number
   likes?: number
+  commentCount?: number
 }
 
 export function getArticleList(data: ArticleListParams) {

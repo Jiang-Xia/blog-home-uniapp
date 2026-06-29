@@ -266,19 +266,23 @@ onUnmounted(clearTimers)
             <view
               v-for="(result, idx) in results"
               :key="`${result.item.code}-${idx}`"
-              class="summary-card"
-              :style="{ borderColor: result.item.rarityColor || getRarityFallbackColor() }"
+              class="summary-cell"
             >
-              <text class="summary-item-icon">{{ resolveRpgItemEmoji(result.item) }}</text>
               <view
-                class="summary-rarity"
-                :class="badgeClass(result.item)"
-                :style="badgeStyle(result.item)"
+                class="summary-card"
+                :style="{ borderColor: result.item.rarityColor || getRarityFallbackColor() }"
               >
-                <text class="summary-rarity-text">{{ result.item.rarityLabel || result.item.rarity }}</text>
+                <text class="summary-item-icon">{{ resolveRpgItemEmoji(result.item) }}</text>
+                <view
+                  class="summary-rarity"
+                  :class="badgeClass(result.item)"
+                  :style="badgeStyle(result.item)"
+                >
+                  <text class="summary-rarity-text">{{ result.item.rarityLabel || result.item.rarity }}</text>
+                </view>
+                <text class="summary-name">{{ result.item.name }}</text>
+                <text v-if="result.rewardDetail" class="summary-reward">{{ formatRewardDetail(result.rewardDetail) }}</text>
               </view>
-              <text class="summary-name">{{ result.item.name }}</text>
-              <text v-if="result.rewardDetail" class="summary-reward">{{ formatRewardDetail(result.rewardDetail) }}</text>
             </view>
           </view>
           <wd-button block @click="handleConfirm">
@@ -524,31 +528,39 @@ onUnmounted(clearTimers)
   color: rgba(255, 255, 255, 0.45);
 }
 
+.summary-stage {
+  padding: 2px 0;
+}
+
 .summary-grid {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  margin-right: -8px;
-  margin-bottom: 16px;
+  margin: 0 -6px 16px;
+}
+
+.summary-cell {
+  width: 33.333%;
+  box-sizing: border-box;
+  padding: 0 6px 12px;
 }
 
 .summary-card {
-  width: calc(50% - 8px);
-  margin-right: 8px;
-  margin-bottom: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px 8px;
+  padding: 10px 6px;
   border-radius: 10px;
   border-width: 1.5px;
   border-style: solid;
+  background: rgba(15, 23, 42, 0.55);
   animation: cardPop 0.4s cubic-bezier(0.22, 1.1, 0.36, 1) both;
 }
 
 .summary-item-icon {
-  font-size: 28px;
-  margin-bottom: 6px;
+  font-size: 24px;
+  margin-bottom: 4px;
+  line-height: 1;
 }
 
 .summary-rarity {
@@ -556,7 +568,7 @@ onUnmounted(clearTimers)
   border-radius: 999px;
   border-width: 1px;
   border-style: solid;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .summary-rarity-text {
@@ -569,6 +581,12 @@ onUnmounted(clearTimers)
   font-weight: 700;
   color: #f8fafc;
   text-align: center;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .summary-reward {
@@ -576,6 +594,8 @@ onUnmounted(clearTimers)
   color: #4ade80;
   font-weight: 600;
   margin-top: 4px;
+  text-align: center;
+  line-height: 1.25;
 }
 
 @keyframes raysSpin {

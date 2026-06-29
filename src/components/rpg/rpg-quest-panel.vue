@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 /**
  * RPG 任务面板（分组 Tab：日常/悬赏/周常/特殊）
+ * 列表固定高度可滚动，避免状态页过长
  */
 import type { UserQuestProgress } from '@/types/rpg'
 
@@ -54,26 +55,28 @@ function progressPercent(q: UserQuestProgress) {
         </text>
       </view>
     </scroll-view>
-    <view v-for="q in currentQuests" :key="questCode(q)" class="cyber-glass-card mb-2 p-3">
-      <view class="flex items-center justify-between">
-        <text class="text-sm text-tech font-medium">{{ q.name || (q as any).questName }}</text>
-        <text v-if="q.claimed" class="text-xs text-green-400">已领取</text>
-        <text v-else-if="q.completed" class="text-xs text-tech-primary">可领取</text>
-        <text v-else class="text-xs text-tech-subtle">{{ q.progress ?? 0 }}/{{ q.targetCount ?? (q as any).target ?? 1 }}</text>
+    <scroll-view scroll-y class="quest-list-scroll">
+      <view v-for="q in currentQuests" :key="questCode(q)" class="cyber-glass-card quest-card p-3">
+        <view class="flex items-center justify-between">
+          <text class="text-sm text-tech font-medium">{{ q.name || (q as any).questName }}</text>
+          <text v-if="q.claimed" class="text-xs text-green-400">已领取</text>
+          <text v-else-if="q.completed" class="text-xs text-tech-primary">可领取</text>
+          <text v-else class="text-xs text-tech-subtle">{{ q.progress ?? 0 }}/{{ q.targetCount ?? (q as any).target ?? 1 }}</text>
+        </view>
+        <text v-if="q.description" class="mt-1 block text-xs text-tech-muted">{{ q.description }}</text>
+        <view v-if="!q.completed && !q.claimed" class="u-bg-white-20 mt-2 h-1.5 overflow-hidden rounded-full">
+          <view class="h-full rounded-full bg-purple-400" :style="{ width: `${progressPercent(q)}%` }" />
+        </view>
+        <view v-if="q.completed && !q.claimed" class="mt-2">
+          <wd-button size="small" @click="$emit('claim', questCode(q))">
+            领取奖励
+          </wd-button>
+        </view>
       </view>
-      <text v-if="q.description" class="mt-1 block text-xs text-tech-muted">{{ q.description }}</text>
-      <view v-if="!q.completed && !q.claimed" class="u-bg-white-20 mt-2 h-1.5 overflow-hidden rounded-full">
-        <view class="h-full rounded-full bg-purple-400" :style="{ width: `${progressPercent(q)}%` }" />
+      <view v-if="!currentQuests.length" class="py-4 text-center text-sm text-tech-subtle">
+        暂无任务
       </view>
-      <view v-if="q.completed && !q.claimed" class="mt-2">
-        <wd-button size="small" @click="$emit('claim', questCode(q))">
-          领取奖励
-        </wd-button>
-      </view>
-    </view>
-    <view v-if="!currentQuests.length" class="py-4 text-center text-sm text-tech-subtle">
-      暂无任务
-    </view>
+    </scroll-view>
   </view>
 </template>
 
@@ -81,6 +84,7 @@ function progressPercent(q: UserQuestProgress) {
 .group-tabs {
   white-space: nowrap;
 }
+
 .group-tab {
   font-size: 13px;
   color: rgba(226, 232, 240, 0.55);
@@ -88,9 +92,22 @@ function progressPercent(q: UserQuestProgress) {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
 }
+
 .group-tab-active {
   color: #fde68a;
   background: rgba(139, 92, 246, 0.25);
   font-weight: 600;
+}
+
+.quest-list-scroll {
+  max-height: 360px;
+}
+
+.quest-card {
+  margin-bottom: 16rpx;
+}
+
+.quest-card:last-child {
+  margin-bottom: 0;
 }
 </style>

@@ -23,10 +23,12 @@ import ArticleRpgFab from '@/components/article-rpg-fab/article-rpg-fab.vue'
 import ArticleToc from '@/components/article-toc/article-toc.vue'
 import CyberBackTop from '@/components/cyber/cyber-back-top.vue'
 import MarkdownView from '@/components/markdown-view/markdown-view.vue'
-import { ROUTE_CATEGORY_LIST, ROUTE_DETAIL, ROUTE_TAG_LIST } from '@/router/routes'
+import AvatarWithFrame from '@/components/user/avatar-with-frame.vue'
+import { ROUTE_CATEGORY_LIST, ROUTE_DETAIL, ROUTE_TAG_LIST, ROUTE_USER_PUBLIC } from '@/router/routes'
 import { useUserStore } from '@/store'
 import { useTokenStore } from '@/store/token'
 import type { ArticleTocItem } from '@/utils/article-toc'
+import { resolvePublicAvatarFrame } from '@/utils/avatar-frame'
 import { parseCommentCreateStatus, resolveCommentUserUid } from '@/utils/comment'
 import { formatDate, formatRelativeTime } from '@/utils/date-time'
 import { apiDisplayLabel } from '@/utils/display-label'
@@ -56,12 +58,30 @@ const scrollTop = ref(0)
 const scrollToTop = ref(0)
 const fabRef = ref<InstanceType<typeof ArticleRpgFab> | null>(null)
 const backTopRef = ref<InstanceType<typeof CyberBackTop> | null>(null)
+const articleTocRef = ref<InstanceType<typeof ArticleToc> | null>(null)
 
 const DEFAULT_AVATAR = '/static/images/default-avatar.png'
 
 const currentUserId = computed(() => userStore.userInfo.userId)
 const coverUrl = computed(() => resolveStaticUrl(String(article.value?.cover ?? '')))
 const authorUid = computed(() => Number(article.value?.uid ?? article.value?.userInfo?.id ?? 0))
+const authorNickname = computed(() => String(article.value?.userInfo?.nickname ?? '').trim())
+const authorAvatarSrc = computed(() => {
+  const av = article.value?.userInfo?.avatar
+  return resolveStaticUrl(av ? String(av) : DEFAULT_AVATAR)
+})
+const authorAvatarFrame = computed(() =>
+  resolvePublicAvatarFrame(article.value?.userInfo?.avatarFrame),
+)
+const showAuthor = computed(() => !!authorNickname.value || !!article.value?.userInfo?.avatar)
+
+/** 评论总数：优先 API 字段，否则按已加载列表估算 */
+const commentTotal = computed(() => {
+  const fromApi = article.value?.commentCount ?? article.value?.comments
+  if (fromApi != null && fromApi !== '')
+    return Number(fromApi) || 0
+  return comments.value.reduce((sum, c) => sum + 1 + (c.reply?.length ?? 0), 0)
+})
 
 /** 加载文章、评论与互动状态 */
 async function loadArticle() {
@@ -107,6 +127,14 @@ function handleGoTop() {
   scrollToTop.value = scrollTop.value
   nextTick(() => {
     scrollToTop.value = 0
+  })
+}
+
+/** 目录跳转：scroll-view 须改 scroll-top，不能用 window.scrollIntoView */
+function handleTocScroll(target: number) {
+  scrollToTop.value = scrollTop.value
+  nextTick(() => {
+    scrollToTop.value = target
   })
 }
 
@@ -235,6 +263,11 @@ function onCatalog(items: ArticleTocItem[]) {
   tocTopics.value = items
 }
 
+/** 小程序 mp-html 渲染完成后重新测量目录偏移 */
+function onMarkdownRendered() {
+  articleTocRef.value?.remeasure?.()
+}
+
 /** 预览封面大图 */
 function previewCover() {
   if (!coverUrl.value)
@@ -254,6 +287,21 @@ function goCategory(id: number) {
   uni.navigateTo({ url: `${ROUTE_CATEGORY_LIST}?id=${id}` })
 }
 
+/** 分类/标签徽章样式，与首页 article-card 一致 */
+function metaBadgeStyle(color = '#22d3ee') {
+  return {
+    borderColor: color,
+    color,
+    backgroundColor: `${color}22`,
+  }
+}
+
+function goAuthorProfile() {
+  if (!authorUid.value)
+    return
+  uni.navigateTo({ url: `${ROUTE_USER_PUBLIC}?uid=${authorUid.value}` })
+}
+
 function commentAvatar(item: { userInfo?: { avatar?: string }, avatar?: string }) {
   const url = item.userInfo?.avatar || item.avatar || DEFAULT_AVATAR
   return resolveStaticUrl(String(url))
@@ -269,55 +317,93 @@ function commentAvatar(item: { userInfo?: { avatar?: string }, avatar?: string }
   </view>
   <view v-else class="detail-root">
     <scroll-view
+      id="detail-scroll"
       scroll-y
       class="detail-page cyber-page-grid u-page-scroll"
       :scroll-top="scrollToTop"
       @scroll="onDetailScroll"
     >
       <view class="u-page-body py-3">
-        <text class="block text-xl text-tech font-bold leading-snug">{{ article.title }}</text>
-        <text class="mt-2 block text-xs text-tech-subtle">{{ formatDate(article.createTime || article.uTime) }}</text>
-        <view class="detail-stats mt-3">
-          <view class="detail-stat flex items-center">
-            <wd-icon name="browse" size="14px" color="var(--tech-fg-subtle)" />
-            <text class="ml-1">{{ article.views ?? 0 }} 阅读</text>
+        <text class="detail-title block text-xl text-tech font-bold leading-snug">{{ article.title }}</text>
+
+        <view class="detail-meta mt-2">
+          <view class="detail-meta-top flex items-center justify-between">
+            <view
+              v-if="showAuthor"
+              class="detail-author u-gap-2 min-w-0 flex flex-1 items-center"
+              @tap="goAuthorProfile"
+            >
+              <AvatarWithFrame
+                :avatar="authorAvatarSrc"
+                :alt="authorNickname || '作者'"
+                :frame="authorAvatarFrame"
+                :size="48"
+              />
+              <view class="min-w-0">
+                <text class="detail-author-name block text-xs text-tech font-semibold leading-tight">{{ authorNickname || '作者' }}</text>
+                <text v-if="authorUid" class="detail-author-hint block text-xs text-tech-subtle leading-tight">主页</text>
+              </view>
+            </view>
+            <text class="detail-meta-date shrink-0 text-xs text-tech-subtle leading-tight" :class="showAuthor ? 'ml-2' : ''">
+              {{ formatDate(article.createTime || article.uTime) }}
+            </text>
           </view>
-          <view class="detail-stat flex items-center">
-            <cyber-icon name="heart" size="28rpx" />
-            <text class="ml-1">{{ article.likes ?? 0 }} 点赞</text>
-          </view>
-          <view v-if="article.tipTotal" class="detail-stat flex items-center">
-            <cyber-icon name="gem" size="28rpx" />
-            <text class="ml-1">{{ article.tipTotal }} 打赏</text>
+          <view class="detail-stats mt-1">
+            <view class="detail-stat flex items-center">
+              <wd-icon name="eye" size="12px" color="var(--tech-fg-subtle)" />
+              <text class="ml-1">{{ article.views ?? 0 }}</text>
+            </view>
+            <view class="detail-stat flex items-center">
+              <wd-icon name="thumb-up" size="12px" color="var(--tech-fg-subtle)" />
+              <text class="ml-1">{{ article.likes ?? 0 }}</text>
+            </view>
+            <view class="detail-stat flex items-center">
+              <wd-icon name="message" size="12px" color="var(--tech-fg-subtle)" />
+              <text class="ml-1">{{ commentTotal }}</text>
+            </view>
+            <view v-if="article.tipTotal" class="detail-stat flex items-center">
+              <wd-icon name="gift" size="12px" color="var(--tech-fg-subtle)" />
+              <text class="ml-1">{{ article.tipTotal }}</text>
+            </view>
           </view>
         </view>
-        <image
+
+        <view
           v-if="coverUrl"
-          :src="coverUrl"
-          mode="widthFix"
-          class="mt-3 w-full border border-tech rounded-lg"
+          class="article-cover-wrap mt-2"
           @tap="previewCover"
-        />
-        <ArticleToc :topics="tocTopics" />
-        <view v-if="article.category || article.tags?.length" class="detail-tags mt-3">
-          <view
+        >
+          <image
+            :src="coverUrl"
+            mode="widthFix"
+            class="article-cover-wrap__img"
+          />
+        </view>
+        <view v-if="article.category || article.tags?.length" class="detail-tags u-gap-1 mt-2 flex flex-wrap">
+          <text
             v-if="article.category?.id"
-            class="cyber-feature-tag"
+            class="article-meta-badge"
+            :style="metaBadgeStyle(article.category.color || '#4ade80')"
             @tap="goCategory(article.category.id)"
           >
-            <text>{{ apiDisplayLabel(article.category) }}</text>
-          </view>
-          <view
+            {{ apiDisplayLabel(article.category) }}
+          </text>
+          <text
             v-for="tag in article.tags"
             :key="tag.id"
-            class="cyber-feature-tag"
+            class="article-meta-badge"
+            :style="metaBadgeStyle(tag.color || '#60a5fa')"
             @tap="goTag(tag.id)"
           >
-            <text>{{ apiDisplayLabel(tag) }}</text>
-          </view>
+            {{ apiDisplayLabel(tag) }}
+          </text>
         </view>
         <view class="mt-4">
-          <MarkdownView :content="String(article.content || '')" @catalog="onCatalog" />
+          <MarkdownView
+            :content="String(article.content || '')"
+            @catalog="onCatalog"
+            @rendered="onMarkdownRendered"
+          />
         </view>
 
         <ArticleRelatedList :list="relatedList" @navigate="goArticle" />
@@ -395,6 +481,13 @@ function commentAvatar(item: { userInfo?: { avatar?: string }, avatar?: string }
       </view>
     </scroll-view>
 
+    <ArticleToc
+      ref="articleTocRef"
+      :topics="tocTopics"
+      :scroll-top="scrollTop"
+      @scroll-to="handleTocScroll"
+    />
+
     <ArticleRpgFab
       v-if="article.id && authorUid"
       ref="fabRef"
@@ -445,26 +538,47 @@ function commentAvatar(item: { userInfo?: { avatar?: string }, avatar?: string }
   height: 0;
 }
 
-.detail-tags {
-  display: flex;
-  flex-wrap: wrap;
+.detail-title {
+  line-height: 1.35;
 }
 
-.detail-tags .cyber-feature-tag {
-  margin-right: 12rpx;
-  margin-bottom: 12rpx;
+.detail-meta-top {
+  min-height: 48rpx;
+}
+
+.detail-author:active {
+  opacity: 0.85;
+}
+
+.detail-author-name,
+.detail-author-hint,
+.detail-meta-date {
+  line-height: 1.25;
+}
+
+.article-meta-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 36rpx;
+  padding: 0 12rpx;
+  border: 1px solid;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .detail-stats {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .detail-stat {
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: var(--tech-fg-subtle);
-  margin-right: 24rpx;
-  margin-bottom: 8rpx;
+  margin-right: 20rpx;
+  margin-bottom: 0;
 }
 
 .detail-comment-actions {
