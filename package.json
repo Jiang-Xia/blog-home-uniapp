@@ -31,6 +31,7 @@
   "scripts": {
     "openapi": "openapi-ts",
     "gen:icons": "node ./scripts/gen-app-icon-src.mjs",
+    "generate:rpg-audio": "node ./scripts/generate-rpg-audio.mjs",
     "gen:launcher-icons": "node ./scripts/gen-app-launcher-icons.mjs",
     "init-husky": "git init && husky",
     "init-baseFiles": "node ./scripts/create-base-files.js",
@@ -131,6 +132,7 @@
     "@dcloudio/uni-mp-weixin": "3.0.0-5000720260410001",
     "@dcloudio/uni-mp-xhs": "3.0.0-5000720260410001",
     "@dcloudio/uni-quickapp-webview": "3.0.0-5000720260410001",
+    "@hyoga/uni-socket.io": "^3.0.4",
     "@wot-ui/ui": "latest",
     "abortcontroller-polyfill": "^1.7.8",
     "alova": "^3.3.3",

@@ -69,6 +69,9 @@ importers:
       '@dcloudio/uni-quickapp-webview':
         specifier: 3.0.0-5000720260410001
         version: 3.0.0-5000720260410001(postcss@8.5.6)(rollup@4.50.0)(vue@3.4.21(typescript@5.8.3))
+      '@hyoga/uni-socket.io':
+        specifier: ^3.0.4
+        version: 3.0.4
       '@wot-ui/ui':
         specifier: latest
         version: 2.1.0(vue@3.4.21(typescript@5.8.3))
@@ -2396,6 +2399,9 @@ packages:
   '@humanwhocodes/retry@0.4.3':
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
+
+  '@hyoga/uni-socket.io@3.0.4':
+    resolution: {integrity: sha512-m04M/ALXpTWcKoJGPDMzJosmzuopyAXF51DFN/qxLyXnbCFeQwsWOXT/XNLl4aWoBVGwQ7IptECFFRCA6z5C8A==}
 
   '@iconify-json/carbon@1.2.13':
     resolution: {integrity: sha512-vXrFFKkfYaZSwf4WfnRQJQMnpEzxlPlupwZZlS1WvOAuNnWahsUudHycaMpoBzDqBfniH4KQ2b5qnw0VMKoJug==}
@@ -14352,6 +14358,8 @@ snapshots:
   '@humanwhocodes/retry@0.3.1': {}
 
   '@humanwhocodes/retry@0.4.3': {}
+
+  '@hyoga/uni-socket.io@3.0.4': {}
 
   '@iconify-json/carbon@1.2.13':
     dependencies:

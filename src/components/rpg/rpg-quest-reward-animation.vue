@@ -68,7 +68,7 @@ function handleClose() {
         <text class="chest-tip">开启奖励中…</text>
       </view>
 
-      <cyber-card v-else class="reveal-stage cyber-card-pad-xl text-center">
+      <cyber-card v-else class="reveal-stage rpg-modal-glass cyber-card-pad-xl text-center">
         <text class="reward-badge">奖励已发放</text>
         <text class="reward-icon">✨</text>
         <text class="quest-name">{{ questName || '任务' }}</text>
@@ -83,8 +83,6 @@ function handleClose() {
 
 <style scoped>
 .rpg-anim-overlay {
-  position: fixed;
-  background-color: rgba(0, 0, 0, 0.72);
   overflow: hidden;
 }
 

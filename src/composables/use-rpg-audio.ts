@@ -3,6 +3,7 @@
  */
 import { computed, ref } from 'vue'
 import {
+  getRpgSynthSfxPath,
   RPG_AUDIO_STORAGE_KEY,
   RPG_BGM,
   RPG_FILE_SFX,
@@ -16,11 +17,11 @@ interface RpgAudioSettings {
   bgmVolume: number
 }
 
-const DEFAULT: RpgAudioSettings = { muted: false, sfxVolume: 0.85, bgmVolume: 0 }
+const DEFAULT: RpgAudioSettings = { muted: false, sfxVolume: 0.85, bgmVolume: 0.35 }
 const settings = ref<RpgAudioSettings>(readSettings())
 let bgmCtx: UniApp.InnerAudioContext | null = null
 const audioPool: UniApp.InnerAudioContext[] = []
-const MAX_POOL = 6
+const MAX_POOL = 8
 
 function readSettings(): RpgAudioSettings {
   try {
@@ -43,7 +44,34 @@ function persist() {
   uni.setStorageSync(RPG_AUDIO_STORAGE_KEY, JSON.stringify(settings.value))
 }
 
-function playSynthTone(key: RpgSynthSfxKey) {
+function createInnerAudio(): UniApp.InnerAudioContext {
+  const ctx = uni.createInnerAudioContext()
+  // #ifdef MP-WEIXIN
+  ctx.obeyMuteSwitch = false
+  // #endif
+  return ctx
+}
+
+function playInnerAudio(src: string, volume: number, loop = false) {
+  const ctx = createInnerAudio()
+  ctx.src = src
+  ctx.volume = volume
+  ctx.loop = loop
+  ctx.onEnded(() => ctx.destroy())
+  ctx.onError((err) => {
+    console.warn('[rpg-audio] play failed', src, err)
+    ctx.destroy()
+  })
+  ctx.play()
+  if (!loop) {
+    audioPool.push(ctx)
+    if (audioPool.length > MAX_POOL)
+      audioPool.shift()?.destroy()
+  }
+  return ctx
+}
+
+function playSynthToneH5(key: RpgSynthSfxKey) {
   const base = RPG_SYNTH_SFX[key]?.volume ?? 0.4
   const vol = settings.value.sfxVolume * base
   if (vol <= 0)
@@ -66,20 +94,34 @@ function playSynthTone(key: RpgSynthSfxKey) {
   }
   // #ifdef H5
   try {
-    const ctx = new AudioContext()
-    const osc = ctx.createOscillator()
-    const gain = ctx.createGain()
+    const audioCtx = new AudioContext()
+    const osc = audioCtx.createOscillator()
+    const gain = audioCtx.createGain()
     osc.frequency.value = freqMap[key] ?? 600
     gain.gain.value = vol * 0.15
     osc.connect(gain)
-    gain.connect(ctx.destination)
+    gain.connect(audioCtx.destination)
     osc.start()
     setTimeout(() => {
       osc.stop()
-      void ctx.close()
+      void audioCtx.close()
     }, 120)
   }
   catch { /* ignore */ }
+  // #endif
+}
+
+/** 小程序/App：播放预生成 wav；H5 优先 Web Audio */
+function playSynthTone(key: RpgSynthSfxKey) {
+  const base = RPG_SYNTH_SFX[key]?.volume ?? 0.4
+  const vol = settings.value.sfxVolume * base
+  if (vol <= 0)
+    return
+  // #ifdef H5
+  playSynthToneH5(key)
+  // #endif
+  // #ifndef H5
+  playInnerAudio(getRpgSynthSfxPath(key), vol)
   // #endif
 }
 
@@ -87,15 +129,7 @@ function playFileSfx(key: RpgFileSfxKey) {
   const def = RPG_FILE_SFX[key]
   if (!def)
     return
-  const ctx = uni.createInnerAudioContext()
-  ctx.src = def.src
-  ctx.volume = settings.value.sfxVolume * (def.volume ?? 0.6)
-  ctx.onEnded(() => ctx.destroy())
-  ctx.onError(() => ctx.destroy())
-  ctx.play()
-  audioPool.push(ctx)
-  if (audioPool.length > MAX_POOL)
-    audioPool.shift()?.destroy()
+  playInnerAudio(def.src, settings.value.sfxVolume * (def.volume ?? 0.6))
 }
 
 export function useRpgAudio() {
@@ -128,8 +162,7 @@ export function useRpgAudio() {
   })
 
   function initAudio() {
-    // 预读设置，MP 端首次 play 需用户手势；冒险页 onLoad 调用即可
-    readSettings()
+    settings.value = readSettings()
   }
 
   function playSfx(key: RpgSfxKey) {
@@ -148,9 +181,11 @@ export function useRpgAudio() {
     if (!def)
       return
     if (!bgmCtx) {
-      bgmCtx = uni.createInnerAudioContext()
+      bgmCtx = createInnerAudio()
       bgmCtx.loop = def.loop ?? true
-      bgmCtx.onError(() => { /* 素材缺失时静默 */ })
+      bgmCtx.onError((err) => {
+        console.warn('[rpg-audio] bgm failed', def.src, err)
+      })
     }
     bgmCtx.src = def.src
     bgmCtx.volume = settings.value.bgmVolume * (def.volume ?? 0.18)

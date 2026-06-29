@@ -86,7 +86,7 @@ const badgeClass = computed(() => getRarityBadgePresentation(props).class)
         <text class="egg-tip">孵化中…</text>
       </view>
 
-      <cyber-card v-else class="reveal-stage cyber-card-pad-xl text-center">
+      <cyber-card v-else class="reveal-stage rpg-modal-glass cyber-card-pad-xl text-center">
         <text class="hatch-badge">孵化成功</text>
         <text class="pet-icon">{{ resolveRpgItemEmoji({ icon: petCode }) }}</text>
         <view v-if="rarityLabel" class="pet-rarity" :class="badgeClass" :style="badgeStyle">
@@ -103,8 +103,6 @@ const badgeClass = computed(() => getRarityBadgePresentation(props).class)
 
 <style scoped>
 .rpg-anim-overlay {
-  position: fixed;
-  background-color: rgba(0, 0, 0, 0.72);
   overflow: hidden;
 }
 

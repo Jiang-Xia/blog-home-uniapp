@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import RpgGlobalInit from '@/components/rpg/rpg-global-init.vue'
 import { onHide, onLaunch, onShow } from '@dcloudio/uni-app'
 import { getCurrentInstance, onMounted, onUnmounted } from 'vue'
 import { navigateToInterceptor } from '@/router/interceptor'
@@ -55,10 +54,6 @@ onUnmounted(() => {
 })
 // #endif
 </script>
-
-<template>
-  <RpgGlobalInit />
-</template>
 
 <style lang="scss">
 

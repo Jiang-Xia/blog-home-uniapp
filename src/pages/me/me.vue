@@ -5,9 +5,9 @@
  * - 未登录可见全部菜单，点击跳转登录并带 redirect
  * - 功能项由原个人中心六 Tab 拆出，详情仍在 profile 子页
  */
-import { getUnreadCount } from '@/api/notification'
 import { meMenuSections, resolveMeMenuRoute } from '@/config/me-menu'
 import type { MeMenuItem } from '@/config/me-menu'
+import { useSiteNotification } from '@/composables/use-site-notification'
 import { storeToRefs } from 'pinia'
 import { LOGIN_PAGE, ROUTE_PROFILE } from '@/router/config'
 import { useUserStore } from '@/store'
@@ -20,20 +20,14 @@ definePage({
 const userStore = useUserStore()
 const tokenStore = useTokenStore()
 const { userInfo } = storeToRefs(userStore)
-const unreadCount = ref(0)
+const { unreadCount, fetchUnread } = useSiteNotification()
 
 onShow(async () => {
   if (!tokenStore.hasLogin) {
-    unreadCount.value = 0
     return
   }
   await userStore.fetchUserInfo().catch(() => {})
-  try {
-    unreadCount.value = (await getUnreadCount())?.count ?? 0
-  }
-  catch {
-    unreadCount.value = 0
-  }
+  await fetchUnread().catch(() => {})
 })
 
 function menuBadge(item: MeMenuItem) {

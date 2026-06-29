@@ -77,7 +77,7 @@ const badgeClass = computed(() => props.item ? getRarityBadgePresentation(props.
 
     <view class="reveal-panel" @click.stop>
       <cyber-card
-        class="reveal-card cyber-card-pad-xl text-center"
+        class="reveal-card rpg-modal-glass cyber-card-pad-xl text-center"
         :class="{ ready: revealReady }"
         :style="glowStyle"
       >
@@ -104,8 +104,6 @@ const badgeClass = computed(() => props.item ? getRarityBadgePresentation(props.
 
 <style scoped>
 .rpg-anim-overlay {
-  position: fixed;
-  background-color: rgba(0, 0, 0, 0.72);
   overflow: hidden;
 }
 

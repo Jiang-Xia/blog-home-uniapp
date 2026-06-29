@@ -50,7 +50,7 @@ function handleClose() {
     @click="handleClose"
   >
     <view @click.stop>
-      <cyber-card class="level-up-modal cyber-card-pad-xl text-center">
+      <cyber-card class="level-up-modal rpg-modal-glass cyber-card-pad-xl text-center">
         <text class="level-up-icon">⭐</text>
         <text class="level-up-badge">升级！</text>
         <view class="level-up-numbers">
@@ -75,11 +75,6 @@ function handleClose() {
 </template>
 
 <style scoped>
-.rpg-anim-overlay {
-  position: fixed;
-  background-color: rgba(0, 0, 0, 0.88);
-}
-
 .level-up-modal {
   min-width: 280px;
   max-width: 380px;

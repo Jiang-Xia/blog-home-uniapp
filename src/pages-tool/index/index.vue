@@ -19,7 +19,7 @@ const tools = [
   { title: '国密 SM2', desc: 'SM2 加解密（三端）', route: '/pages-tool/sm/index' },
   { title: 'AI 对话', desc: 'DeepSeek 流式对话', route: '/pages-tool/ai/index' },
   { title: 'AI 文章摘要', desc: '多风格长文智能摘要', route: '/pages-tool/ai-summary/index' },
-  { title: '开发测试', desc: 'Toast / 主题 / SSE 等 Lab', route: '/pages-tool/test/index' },
+  { title: '开发测试', desc: 'RPG WS 挡板 / Toast / SSE Lab', route: '/pages-tool/test/index' },
 ]
 
 function goTool(route: string) {

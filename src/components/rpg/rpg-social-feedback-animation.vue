@@ -97,7 +97,7 @@ const themeClass = computed(() => {
     @click="handleClose"
   >
     <view @click.stop>
-      <cyber-card class="social-modal cyber-card-pad-xl text-center" :class="themeClass">
+      <cyber-card class="social-modal rpg-modal-glass cyber-card-pad-xl text-center" :class="themeClass">
         <text class="feedback-icon">{{ icon }}</text>
         <text class="feedback-badge">{{ badgeText }}</text>
         <text class="feedback-title">{{ titleText }}</text>
@@ -111,11 +111,6 @@ const themeClass = computed(() => {
 </template>
 
 <style scoped>
-.rpg-anim-overlay {
-  position: fixed;
-  background-color: rgba(0, 0, 0, 0.72);
-}
-
 .social-modal {
   min-width: 280px;
   max-width: 380px;

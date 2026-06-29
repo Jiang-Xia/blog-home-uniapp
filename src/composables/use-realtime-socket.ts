@@ -2,12 +2,15 @@
  * Socket.IO 实时通道（对齐 blog-home-nuxt composables/use-realtime-socket）
  * - 连接 ${wsOrigin}/realtime，Bearer 鉴权
  * - RPG 事件分发与 dataRefresh 通知
+ * - 小程序/APP 使用 @hyoga/uni-socket.io（uni.connectSocket），H5 仍走原生 WebSocket
  */
+import { isH5 } from '@uni-helper/uni-env'
+import io from '@hyoga/uni-socket.io'
 import { ref } from 'vue'
-import { io } from 'socket.io-client'
 import type { Socket } from 'socket.io-client'
 import { useTokenStore } from '@/store/token'
 import { getWsOrigin } from '@/utils/ws-origin'
+import { canUseRpgDevMock } from '@/utils/rpg-dev-mock-guard'
 
 export type RealtimeSocketEvent
   = | 'levelUp'
@@ -109,27 +112,59 @@ function buildAuthToken() {
   return token ? `Bearer ${token}` : ''
 }
 
+/** 小程序/APP 仅支持 WebSocket；H5 可降级 polling */
+function getSocketTransports(): ('websocket' | 'polling')[] {
+  return isH5 ? ['websocket', 'polling'] : ['websocket']
+}
+
+const WS_LOG_PREFIX = '[realtime-ws]'
+
 /** 建立 Socket.IO 连接（已连接或无 token 时跳过） */
 export function connectRealtimeSocket() {
-  if (socket?.connected)
+  if (socket?.connected) {
+    console.log(WS_LOG_PREFIX, '已连接，跳过重复初始化', { id: socket.id })
     return
+  }
   const authToken = buildAuthToken()
-  if (!authToken)
+  if (!authToken) {
+    console.warn(WS_LOG_PREFIX, '未登录或无 token，跳过 WS 初始化')
     return
+  }
 
-  const newSocket = io(`${getWsOrigin()}/realtime`, {
+  const url = `${getWsOrigin()}/realtime`
+  const transports = getSocketTransports()
+  console.log(WS_LOG_PREFIX, '开始初始化', { url, transports })
+
+  const newSocket = io(url, {
     auth: { token: authToken },
-    transports: ['websocket', 'polling'],
+    transports,
     reconnection: true,
     reconnectionAttempts: 5,
     reconnectionDelay: 3000,
   })
 
+  newSocket.io.on('reconnect_attempt', (attempt) => {
+    console.log(WS_LOG_PREFIX, '重连中', { attempt })
+    const freshToken = buildAuthToken()
+    if (freshToken)
+      newSocket.auth = { token: freshToken }
+  })
+
+  newSocket.io.on('reconnect', () => {
+    console.log(WS_LOG_PREFIX, '重连成功', { id: newSocket.id })
+  })
+
   newSocket.on('connect', () => {
     connected.value = true
+    console.log(WS_LOG_PREFIX, '连接成功', { id: newSocket.id, url })
   })
-  newSocket.on('disconnect', () => {
+  newSocket.on('disconnect', (reason) => {
     connected.value = false
+    console.warn(WS_LOG_PREFIX, '连接断开', { reason })
+  })
+  newSocket.on('connect_error', (err) => {
+    connected.value = false
+    console.error(WS_LOG_PREFIX, '连接失败', err?.message || err)
   })
   ALL_EVENTS.forEach((event) => {
     newSocket.on(event, data => emitToListeners(event, data))
@@ -139,9 +174,19 @@ export function connectRealtimeSocket() {
 
 /** 断开 Socket.IO 并清理单例 */
 export function disconnectRealtimeSocket() {
-  socket?.disconnect()
+  if (socket) {
+    console.log(WS_LOG_PREFIX, '主动断开')
+    socket.disconnect()
+  }
   socket = null
   connected.value = false
+}
+
+/** 开发/测试页：本地注入 WS 事件，走与真推送相同的 onRealtimeEvent 监听链 */
+export function dispatchLocalEvent(event: RealtimeSocketEvent, data: unknown) {
+  if (!canUseRpgDevMock())
+    return
+  emitToListeners(event, data)
 }
 
 /** 读取连接状态 ref（供 UI 展示） */

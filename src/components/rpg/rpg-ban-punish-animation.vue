@@ -46,7 +46,7 @@ function handleClose() {
     </view>
 
     <view @click.stop>
-      <cyber-card class="ban-modal cyber-card-pad-xl text-center">
+      <cyber-card class="ban-modal rpg-modal-glass cyber-card-pad-xl text-center">
         <text class="ban-stamp">处罚</text>
         <text class="ban-icon">🔇</text>
         <text class="ban-title">您已被禁言</text>
@@ -63,8 +63,6 @@ function handleClose() {
 
 <style scoped>
 .rpg-anim-overlay {
-  position: fixed;
-  background-color: rgba(0, 0, 0, 0.78);
   overflow: hidden;
 }
 

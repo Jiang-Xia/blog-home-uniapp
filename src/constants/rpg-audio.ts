@@ -79,11 +79,16 @@ export const RPG_SYNTH_SFX: Record<RpgSynthSfxKey, { volume: number }> = {
 }
 
 export const RPG_FILE_SFX: Record<RpgFileSfxKey, { src: string, volume: number }> = {
-  lotteryRevealLegendary: { src: '/static/audio/rpg/sfx-lottery-reveal-legendary.mp3', volume: 0.65 },
+  lotteryRevealLegendary: { src: '/static/audio/rpg/sfx-lotteryRevealLegendary.wav', volume: 0.65 },
 }
 
 export const RPG_BGM: Record<RpgBgmKey, { src: string, loop: boolean, volume: number }> = {
-  adventure: { src: '/static/audio/rpg/bgm-adventure.mp3', loop: true, volume: 0.18 },
+  adventure: { src: '/static/audio/rpg/bgm-adventure.wav', loop: true, volume: 0.18 },
+}
+
+/** 小程序/App 合成音效 wav（H5 仍走 Web Audio） */
+export function getRpgSynthSfxPath(key: RpgSynthSfxKey): string {
+  return `/static/audio/rpg/sfx-${key}.wav`
 }
 
 /** 兼容旧 API */

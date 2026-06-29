@@ -42,7 +42,7 @@ async function submit() {
 
 <template>
   <view v-if="visible" class="recharge-overlay u-overlay fixed inset-0 z-50 flex items-center justify-center" @click="closeRechargeModal">
-    <cyber-card class="recharge-modal cyber-card-pad-xl" @click.stop>
+    <cyber-card class="recharge-modal rpg-modal-glass cyber-card-pad-xl" @click.stop>
       <text class="block text-lg text-tech font-bold">充值钻石</text>
       <text class="mt-2 block text-sm text-tech-muted">输入充值金额（元），支付成功后钻石自动到账</text>
       <wd-input v-model="amount" type="number" label="金额(元)" class="mt-4" />
@@ -63,10 +63,6 @@ async function submit() {
 </template>
 
 <style scoped>
-.recharge-overlay {
-  position: fixed;
-  background: rgba(0, 0, 0, 0.6);
-}
 .recharge-modal {
   width: 85%;
   max-width: 360px;

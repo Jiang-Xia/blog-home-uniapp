@@ -4,10 +4,12 @@
  */
 import RpgAchievementAnimation from '@/components/rpg/rpg-achievement-animation.vue'
 import RpgActivityStartBanner from '@/components/rpg/rpg-activity-start-banner.vue'
+import RpgArticleLevelUpBadge from '@/components/rpg/rpg-article-level-up-badge.vue'
 import RpgBanPunishAnimation from '@/components/rpg/rpg-ban-punish-animation.vue'
 import RpgCurrencyGainFx from '@/components/rpg/rpg-currency-gain-fx.vue'
 import RpgItemRevealAnimation from '@/components/rpg/rpg-item-reveal-animation.vue'
 import RpgLevelUpAnimation from '@/components/rpg/rpg-level-up-animation.vue'
+import RpgMasterpieceAnimation from '@/components/rpg/rpg-masterpiece-animation.vue'
 import RpgPetHatchAnimation from '@/components/rpg/rpg-pet-hatch-animation.vue'
 import RpgQuestCompleteBadge from '@/components/rpg/rpg-quest-complete-badge.vue'
 import RpgQuestRewardAnimation from '@/components/rpg/rpg-quest-reward-animation.vue'
@@ -18,12 +20,61 @@ import RpgSocialFeedbackAnimation from '@/components/rpg/rpg-social-feedback-ani
 import { useRpg } from '@/composables/use-rpg'
 import { rpgAnimationState, useRpgRealtimeHandlers } from '@/composables/use-rpg-realtime-handlers'
 import { connectRealtimeSocket, disconnectRealtimeSocket } from '@/composables/use-realtime-socket'
+import { useSiteNotification } from '@/composables/use-site-notification'
 import { useTokenStore } from '@/store/token'
+
+// #ifdef MP-WEIXIN
+defineOptions({
+  options: {
+    virtualHost: true,
+  },
+})
+// #endif
 
 const tokenStore = useTokenStore()
 const { initCore } = useRpg()
-const s = rpgAnimationState
+const {
+  levelUpVisible,
+  levelUpData,
+  achievementVisible,
+  achievementName,
+  achievementExpReward,
+  achievementRarityColor,
+  achievementRarityLabel,
+  achievementRarityIcon,
+  masterpieceVisible,
+  masterpieceTitle,
+  articleLevelUpVisible,
+  articleLevelUpData,
+  questRewardVisible,
+  questRewardName,
+  questRewardExp,
+  questCompleteVisible,
+  questCompleteName,
+  petHatchVisible,
+  petHatchName,
+  itemRevealVisible,
+  itemRevealData,
+  rankChangeVisible,
+  rankChangeRank,
+  rankChangeTypeLabel,
+  rankChangePeriodLabel,
+  socialFeedbackVisible,
+  socialFeedbackData,
+  screenPulseVisible,
+  screenPulseKind,
+  screenPulseLabel,
+  currencyGainVisible,
+  currencyGainAmount,
+  currencyGainReason,
+  activityBannerVisible,
+  activityBannerName,
+  activityBannerSubtitle,
+  banPunishVisible,
+} = rpgAnimationState
 let handlersInstalled = false
+
+useSiteNotification()
 
 watch(
   () => tokenStore.hasLogin,
@@ -47,71 +98,83 @@ watch(
 <template>
   <view v-if="tokenStore.hasLogin" class="rpg-global-init">
     <RpgLevelUpAnimation
-      :visible="s.levelUpVisible.value"
-      :level-up-data="s.levelUpData.value"
-      @close="s.levelUpVisible.value = false"
+      :visible="levelUpVisible"
+      :level-up-data="levelUpData"
+      @close="levelUpVisible = false"
     />
     <RpgAchievementAnimation
-      :visible="s.achievementVisible.value"
-      :name="s.achievementName.value"
-      :exp-reward="s.achievementExpReward.value"
-      :rarity-color="s.achievementRarityColor.value"
-      :rarity-label="s.achievementRarityLabel.value"
-      @close="s.achievementVisible.value = false"
+      :visible="achievementVisible"
+      :name="achievementName"
+      :exp-reward="achievementExpReward"
+      :rarity-color="achievementRarityColor"
+      :rarity-label="achievementRarityLabel"
+      :rarity-icon="achievementRarityIcon"
+      @close="achievementVisible = false"
+    />
+    <RpgMasterpieceAnimation
+      :visible="masterpieceVisible"
+      :article-title="masterpieceTitle"
+      @close="masterpieceVisible = false"
+    />
+    <RpgArticleLevelUpBadge
+      :visible="articleLevelUpVisible"
+      :data="articleLevelUpData"
+      @close="articleLevelUpVisible = false"
     />
     <RpgQuestRewardAnimation
-      :visible="s.questRewardVisible.value"
-      :quest-name="s.questRewardName.value"
-      :exp-reward="s.questRewardExp.value"
-      @close="s.questRewardVisible.value = false"
+      :visible="questRewardVisible"
+      :quest-name="questRewardName"
+      :exp-reward="questRewardExp"
+      @close="questRewardVisible = false"
     />
     <RpgQuestCompleteBadge
-      :visible="s.questCompleteVisible.value"
-      :quest-name="s.questCompleteName.value"
-      @close="s.questCompleteVisible.value = false"
+      :visible="questCompleteVisible"
+      :quest-name="questCompleteName"
+      @close="questCompleteVisible = false"
     />
     <RpgPetHatchAnimation
-      :visible="s.petHatchVisible.value"
-      :pet-name="s.petHatchName.value"
-      @close="s.petHatchVisible.value = false"
+      :visible="petHatchVisible"
+      :pet-name="petHatchName"
+      @close="petHatchVisible = false"
     />
     <RpgItemRevealAnimation
-      :visible="s.itemRevealVisible.value"
-      :item="{ name: s.itemRevealName.value, rarityLabel: s.itemRevealRarityLabel.value }"
-      @close="s.itemRevealVisible.value = false"
+      :visible="itemRevealVisible"
+      :item="itemRevealData"
+      @close="itemRevealVisible = false"
     />
     <RpgRankChangeAnimation
-      :visible="s.rankChangeVisible.value"
-      :rank="s.rankChangeRank.value"
-      :type-label="s.rankChangeTypeLabel.value"
-      :period-label="s.rankChangePeriodLabel.value"
-      @close="s.rankChangeVisible.value = false"
+      :visible="rankChangeVisible"
+      :rank="rankChangeRank"
+      :type-label="rankChangeTypeLabel"
+      :period-label="rankChangePeriodLabel"
+      @close="rankChangeVisible = false"
     />
     <RpgSocialFeedbackAnimation
-      :visible="s.socialFeedbackVisible.value"
-      :feedback="s.socialFeedbackData.value"
-      @close="s.socialFeedbackVisible.value = false"
+      :visible="socialFeedbackVisible"
+      :feedback="socialFeedbackData"
+      @close="socialFeedbackVisible = false"
     />
     <RpgScreenPulseFx
-      :visible="s.screenPulseVisible.value"
-      :kind="s.screenPulseKind.value"
-      :label="s.screenPulseLabel.value"
-      @done="s.screenPulseVisible.value = false"
+      :visible="screenPulseVisible"
+      :kind="screenPulseKind"
+      :label="screenPulseLabel"
+      @done="screenPulseVisible = false"
     />
     <RpgCurrencyGainFx
-      :visible="s.currencyGainVisible.value"
-      :amount="s.currencyGainAmount.value"
-      :reason="s.currencyGainReason.value"
-      @done="s.currencyGainVisible.value = false"
+      :visible="currencyGainVisible"
+      :amount="currencyGainAmount"
+      :reason="currencyGainReason"
+      @done="currencyGainVisible = false"
     />
     <RpgActivityStartBanner
-      :visible="s.activityBannerVisible.value"
-      :activity-name="s.activityBannerName.value"
-      @close="s.activityBannerVisible.value = false"
+      :visible="activityBannerVisible"
+      :activity-name="activityBannerName"
+      :subtitle="activityBannerSubtitle"
+      @close="activityBannerVisible = false"
     />
     <RpgBanPunishAnimation
-      :visible="s.banPunishVisible.value"
-      @close="s.banPunishVisible.value = false"
+      :visible="banPunishVisible"
+      @close="banPunishVisible = false"
     />
     <RpgRechargeModal />
   </view>

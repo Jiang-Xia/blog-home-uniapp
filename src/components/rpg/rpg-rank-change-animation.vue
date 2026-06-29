@@ -58,7 +58,7 @@ function handleClose() {
     <LotteryConfetti :active="visible" :tier="confettiTier" />
 
     <view @click.stop>
-      <cyber-card class="rank-modal cyber-card-pad-xl text-center">
+      <cyber-card class="rank-modal rpg-modal-glass cyber-card-pad-xl text-center">
         <text class="rank-badge" :style="{ color: rankTheme.accent }">荣登 Top10</text>
         <view class="medal-wrap">
           <text class="medal-emoji">{{ medal }}</text>
@@ -80,8 +80,6 @@ function handleClose() {
 
 <style scoped>
 .rpg-anim-overlay {
-  position: fixed;
-  background-color: rgba(0, 0, 0, 0.72);
   overflow: hidden;
 }
 

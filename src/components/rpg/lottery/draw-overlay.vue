@@ -183,7 +183,7 @@ onUnmounted(clearTimers)
     />
 
     <view class="draw-panel-wrap" @click.stop>
-      <cyber-card class="draw-panel cyber-card-pad-lg">
+      <cyber-card class="draw-panel rpg-modal-glass cyber-card-pad-lg">
         <view class="panel-header">
           <text class="panel-title">{{ phaseTitle }}</text>
           <view
@@ -291,8 +291,6 @@ onUnmounted(clearTimers)
 
 <style scoped>
 .lottery-draw-overlay {
-  position: fixed;
-  background-color: rgba(0, 0, 0, 0.72);
   overflow: hidden;
 }
 
@@ -540,7 +538,7 @@ onUnmounted(clearTimers)
   border-radius: 10px;
   border-width: 1.5px;
   border-style: solid;
-  background: rgba(15, 23, 42, 0.55);
+  background: rgba(15, 23, 42, 0.88);
   animation: cardPop 0.4s cubic-bezier(0.22, 1.1, 0.36, 1) both;
 }
 

@@ -45,7 +45,7 @@ function handleClose() {
     @click="handleClose"
   >
     <view @click.stop>
-      <cyber-card class="achievement-modal cyber-card-pad-xl text-center">
+      <cyber-card class="achievement-modal rpg-modal-glass cyber-card-pad-xl text-center">
         <view class="achievement-icon" :style="iconStyle">
           <text class="achievement-icon-text">{{ rarityIcon || '🏆' }}</text>
         </view>
@@ -61,11 +61,6 @@ function handleClose() {
 </template>
 
 <style scoped>
-.rpg-anim-overlay {
-  position: fixed;
-  background-color: rgba(0, 0, 0, 0.72);
-}
-
 .achievement-modal {
   min-width: 280px;
   max-width: 380px;
