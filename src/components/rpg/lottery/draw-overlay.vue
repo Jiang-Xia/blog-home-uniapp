@@ -21,8 +21,9 @@ import {
 
 } from '@/utils/lottery-reel'
 import type { LotteryDrawPhase, ReelStripPlan } from '@/utils/lottery-reel'
-import { getRarityBadgePresentation, getRarityFallbackColor, getRarityGlowByCode } from '@/utils/rpg-rarity'
+import { getRarityFallbackColor, getRarityGlowByCode } from '@/utils/rpg-rarity'
 import { resolveRpgItemEmoji } from '@/utils/rpg-item-icon'
+import RpgRarityBadge from '@/components/rpg/rpg-rarity-badge.vue'
 import LotteryReel from './reel.vue'
 import LotteryConfetti from './confetti.vue'
 
@@ -126,14 +127,6 @@ function handleOverlayTap() {
 
 function handleConfirm() {
   emit('close')
-}
-
-function badgeStyle(item: DrawResult['item']) {
-  return getRarityBadgePresentation(item).style
-}
-
-function badgeClass(item: DrawResult['item']) {
-  return getRarityBadgePresentation(item).class
 }
 
 watch(
@@ -246,12 +239,13 @@ onUnmounted(clearTimers)
             :style="{ boxShadow: getRarityGlowByCode(currentResult.item.rarity) }"
           >
             <text class="reveal-banner">✨ 恭喜获得 ✨</text>
-            <view
-              class="reveal-rarity"
-              :class="badgeClass(currentResult.item)"
-              :style="badgeStyle(currentResult.item)"
-            >
-              <text class="reveal-rarity-text">{{ currentResult.item.rarityLabel || currentResult.item.rarity }}</text>
+            <view class="reveal-rarity-wrap">
+              <RpgRarityBadge
+                :rarity="currentResult.item.rarity"
+                :rarity-label="currentResult.item.rarityLabel"
+                :rarity-color="currentResult.item.rarityColor"
+                :rarity-icon="currentResult.item.rarityIcon"
+              />
             </view>
             <text class="reveal-item-icon">{{ resolveRpgItemEmoji(currentResult.item) }}</text>
             <text class="reveal-name">{{ currentResult.item.name }}</text>
@@ -273,12 +267,13 @@ onUnmounted(clearTimers)
                 :style="{ borderColor: result.item.rarityColor || getRarityFallbackColor() }"
               >
                 <text class="summary-item-icon">{{ resolveRpgItemEmoji(result.item) }}</text>
-                <view
-                  class="summary-rarity"
-                  :class="badgeClass(result.item)"
-                  :style="badgeStyle(result.item)"
-                >
-                  <text class="summary-rarity-text">{{ result.item.rarityLabel || result.item.rarity }}</text>
+                <view class="summary-rarity-wrap">
+                  <RpgRarityBadge
+                    :rarity="result.item.rarity"
+                    :rarity-label="result.item.rarityLabel"
+                    :rarity-color="result.item.rarityColor"
+                    :rarity-icon="result.item.rarityIcon"
+                  />
                 </view>
                 <text class="summary-name">{{ result.item.name }}</text>
                 <text v-if="result.rewardDetail" class="summary-reward">{{ formatRewardDetail(result.rewardDetail) }}</text>
@@ -479,18 +474,10 @@ onUnmounted(clearTimers)
   margin-bottom: 12px;
 }
 
-.reveal-rarity {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: 999px;
-  border-width: 1px;
-  border-style: solid;
+.reveal-rarity-wrap {
+  display: flex;
+  justify-content: center;
   margin-bottom: 10px;
-}
-
-.reveal-rarity-text {
-  font-size: 11px;
-  font-weight: 700;
 }
 
 .reveal-item-icon {
@@ -563,17 +550,11 @@ onUnmounted(clearTimers)
   line-height: 1;
 }
 
-.summary-rarity {
-  padding: 1px 8px;
-  border-radius: 999px;
-  border-width: 1px;
-  border-style: solid;
+.summary-rarity-wrap {
+  display: flex;
+  justify-content: center;
   margin-bottom: 4px;
-}
-
-.summary-rarity-text {
-  font-size: 9px;
-  font-weight: 700;
+  transform: scale(0.92);
 }
 
 .summary-name {

@@ -8,6 +8,8 @@ import { formatDateMinute } from '@/utils/date-time'
 const props = defineProps<{
   records: SensitiveHitRecord[]
   total: number
+  /** 来自 RPG 状态的累计命中次数，列表未加载时用于默认展示 */
+  hitsCount?: number
   loading?: boolean
 }>()
 
@@ -16,6 +18,9 @@ const emit = defineEmits<{
 }>()
 
 const expanded = ref(false)
+
+/** 标题展示次数：优先分页 total，否则用状态里的累计命中数 */
+const displayCount = computed(() => props.total || props.hitsCount || 0)
 
 function toggle() {
   expanded.value = !expanded.value
@@ -33,8 +38,8 @@ const sourceLabel: Record<string, string> = {
 <template>
   <cyber-card class="hit-records cyber-card-pad-sm mt-4">
     <view class="flex items-center justify-between" @click="toggle">
-      <text class="text-sm text-tech font-medium">敏感词命中记录</text>
-      <text class="text-xs text-tech-subtle">{{ expanded ? '▼' : '▶' }} {{ total }} 条</text>
+      <text class="text-sm text-tech font-medium">敏感词命中记录 ({{ displayCount }}次)</text>
+      <text class="text-xs text-tech-subtle">{{ expanded ? '▼' : '▶' }}</text>
     </view>
     <view v-if="expanded" class="mt-3">
       <view v-if="loading" class="py-4 text-center text-xs text-tech-subtle">

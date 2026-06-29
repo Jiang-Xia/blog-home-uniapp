@@ -15,8 +15,9 @@ import {
 } from '@/utils/rpg-economy'
 import { useRpgRecharge } from '@/composables/use-rpg-recharge'
 import { useRpgAudio } from '@/composables/use-rpg-audio'
-import { getRarityBadgePresentation, getRarityFallbackColor } from '@/utils/rpg-rarity'
+import { getRarityFallbackColor } from '@/utils/rpg-rarity'
 import { resolveRpgItemEmoji } from '@/utils/rpg-item-icon'
+import RpgRarityBadge from '@/components/rpg/rpg-rarity-badge.vue'
 import LotteryDrawOverlay from './lottery/draw-overlay.vue'
 
 const props = defineProps<{
@@ -131,14 +132,6 @@ function toggleHistory() {
   if (showHistory.value && props.lotteryHistory.length === 0)
     emit('loadHistory')
 }
-
-function badgeStyle(fields: { rarity?: string, rarityLabel?: string, rarityColor?: string }) {
-  return getRarityBadgePresentation(fields).style
-}
-
-function badgeClass(fields: { rarity?: string, rarityLabel?: string, rarityColor?: string }) {
-  return getRarityBadgePresentation(fields).class
-}
 </script>
 
 <template>
@@ -239,12 +232,13 @@ function badgeClass(fields: { rarity?: string, rarityLabel?: string, rarityColor
             :style="{ borderColor: item.rarityColor || getRarityFallbackColor() }"
           >
             <text class="pool-chip-icon">{{ resolveRpgItemEmoji(item) }}</text>
-            <view
-              class="pool-chip-badge"
-              :class="badgeClass(item)"
-              :style="badgeStyle(item)"
-            >
-              <text class="pool-chip-badge-text">{{ item.rarityLabel || item.rarity }}</text>
+            <view class="pool-chip-badge-wrap">
+              <RpgRarityBadge
+                :rarity="item.rarity"
+                :rarity-label="item.rarityLabel"
+                :rarity-color="item.rarityColor"
+                :rarity-icon="item.rarityIcon"
+              />
             </view>
             <text class="pool-chip-name">{{ item.name }}</text>
           </view>
@@ -264,12 +258,13 @@ function badgeClass(fields: { rarity?: string, rarityLabel?: string, rarityColor
           class="history-row"
         >
           <text class="history-icon">{{ resolveRpgItemEmoji(record) }}</text>
-          <view
-            class="history-rarity"
-            :class="badgeClass(record)"
-            :style="badgeStyle(record)"
-          >
-            <text class="history-rarity-text">{{ record.rarityLabel || record.poolRarity }}</text>
+          <view class="history-rarity-wrap">
+            <RpgRarityBadge
+              :rarity="record.poolRarity"
+              :rarity-label="record.rarityLabel"
+              :rarity-color="record.rarityColor"
+              :rarity-icon="record.rarityIcon"
+            />
           </view>
           <text class="history-name">{{ record.poolName }}</text>
           <text class="history-time">{{ formactDate(record.createTime) }}</text>
@@ -466,17 +461,11 @@ function badgeClass(fields: { rarity?: string, rarityLabel?: string, rarityColor
   font-size: 22px;
 }
 
-.pool-chip-badge {
+.pool-chip-badge-wrap {
   margin-top: 4px;
-  padding: 1px 6px;
-  border-radius: 999px;
-  border-width: 1px;
-  border-style: solid;
-}
-
-.pool-chip-badge-text {
-  font-size: 9px;
-  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  transform: scale(0.9);
 }
 
 .pool-chip-name {
@@ -520,17 +509,9 @@ function badgeClass(fields: { rarity?: string, rarityLabel?: string, rarityColor
   margin-right: 8px;
 }
 
-.history-rarity {
-  padding: 1px 6px;
-  border-radius: 999px;
-  border-width: 1px;
-  border-style: solid;
+.history-rarity-wrap {
   margin-right: 8px;
-}
-
-.history-rarity-text {
-  font-size: 9px;
-  font-weight: 700;
+  transform: scale(0.9);
 }
 
 .history-name {

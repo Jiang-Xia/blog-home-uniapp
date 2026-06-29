@@ -11,8 +11,9 @@ import {
   LOTTERY_REEL_ITEM_WIDTH,
   LOTTERY_SPIN_MS,
 } from '@/utils/lottery-reel'
-import { getRarityBadgePresentation, getRarityFallbackColor } from '@/utils/rpg-rarity'
+import { getRarityFallbackColor } from '@/utils/rpg-rarity'
 import { resolveRpgItemEmoji } from '@/utils/rpg-item-icon'
+import RpgRarityBadge from '@/components/rpg/rpg-rarity-badge.vue'
 
 const props = withDefaults(defineProps<{
   strip: ReelStripItem[]
@@ -130,14 +131,6 @@ watch(
 )
 
 onUnmounted(resetReel)
-
-function badgeStyle(item: ReelStripItem) {
-  return getRarityBadgePresentation(item).style
-}
-
-function badgeClass(item: ReelStripItem) {
-  return getRarityBadgePresentation(item).class
-}
 </script>
 
 <template>
@@ -164,12 +157,13 @@ function badgeClass(item: ReelStripItem) {
         >
           <text class="reel-item-icon">{{ resolveRpgItemEmoji(item) }}</text>
           <text v-if="!compact" class="reel-name">{{ item.name }}</text>
-          <view
-            class="reel-badge"
-            :class="badgeClass(item)"
-            :style="badgeStyle(item)"
-          >
-            <text class="reel-badge-text">{{ item.rarityLabel || item.rarity }}</text>
+          <view class="reel-badge-wrap">
+            <RpgRarityBadge
+              :rarity="item.rarity"
+              :rarity-label="item.rarityLabel"
+              :rarity-color="item.rarityColor"
+              :rarity-icon="item.rarityIcon"
+            />
           </view>
         </view>
       </view>
@@ -262,17 +256,17 @@ function badgeClass(item: ReelStripItem) {
   margin-top: 3px;
 }
 
-.reel-badge {
+.reel-badge-wrap {
   margin-top: 3px;
-  padding: 1px 6px;
-  border-radius: 999px;
-  border-width: 1px;
-  border-style: solid;
+  display: flex;
+  justify-content: center;
+  max-width: 100%;
+  transform: scale(0.85);
 }
 
-.reel-badge-text {
-  font-size: 9px;
-  font-weight: 700;
+.compact .reel-badge-wrap {
+  transform: scale(0.84);
+  flex-shrink: 0;
 }
 
 .reel-highlight {

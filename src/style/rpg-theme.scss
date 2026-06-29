@@ -3,16 +3,17 @@
  * 对齐 blog-home-nuxt/assets/css/rpg-theme.css 核心视觉
  */
 
-/* ── 稀有度徽章 ── */
+/* ── 稀有度徽章（细长胶囊，对齐 Nuxt badge-xs） ── */
 .rpg-rarity-badge {
   display: inline-flex;
   align-items: center;
-  padding: 2rpx 12rpx;
-  border-radius: 8rpx;
+  padding: 2px 8px;
+  border-radius: 999px;
   border-width: 1px;
   border-style: solid;
-  font-size: 20rpx;
+  font-size: 10px;
   font-weight: 600;
+  line-height: 1.3;
   white-space: nowrap;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
@@ -178,6 +179,7 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 2rpx 8rpx rgba(15, 23, 42, 0.12);
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .rpg-loot-card-head {
@@ -268,4 +270,184 @@
   color: #334155;
   background: linear-gradient(145deg, #e2e8f0, #94a3b8);
   border-color: #cbd5e1;
+}
+
+/* ── 战利品卡片内容区 ── */
+.rpg-loot-card--buff,
+.rpg-loot-card--quest,
+.rpg-loot-card--achievement {
+  margin-bottom: 0;
+  min-height: 136px;
+}
+
+.u-grid-2-item .rpg-loot-card {
+  margin-bottom: 0;
+  height: 100%;
+}
+
+.rpg-loot-progress {
+  height: 6px;
+  padding: 1px;
+  margin-top: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.rpg-loot-progress__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: #22c55e;
+}
+
+.rpg-loot-progress__fill--exp {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+.rpg-loot-footer {
+  display: flex;
+  flex-direction: column;
+  margin-top: auto;
+  padding-top: 6px;
+}
+
+.rpg-loot-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.rpg-loot-progress-text {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.55);
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rpg-loot-rewards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.rpg-loot-reward-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  margin-left: 4px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.3;
+  border: 1px solid transparent;
+}
+
+.rpg-loot-reward-chip--exp {
+  color: #fcd34d;
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.28);
+}
+
+.rpg-loot-reward-chip--hp {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.28);
+}
+
+.rpg-loot-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.3;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.rpg-loot-status--done {
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.28);
+}
+
+.rpg-loot-status--pending {
+  color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.rpg-loot-status--locked {
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.rpg-loot-claim-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #fbbf24, #d97706);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  border: none;
+}
+
+.rpg-loot-claim-btn--pause {
+  background: rgba(139, 92, 246, 0.15);
+  color: #c4b5fd;
+  border: 1px solid rgba(139, 92, 246, 0.35);
+}
+
+.rpg-loot-action {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+.rpg-panel-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -3px 10px;
+}
+
+.rpg-panel-tab {
+  margin: 3px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.rpg-panel-tab--active {
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+  color: #fff;
+  border-color: transparent;
+}
+
+.rpg-panel-tab--amber.rpg-panel-tab--active {
+  background: linear-gradient(135deg, #fbbf24, #d97706);
+}
+
+.rpg-panel-tab .tab-count {
+  margin-left: 4px;
+  opacity: 0.82;
+  font-size: 11px;
+}
+
+.rpg-loot-list-scroll {
+  max-height: 360px;
 }

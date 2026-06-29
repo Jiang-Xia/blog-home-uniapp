@@ -218,6 +218,7 @@ async function onLoadHitRecords() {
         <RpgHitRecords
           :records="hitRecords"
           :total="hitRecordsTotal"
+          :hits-count="rpgStatus.sensitiveHitsCount"
           :loading="hitRecordsLoading"
           @load="onLoadHitRecords"
         />
