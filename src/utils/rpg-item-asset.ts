@@ -1,9 +1,12 @@
 /**
  * RPG 物品图标资产解析（对齐 blog-home-nuxt/utils/rpg-item-asset.ts）
- * 加载顺序：API iconUrl → static/rpg/icons → emoji
+ * 加载顺序：API iconUrl → pages-rpg/static/rpg/icons → emoji
  */
 import type { RpgItemIconSource } from '@/utils/rpg-item-icon'
 import { resolveStaticUrl } from '@/utils/static-url'
+
+/** 分包 static，与音频同属 pages-rpg */
+const RPG_ICON_BASE = '/pages-rpg/static/rpg/icons'
 
 /** 已在 static/rpg/icons/ 提供文件的 icon 键 */
 export const RPG_ICON_ASSET_KEYS = new Set([
@@ -74,7 +77,7 @@ export function hasRpgIconAsset(key?: string | null): boolean {
 
 /** 按 icon 键生成本地候选 URL */
 export function buildLocalIconAssetUrls(key: string): string[] {
-  const base = `/static/rpg/icons/${key}`
+  const base = `${RPG_ICON_BASE}/${key}`
   const urls: string[] = []
   if (RPG_ICON_RASTER_KEYS.has(key))
     urls.push(...RASTER_EXT.map(ext => `${base}.${ext}`))

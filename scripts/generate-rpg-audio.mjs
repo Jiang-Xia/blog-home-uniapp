@@ -1,6 +1,7 @@
 /**
- * 生成 RPG 音频 WAV（uni-app 小程序/H5/App 共用 InnerAudioContext）
- * - BGM + 全部合成音效 wav（H5 仍可用 Web Audio，MP 走文件）
+ * 生成 RPG 音频 WAV（pages-rpg 分包 static，减小主包体积）
+ * - 22050Hz + 12s BGM 循环，体积约为旧版主包音频的 1/3
+ * - H5 仍可用 Web Audio，MP/App 走 InnerAudioContext
  * 运行：node scripts/generate-rpg-audio.mjs
  */
 import fs from 'node:fs'
@@ -8,8 +9,12 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const OUT_DIR = path.join(__dirname, '../src/static/audio/rpg')
-const SR = 44100
+/** 分包 static，避免主包超 2MB */
+const OUT_DIR = path.join(__dirname, '../src/pages-rpg/static/audio/rpg')
+/** 旧主包路径，生成后清理 */
+const LEGACY_OUT_DIR = path.join(__dirname, '../src/static/audio/rpg')
+/** 22050Hz 足够短音效/BGM，体积约为 44100 的一半 */
+const SR = 22050
 
 function writeWav(filePath, samples) {
   const dataSize = samples.length * 2
@@ -179,7 +184,8 @@ function simpleBlip(freq = 660, dur = 0.1) {
 }
 
 function bgmAdventure() {
-  const dur = 20
+  /** 12s 循环 BGM，减小分包体积 */
+  const dur = 12
   const out = buf(dur)
   const harpSeq = [[293.66, 349.23, 440], [261.63, 329.63, 392], [246.94, 293.66, 369.99], [220, 261.63, 329.63]]
   const step = dur / 16
@@ -286,7 +292,24 @@ const sounds = {
 
 fs.mkdirSync(OUT_DIR, { recursive: true })
 for (const [name, samples] of Object.entries(sounds)) {
-  writeWav(path.join(OUT_DIR, `${name}.wav`), samples)
-  console.log(`wrote ${name}.wav`)
+  const outPath = path.join(OUT_DIR, `${name}.wav`)
+  writeWav(outPath, samples)
+  const kb = Math.round(fs.statSync(outPath).size / 1024)
+  console.log(`wrote ${name}.wav (${kb} KB)`)
 }
-console.log(`\nGenerated ${Object.keys(sounds).length} wav → ${OUT_DIR}`)
+
+/** 清理旧主包 wav/mp3，避免 MP 主包超限 */
+if (fs.existsSync(LEGACY_OUT_DIR)) {
+  for (const f of fs.readdirSync(LEGACY_OUT_DIR))
+    fs.unlinkSync(path.join(LEGACY_OUT_DIR, f))
+  fs.rmdirSync(LEGACY_OUT_DIR)
+  const legacyAudio = path.dirname(LEGACY_OUT_DIR)
+  if (fs.existsSync(legacyAudio) && fs.readdirSync(legacyAudio).length === 0)
+    fs.rmdirSync(legacyAudio)
+  console.log(`removed legacy ${LEGACY_OUT_DIR}`)
+}
+
+const totalKb = Math.round(
+  fs.readdirSync(OUT_DIR).reduce((sum, f) => sum + fs.statSync(path.join(OUT_DIR, f)).size, 0) / 1024,
+)
+console.log(`\nGenerated ${Object.keys(sounds).length} wav (${totalKb} KB total) → ${OUT_DIR}`)

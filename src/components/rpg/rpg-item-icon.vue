@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 /**
  * RPG 物品图标（对齐 blog-home-nuxt RpgItemIcon）
- * API iconUrl → static/rpg/icons → emoji；展示字段来自后端 enrich
+ * API iconUrl → pages-rpg/static/rpg/icons → emoji；展示字段来自后端 enrich
  */
 import { buildRpgItemAssetCandidates, resolveRpgItemBgUrl } from '@/utils/rpg-item-asset'
 import {

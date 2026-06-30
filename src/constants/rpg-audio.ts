@@ -3,6 +3,9 @@
  */
 export const RPG_AUDIO_STORAGE_KEY = 'rpg_audio_settings'
 
+/** RPG 音频所在分包 static（主包不含音频，避免 MP 2MB 超限） */
+export const RPG_AUDIO_BASE = '/pages-rpg/static/audio/rpg'
+
 export type RpgSynthSfxKey
   = | 'uiClick'
     | 'lotteryCharge'
@@ -79,16 +82,16 @@ export const RPG_SYNTH_SFX: Record<RpgSynthSfxKey, { volume: number }> = {
 }
 
 export const RPG_FILE_SFX: Record<RpgFileSfxKey, { src: string, volume: number }> = {
-  lotteryRevealLegendary: { src: '/static/audio/rpg/sfx-lotteryRevealLegendary.wav', volume: 0.65 },
+  lotteryRevealLegendary: { src: `${RPG_AUDIO_BASE}/sfx-lotteryRevealLegendary.wav`, volume: 0.65 },
 }
 
 export const RPG_BGM: Record<RpgBgmKey, { src: string, loop: boolean, volume: number }> = {
-  adventure: { src: '/static/audio/rpg/bgm-adventure.wav', loop: true, volume: 0.18 },
+  adventure: { src: `${RPG_AUDIO_BASE}/bgm-adventure.wav`, loop: true, volume: 0.18 },
 }
 
 /** 小程序/App 合成音效 wav（H5 仍走 Web Audio） */
 export function getRpgSynthSfxPath(key: RpgSynthSfxKey): string {
-  return `/static/audio/rpg/sfx-${key}.wav`
+  return `${RPG_AUDIO_BASE}/sfx-${key}.wav`
 }
 
 /** 兼容旧 API */

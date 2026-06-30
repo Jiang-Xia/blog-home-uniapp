@@ -74,12 +74,26 @@ const {
 } = rpgAnimationState
 let handlersInstalled = false
 
+/** 登录后预载 pages-rpg 分包（音效/图标 static 在分包内） */
+function preloadRpgSubPackage() {
+  // #ifdef MP-WEIXIN
+  ;(wx as any).loadSubpackage?.({
+    name: 'pages-rpg',
+    success: () => {},
+    fail: (err: WechatMiniprogram.GeneralCallbackResult) => {
+      console.warn('[rpg] preload pages-rpg failed', err)
+    },
+  })
+  // #endif
+}
+
 useSiteNotification()
 
 watch(
   () => tokenStore.hasLogin,
   (loggedIn) => {
     if (loggedIn) {
+      preloadRpgSubPackage()
       connectRealtimeSocket()
       if (!handlersInstalled) {
         useRpgRealtimeHandlers()
