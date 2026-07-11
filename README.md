@@ -172,7 +172,7 @@ blog-home-uniapp/
 | 公会 | 创建/加入/退出、成员列表 |
 | 排行 | 五维度 × 四周期、跳转公开主页 |
 
-全站 `RpgGlobalInit`（`App.vue`）登录后连接 Socket.IO，WS 庆祝动画（升级/成就/抽奖/社交等）与 Nuxt 同级。音效：`use-rpg-audio`（InnerAudioContext + H5 合成 fallback），冒险页可开 BGM；**音频与图标 static 在 `pages-rpg/static/` 分包**，构建前运行 `pnpm generate:rpg-audio`。WXSS 须遵守 `.cursor/rules/uniapp-21-wxss-forbidden-css.mdc`，改样式后请在微信开发者工具编译验证。
+全站 `RpgGlobalInit`（`App.vue`）登录后连接 Socket.IO，WS 庆祝动画（升级/成就/抽奖/社交等）与 Nuxt 同级。音效：`use-rpg-audio`（InnerAudioContext + H5 合成 fallback），冒险页可开 BGM；**音频 WAV 已提交在 `pages-rpg/static/audio/rpg/`**，仅改 `scripts/generate-rpg-audio.mjs` 后手动 `pnpm generate:rpg-audio`（`prebuild:mp*` 仍会生成）。WXSS 须遵守 `.cursor/rules/uniapp-21-wxss-forbidden-css.mdc`，改样式后请在微信开发者工具编译验证。
 
 ## 一键部署（H5 生产）
 

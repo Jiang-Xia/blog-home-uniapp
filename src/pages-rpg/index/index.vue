@@ -281,10 +281,6 @@ async function onLoadHitRecords() {
   </view>
 </template>
 
-<style lang="scss">
-@import '@/style/rpg-theme.scss';
-</style>
-
 <style scoped>
 .rpg-page {
   min-height: 100vh;

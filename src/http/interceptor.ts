@@ -29,7 +29,8 @@ const httpInterceptor = {
     // 非 http 开头需拼接地址
     if (!options.url.startsWith('http')) {
       // #ifdef H5
-      if (JSON.parse(import.meta.env.VITE_APP_PROXY_ENABLE)) {
+      // 仅本地 dev 经 Vite 代理；生产 H5 直连 VITE_SERVER_BASEURL（避免线上误拼 /fg-api）
+      if (import.meta.env.DEV && JSON.parse(import.meta.env.VITE_APP_PROXY_ENABLE)) {
         // zone-server 走 /x-zone 代理；blog-server 走 /fg-api 代理（避免 localhost 直连线上 CORS）
         if (!options.url.startsWith('/x-zone/')) {
           options.url = import.meta.env.VITE_APP_PROXY_PREFIX + options.url
