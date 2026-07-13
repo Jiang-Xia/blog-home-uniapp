@@ -1,24 +1,51 @@
 <script setup lang="ts">
+/**
+ * 文章卡片（对齐 blog-home-nuxt components/article-list.vue 列表项）
+ * - 置顶 / 文章等级 / 神作徽章
+ * - 作者头像、昵称、作者 RPG 等级
+ */
 import type { ArticleItem } from '@/api/article'
-import { ROUTE_DETAIL } from '@/router/routes'
+import RpgLevelBadge from '@/components/rpg/rpg-level-badge.vue'
+import { useAuthorRpgLevels } from '@/composables/use-author-rpg-levels'
+import { ROUTE_DETAIL, ROUTE_USER_PUBLIC } from '@/router/routes'
 import { formatDate } from '@/utils/date-time'
 import { apiDisplayLabel } from '@/utils/display-label'
 import { resolveStaticUrl } from '@/utils/static-url'
 
 const props = withDefaults(defineProps<{
-  item: ArticleItem & {
-    commentCount?: number
-    userInfo?: { nickname?: string, avatar?: string }
-    category?: { id: number, name?: string, label?: string, color?: string }
-    tags?: { id: number, name?: string, label?: string, color?: string }[]
-  }
+  item: ArticleItem
   /** compact：左封面右文案，用于搜索页等紧凑列表 */
   layout?: 'default' | 'compact'
 }>(), {
   layout: 'default',
 })
 
+const { getAuthorLevel } = useAuthorRpgLevels()
+
+const DEFAULT_AVATAR = '/static/images/default-avatar.png'
+
 const coverUrl = computed(() => resolveStaticUrl(String(props.item.cover ?? '')))
+
+const authorUid = computed(() => {
+  const uid = props.item.uid ?? props.item.userInfo?.id
+  return uid ? Number(uid) : 0
+})
+
+const authorName = computed(() =>
+  props.item.userInfo?.nickname || props.item.userInfo?.username || '匿名用户',
+)
+
+const authorAvatar = computed(() =>
+  resolveStaticUrl(props.item.userInfo?.avatar || DEFAULT_AVATAR),
+)
+
+const isTopping = computed(() => !!props.item.topping)
+
+const showArticleLevel = computed(() => (props.item.articleLevel ?? 0) > 1)
+
+const isMasterpiece = computed(() => !!props.item.isMasterpiece)
+
+const authorLevel = computed(() => getAuthorLevel(authorUid.value))
 
 function tagLabel(tag: { name?: string, label?: string }) {
   return apiDisplayLabel(tag)
@@ -39,6 +66,12 @@ function metaBadgeStyle(color = '#22d3ee') {
 function goDetail(id: number) {
   uni.navigateTo({ url: `${ROUTE_DETAIL}?id=${id}` })
 }
+
+function goUserPublic(uid: number) {
+  if (!uid)
+    return
+  uni.navigateTo({ url: `${ROUTE_USER_PUBLIC}?uid=${uid}` })
+}
 </script>
 
 <template>
@@ -55,7 +88,16 @@ function goDetail(id: number) {
         <text class="article-card-compact-cover-placeholder">📄</text>
       </view>
       <view class="article-card-body article-card-body--compact min-w-0 flex-1">
-        <text class="article-card-title block text-base text-tech font-semibold leading-snug">{{ item.title }}</text>
+        <view class="article-card-title-row">
+          <text class="article-card-title text-base text-tech font-semibold">{{ item.title }}</text>
+          <text v-if="isTopping" class="article-top-badge">TOP</text>
+          <view v-if="showArticleLevel" class="article-card-title-badge">
+            <RpgLevelBadge
+              :level="item.articleLevel!"
+              variant="article"
+            />
+          </view>
+        </view>
         <view v-if="item.category || item.tags?.length" class="article-card-chips u-gap-1 mt-2 flex flex-wrap">
           <text
             v-if="item.category?.id"
@@ -72,12 +114,6 @@ function goDetail(id: number) {
           >
             {{ tagLabel(tag) }}
           </text>
-          <text
-            v-if="(item.tags?.length || 0) > 2"
-            class="article-meta-badge article-meta-badge--more"
-          >
-            +{{ (item.tags?.length || 0) - 2 }}
-          </text>
         </view>
         <view class="article-card-stats mt-2 flex flex-wrap items-center text-xs text-tech-subtle">
           <view v-if="item.views != null" class="article-card-stat">
@@ -88,6 +124,7 @@ function goDetail(id: number) {
         </view>
       </view>
     </view>
+
     <template v-else>
       <view v-if="coverUrl" class="article-card-cover p-2">
         <view class="article-cover-wrap">
@@ -95,7 +132,23 @@ function goDetail(id: number) {
         </view>
       </view>
       <view class="article-card-body px-3 pb-3">
-        <text class="article-card-title block text-base text-tech font-semibold leading-snug">{{ item.title }}</text>
+        <view class="article-card-title-row">
+          <text class="article-card-title text-base text-tech font-semibold">{{ item.title }}</text>
+          <text v-if="isTopping" class="article-top-badge">TOP</text>
+          <view v-if="showArticleLevel" class="article-card-title-badge">
+            <RpgLevelBadge
+              :level="item.articleLevel!"
+              variant="article"
+            />
+          </view>
+          <view v-if="isMasterpiece" class="article-card-title-badge">
+            <RpgLevelBadge
+              :level="0"
+              variant="masterpiece"
+            />
+          </view>
+        </view>
+
         <text v-if="item.description" class="line-clamp-2 mt-2 block text-sm text-tech-muted leading-relaxed">
           {{ item.description }}
         </text>
@@ -137,7 +190,28 @@ function goDetail(id: number) {
             <wd-icon name="message" size="14px" color="var(--tech-fg-subtle)" />
             <text class="ml-1">{{ item.commentCount ?? 0 }}</text>
           </view>
-          <text v-if="item.createTime" class="ml-auto">{{ formatDate(item.createTime) }}</text>
+        </view>
+
+        <view class="article-card-footer mt-3 flex items-center justify-between">
+          <view class="article-card-author u-gap-2 min-w-0 flex flex-1 items-center" @click.stop="goUserPublic(authorUid)">
+            <view class="article-card-author-avatar shrink-0">
+              <image
+                :src="authorAvatar"
+                class="article-card-author-avatar-img"
+                mode="aspectFill"
+              />
+            </view>
+            <text class="article-card-author-name text-sm text-tech">{{ authorName }}</text>
+            <RpgLevelBadge
+              v-if="authorLevel"
+              :level="authorLevel"
+              variant="author"
+            />
+            <text v-if="item.createTime" class="article-card-date text-xs text-tech-subtle">
+              {{ formatDate(item.createTime) }}
+            </text>
+          </view>
+          <text class="article-read-btn shrink-0 text-xs">阅读</text>
         </view>
       </view>
     </template>
@@ -153,6 +227,37 @@ function goDetail(id: number) {
   border-color: rgba(103, 232, 249, 0.35);
 }
 
+.article-card-title-row {
+  width: 100%;
+  line-height: 1.45;
+}
+
+.article-card-title {
+  display: inline;
+}
+
+.article-card-title-badge {
+  display: inline-flex;
+  vertical-align: middle;
+  margin-left: 8rpx;
+}
+
+.article-top-badge {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  vertical-align: middle;
+  margin-left: 8rpx;
+  padding: 2rpx 12rpx;
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  border-radius: 8rpx;
+  background: rgba(251, 191, 36, 0.12);
+  font-size: 20rpx;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #fbbf24;
+}
+
 .article-card-cover-img {
   display: block;
   height: 288rpx;
@@ -163,10 +268,6 @@ function goDetail(id: number) {
   align-items: center;
   margin-right: 32rpx;
   margin-bottom: 8rpx;
-}
-
-.article-card-stats > text.ml-auto {
-  margin-right: 0;
 }
 
 .article-meta-badge {
@@ -185,6 +286,48 @@ function goDetail(id: number) {
   border-color: var(--tech-border);
   color: var(--tech-fg-muted);
   background: transparent;
+}
+
+.article-card-footer {
+  gap: 16rpx;
+}
+
+.article-card-author {
+  overflow: hidden;
+}
+
+.article-card-author-avatar {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.article-card-author-avatar-img {
+  width: 100%;
+  height: 100%;
+}
+
+.article-card-author-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200rpx;
+}
+
+.article-card-date {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.article-read-btn {
+  padding: 8rpx 20rpx;
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  border-radius: 999rpx;
+  color: #22d3ee;
+  background: rgba(34, 211, 238, 0.08);
 }
 
 .article-card--compact {

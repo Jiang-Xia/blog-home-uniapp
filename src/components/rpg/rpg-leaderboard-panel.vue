@@ -19,6 +19,8 @@ defineProps<{
   loading: boolean
 }>()
 
+const DEFAULT_AVATAR = '/static/images/default-avatar.png'
+
 const activeType = defineModel<LeaderboardScoreType>('activeType', { default: 'exp' })
 const activePeriod = defineModel<LeaderboardPeriod>('activePeriod', { default: 'total' })
 
@@ -56,6 +58,11 @@ function rankDisplay(rank: number) {
   if (rank === 3)
     return '🥉'
   return String(rank)
+}
+
+/** 排行榜头像 URL（无头像时用默认图） */
+function entryAvatar(avatar?: string) {
+  return resolveStaticUrl(avatar || DEFAULT_AVATAR)
 }
 </script>
 
@@ -104,14 +111,10 @@ function rankDisplay(rank: number) {
           <text class="rank-row__num">{{ rankDisplay(entry.rank) }}</text>
           <view class="rank-row__avatar" @click="goUserPublic(entry.uid)">
             <image
-              v-if="entry.avatar"
-              :src="resolveStaticUrl(entry.avatar)"
+              :src="entryAvatar(entry.avatar)"
               class="rank-row__avatar-img"
               mode="aspectFill"
             />
-            <text v-else class="rank-row__avatar-fallback">
-              {{ entry.nickname?.charAt(0) || '?' }}
-            </text>
           </view>
           <view class="min-w-0 flex-1" @click="goUserPublic(entry.uid)">
             <text class="rank-row__name block text-tech font-medium">{{ entry.nickname }}</text>
@@ -184,17 +187,6 @@ function rankDisplay(rank: number) {
 .rank-row__avatar-img {
   width: 100%;
   height: 100%;
-}
-
-.rank-row__avatar-fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  font-weight: 700;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.55);
 }
 
 .rank-row__name {

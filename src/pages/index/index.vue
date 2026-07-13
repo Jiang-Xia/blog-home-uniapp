@@ -3,6 +3,7 @@ import { getArticleList } from '@/api/article'
 import type { ArticleItem } from '@/api/article'
 import ArticleCard from '@/components/article-card/article-card.vue'
 import CyberBackTop from '@/components/cyber/cyber-back-top.vue'
+import { useAuthorRpgLevels } from '@/composables/use-author-rpg-levels'
 import { gushici, TOOL_COUNT } from '@/config/site-constant'
 import { ROUTE_RPG_ENTRY, ROUTE_RPG_GUIDE, ROUTE_SEARCH } from '@/router/routes'
 
@@ -13,6 +14,7 @@ definePage({
 
 const articleList = ref<ArticleItem[]>([])
 const articleTotal = ref(0)
+const { fetchLevelsForUids } = useAuthorRpgLevels()
 const pagingRef = ref<{ complete: (list: ArticleItem[]) => void, completeByTotal?: (list: ArticleItem[], total: number) => void, scrollToY?: (y: number) => void, scrollToTop?: (animate?: boolean) => void } | null>(null)
 const backTopRef = ref<InstanceType<typeof CyberBackTop> | null>(null)
 
@@ -93,6 +95,10 @@ function handleGoTop() {
 onMounted(() => {
   void loadPoetry()
 })
+
+watch(articleList, (list) => {
+  void fetchLevelsForUids(list.map(item => item.uid ?? item.userInfo?.id))
+}, { immediate: true })
 </script>
 
 <template>

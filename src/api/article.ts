@@ -29,8 +29,13 @@ export interface ArticleItem {
   description?: string
   cover?: string
   createTime?: string
-  tags?: { id: number, name?: string, label?: string }[]
-  category?: { id: number, name?: string, label?: string }
+  uid?: number
+  topping?: boolean | number
+  articleLevel?: number
+  isMasterpiece?: boolean | number
+  tags?: { id: number, name?: string, label?: string, color?: string }[]
+  category?: { id: number, name?: string, label?: string, color?: string }
+  userInfo?: { id?: number, nickname?: string, avatar?: string, username?: string }
   views?: number
   likes?: number
   commentCount?: number

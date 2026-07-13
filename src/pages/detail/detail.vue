@@ -9,6 +9,7 @@ import type { ArticleItem } from '@/api/article'
 import {
   addComment,
   addReply,
+  checkLiked,
   delComment,
   delReply,
   getArticleInfo,
@@ -16,22 +17,26 @@ import {
   getRelatedArticles,
   parseArticleDetail,
   postArticleViews,
+  toggleLike,
 } from '@/api/article'
 import ArticleAdjacentNav from '@/components/article-adjacent-nav/article-adjacent-nav.vue'
+import ArticleDetailHero from '@/components/article/article-detail-hero.vue'
 import ArticleRelatedList from '@/components/article-related-list/article-related-list.vue'
 import ArticleRpgFab from '@/components/article-rpg-fab/article-rpg-fab.vue'
+import ArticleShareBar from '@/components/article/article-share-bar.vue'
 import ArticleToc from '@/components/article-toc/article-toc.vue'
 import CyberBackTop from '@/components/cyber/cyber-back-top.vue'
 import MarkdownView from '@/components/markdown-view/markdown-view.vue'
+import RpgLevelBadge from '@/components/rpg/rpg-level-badge.vue'
 import AvatarWithFrame from '@/components/user/avatar-with-frame.vue'
-import { ROUTE_CATEGORY_LIST, ROUTE_DETAIL, ROUTE_TAG_LIST, ROUTE_USER_PUBLIC } from '@/router/routes'
+import { useAuthorRpgLevels } from '@/composables/use-author-rpg-levels'
+import { ROUTE_DETAIL, ROUTE_USER_PUBLIC } from '@/router/routes'
 import { useUserStore } from '@/store'
 import { useTokenStore } from '@/store/token'
 import type { ArticleTocItem } from '@/utils/article-toc'
 import { resolvePublicAvatarFrame } from '@/utils/avatar-frame'
 import { parseCommentCreateStatus, resolveCommentUserUid } from '@/utils/comment'
-import { formatDate, formatRelativeTime } from '@/utils/date-time'
-import { apiDisplayLabel } from '@/utils/display-label'
+import { formatRelativeTime } from '@/utils/date-time'
 import { resolveStaticUrl } from '@/utils/static-url'
 
 definePage({
@@ -40,6 +45,7 @@ definePage({
 
 const tokenStore = useTokenStore()
 const userStore = useUserStore()
+const { getAuthorLevel, fetchLevelsForUids } = useAuthorRpgLevels()
 const articleId = ref('')
 const article = ref<Record<string, any> | null>(null)
 const adjacentPrev = ref<{ id: number, title: string } | null>(null)
@@ -47,6 +53,11 @@ const adjacentNext = ref<{ id: number, title: string } | null>(null)
 const relatedList = ref<ArticleItem[]>([])
 const comments = ref<any[]>([])
 const commentText = ref('')
+const liked = ref(false)
+const COMMENT_PAGE_SIZE = 20
+const commentPage = ref(1)
+const commentTopTotal = ref(0)
+const commentsLoading = ref(false)
 /** 回复弹层（底部弹出，避免 scroll-view 内输入框在小程序端失效） */
 const showReplyPopup = ref(false)
 const replySubmitting = ref(false)
@@ -75,13 +86,51 @@ const authorAvatarFrame = computed(() =>
 )
 const showAuthor = computed(() => !!authorNickname.value || !!article.value?.userInfo?.avatar)
 
+const authorLevel = computed(() => getAuthorLevel(authorUid.value))
+
 /** 评论总数：优先 API 字段，否则按已加载列表估算 */
 const commentTotal = computed(() => {
   const fromApi = article.value?.commentCount ?? article.value?.comments
   if (fromApi != null && fromApi !== '')
     return Number(fromApi) || 0
-  return comments.value.reduce((sum, c) => sum + 1 + (c.reply?.length ?? 0), 0)
+  let total = commentTopTotal.value
+  comments.value.forEach((c) => {
+    total += c.allReplyCount ?? c.replys?.length ?? c.reply?.length ?? 0
+  })
+  return total
 })
+
+const commentHasMore = computed(() => comments.value.length < commentTopTotal.value)
+
+/** 加载点赞状态 */
+async function loadLikeState() {
+  if (!tokenStore.hasLogin || !articleId.value)
+    return
+  try {
+    liked.value = (await checkLiked(articleId.value))?.liked ?? false
+  }
+  catch {
+    liked.value = false
+  }
+}
+
+/** Hero 区点赞切换 */
+async function handleHeroLike() {
+  if (!tokenStore.hasLogin) {
+    uni.navigateTo({ url: '/pages/auth/login' })
+    return
+  }
+  await toggleLike(articleId.value)
+  liked.value = !liked.value
+  if (article.value) {
+    const base = Number(article.value.likes ?? 0)
+    article.value.likes = liked.value ? base + 1 : Math.max(0, base - 1)
+  }
+}
+
+function applyCommentList(list: any[], append: boolean) {
+  comments.value = append ? [...comments.value, ...list] : list
+}
 
 /** 加载文章、评论与互动状态 */
 async function loadArticle() {
@@ -94,10 +143,14 @@ async function loadArticle() {
     adjacentNext.value = next
     if (article.value) {
       void postArticleViews(articleId.value)
-      const commentRes = await getComment(articleId.value, { page: 1, pageSize: 50 })
-      comments.value = commentRes?.list ?? []
+      void fetchLevelsForUids([authorUid.value])
+      const commentRes = await getComment(articleId.value, { page: 1, pageSize: COMMENT_PAGE_SIZE })
+      commentPage.value = 1
+      commentTopTotal.value = commentRes?.pagination?.total ?? commentRes?.list?.length ?? 0
+      applyCommentList(commentRes?.list ?? [], false)
       const related = await getRelatedArticles(articleId.value)
       relatedList.value = related?.list ?? []
+      await loadLikeState()
     }
   }
   finally {
@@ -105,15 +158,39 @@ async function loadArticle() {
   }
 }
 
+/** 追加加载更多顶层评论 */
+async function loadMoreComments() {
+  if (commentsLoading.value || !commentHasMore.value)
+    return
+  commentsLoading.value = true
+  try {
+    commentPage.value += 1
+    const more = await getComment(articleId.value, {
+      page: commentPage.value,
+      pageSize: COMMENT_PAGE_SIZE,
+    })
+    applyCommentList(more?.list ?? [], true)
+  }
+  finally {
+    commentsLoading.value = false
+  }
+}
+
 /** 仅刷新评论列表（删除/已通过评论后） */
 async function reloadComments() {
-  const commentRes = await getComment(articleId.value, { page: 1, pageSize: 50 })
-  comments.value = commentRes?.list ?? []
+  const commentRes = await getComment(articleId.value, { page: 1, pageSize: COMMENT_PAGE_SIZE })
+  commentPage.value = 1
+  commentTopTotal.value = commentRes?.pagination?.total ?? commentRes?.list?.length ?? 0
+  applyCommentList(commentRes?.list ?? [], false)
 }
 
 onLoad((query) => {
   articleId.value = String(query?.id ?? '')
   void loadArticle()
+})
+
+watch(() => tokenStore.hasLogin, () => {
+  void loadLikeState()
 })
 
 /** scroll-view 滚动：FAB 回顶按钮与 scroll-top 同步 */
@@ -141,6 +218,7 @@ function handleTocScroll(target: number) {
 function onLikesUpdate(count: number) {
   if (article.value)
     article.value.likes = count
+  void loadLikeState()
 }
 
 async function onTipped() {
@@ -279,23 +357,6 @@ function goArticle(id: number | string) {
   uni.redirectTo({ url: `${ROUTE_DETAIL}?id=${id}` })
 }
 
-function goTag(id: number) {
-  uni.navigateTo({ url: `${ROUTE_TAG_LIST}?id=${id}` })
-}
-
-function goCategory(id: number) {
-  uni.navigateTo({ url: `${ROUTE_CATEGORY_LIST}?id=${id}` })
-}
-
-/** 分类/标签徽章样式，与首页 article-card 一致 */
-function metaBadgeStyle(color = '#22d3ee') {
-  return {
-    borderColor: color,
-    color,
-    backgroundColor: `${color}22`,
-  }
-}
-
 function goAuthorProfile() {
   if (!authorUid.value)
     return
@@ -324,10 +385,17 @@ function commentAvatar(item: { userInfo?: { avatar?: string }, avatar?: string }
       @scroll="onDetailScroll"
     >
       <view class="u-page-body py-3">
-        <text class="detail-title block text-xl text-tech font-bold leading-snug">{{ article.title }}</text>
+        <ArticleDetailHero
+          v-if="article"
+          :article="article"
+          :author-uid="authorUid"
+          :liked="liked"
+          @like="handleHeroLike"
+          @tipped="onTipped"
+        />
 
-        <view class="detail-meta mt-2">
-          <view class="detail-meta-top flex items-center justify-between">
+        <view class="detail-content-card cyber-glass-card p-3">
+          <view class="detail-meta-bar u-gap-3 flex items-center justify-between">
             <view
               v-if="showAuthor"
               class="detail-author u-gap-2 min-w-0 flex flex-1 items-center"
@@ -337,84 +405,48 @@ function commentAvatar(item: { userInfo?: { avatar?: string }, avatar?: string }
                 :avatar="authorAvatarSrc"
                 :alt="authorNickname || '作者'"
                 :frame="authorAvatarFrame"
-                :size="48"
+                :size="40"
               />
               <view class="min-w-0">
-                <text class="detail-author-name block text-xs text-tech font-semibold leading-tight">{{ authorNickname || '作者' }}</text>
-                <text v-if="authorUid" class="detail-author-hint block text-xs text-tech-subtle leading-tight">主页</text>
+                <view class="u-gap-1 flex flex-wrap items-center">
+                  <text class="detail-author-name text-sm text-tech font-semibold">{{ authorNickname || '作者' }}</text>
+                  <RpgLevelBadge
+                    v-if="authorLevel"
+                    :level="authorLevel"
+                    variant="author"
+                  />
+                </view>
+                <text v-if="authorUid" class="detail-author-hint block text-xs text-tech-subtle">主页</text>
               </view>
             </view>
-            <text class="detail-meta-date shrink-0 text-xs text-tech-subtle leading-tight" :class="showAuthor ? 'ml-2' : ''">
-              {{ formatDate(article.createTime || article.uTime) }}
-            </text>
-          </view>
-          <view class="detail-stats mt-1">
-            <view class="detail-stat flex items-center">
-              <wd-icon name="eye" size="12px" color="var(--tech-fg-subtle)" />
-              <text class="ml-1">{{ article.views ?? 0 }}</text>
-            </view>
-            <view class="detail-stat flex items-center">
-              <wd-icon name="thumb-up" size="12px" color="var(--tech-fg-subtle)" />
-              <text class="ml-1">{{ article.likes ?? 0 }}</text>
-            </view>
-            <view class="detail-stat flex items-center">
-              <wd-icon name="message" size="12px" color="var(--tech-fg-subtle)" />
-              <text class="ml-1">{{ commentTotal }}</text>
-            </view>
-            <view v-if="article.tipTotal" class="detail-stat flex items-center">
-              <wd-icon name="gift" size="12px" color="var(--tech-fg-subtle)" />
-              <text class="ml-1">{{ article.tipTotal }}</text>
+            <view
+              v-if="coverUrl"
+              class="detail-cover-thumb shrink-0"
+              @tap="previewCover"
+            >
+              <image :src="coverUrl" class="detail-cover-thumb-img" mode="aspectFill" />
             </view>
           </view>
-        </view>
 
-        <view
-          v-if="coverUrl"
-          class="article-cover-wrap mt-2"
-          @tap="previewCover"
-        >
-          <image
-            :src="coverUrl"
-            mode="widthFix"
-            class="article-cover-wrap__img"
-          />
-        </view>
-        <view v-if="article.category || article.tags?.length" class="detail-tags u-gap-1 mt-2 flex flex-wrap">
-          <text
-            v-if="article.category?.id"
-            class="article-meta-badge"
-            :style="metaBadgeStyle(article.category.color || '#4ade80')"
-            @tap="goCategory(article.category.id)"
-          >
-            {{ apiDisplayLabel(article.category) }}
-          </text>
-          <text
-            v-for="tag in article.tags"
-            :key="tag.id"
-            class="article-meta-badge"
-            :style="metaBadgeStyle(tag.color || '#60a5fa')"
-            @tap="goTag(tag.id)"
-          >
-            {{ apiDisplayLabel(tag) }}
-          </text>
-        </view>
-        <view class="mt-4">
-          <MarkdownView
-            :content="String(article.content || '')"
-            @catalog="onCatalog"
-            @rendered="onMarkdownRendered"
-          />
-        </view>
+          <view class="mt-4">
+            <MarkdownView
+              :content="String(article.content || '')"
+              @catalog="onCatalog"
+              @rendered="onMarkdownRendered"
+            />
+          </view>
 
-        <ArticleRelatedList :list="relatedList" @navigate="goArticle" />
-        <ArticleAdjacentNav
-          :prev="adjacentPrev"
-          :next="adjacentNext"
-          @navigate="goArticle"
-        />
+          <ArticleRelatedList :list="relatedList" @navigate="goArticle" />
+          <ArticleAdjacentNav
+            :prev="adjacentPrev"
+            :next="adjacentNext"
+            @navigate="goArticle"
+          />
+          <ArticleShareBar :article-id="article.id" :title="article.title" />
+        </view>
 
         <view class="mt-6">
-          <text class="mb-2 block text-tech font-medium">评论</text>
+          <text class="mb-2 block text-tech font-medium">评论 ({{ commentTotal }})</text>
           <view class="cyber-glass-card cyber-card-pad-sm mb-4">
             <wd-textarea v-model="commentText" placeholder="写下你的评论..." />
             <wd-button size="small" class="mt-2" @click="submitComment">
@@ -477,6 +509,16 @@ function commentAvatar(item: { userInfo?: { avatar?: string }, avatar?: string }
               </view>
             </view>
           </view>
+          <view v-if="commentHasMore" class="mt-3 text-center">
+            <cyber-button
+              size="small"
+              variant="secondary"
+              :disabled="commentsLoading"
+              @click="loadMoreComments"
+            >
+              {{ commentsLoading ? '加载中...' : '加载更多评论' }}
+            </cyber-button>
+          </view>
         </view>
       </view>
     </scroll-view>
@@ -538,12 +580,26 @@ function commentAvatar(item: { userInfo?: { avatar?: string }, avatar?: string }
   height: 0;
 }
 
-.detail-title {
-  line-height: 1.35;
+.detail-content-card {
+  margin-top: 8rpx;
 }
 
-.detail-meta-top {
-  min-height: 48rpx;
+.detail-meta-bar {
+  min-height: 80rpx;
+}
+
+.detail-cover-thumb {
+  width: 120rpx;
+  height: 90rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  border: 1px solid var(--tech-border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.detail-cover-thumb-img {
+  width: 100%;
+  height: 100%;
 }
 
 .detail-author:active {
@@ -551,8 +607,7 @@ function commentAvatar(item: { userInfo?: { avatar?: string }, avatar?: string }
 }
 
 .detail-author-name,
-.detail-author-hint,
-.detail-meta-date {
+.detail-author-hint {
   line-height: 1.25;
 }
 
@@ -566,19 +621,6 @@ function commentAvatar(item: { userInfo?: { avatar?: string }, avatar?: string }
   font-size: 22rpx;
   line-height: 1;
   white-space: nowrap;
-}
-
-.detail-stats {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.detail-stat {
-  font-size: 22rpx;
-  color: var(--tech-fg-subtle);
-  margin-right: 20rpx;
-  margin-bottom: 0;
 }
 
 .detail-comment-actions {
