@@ -451,3 +451,264 @@
 .rpg-loot-list-scroll {
   max-height: 360px;
 }
+
+/* ── 双列网格 / 区块标题 / 空态（对齐 Nuxt rpg-loot-grid） ── */
+.rpg-loot-grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -5px;
+}
+
+.rpg-loot-grid > view,
+.rpg-loot-grid > .u-grid-2-item {
+  width: 50%;
+  min-width: 0;
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+.rpg-loot-grid--compact > view,
+.rpg-loot-grid--compact > .u-grid-2-item {
+  width: 50%;
+}
+
+.rpg-section-heading {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--tech-text, rgba(255, 255, 255, 0.9));
+  margin-bottom: 8px;
+}
+
+.rpg-chip-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rpg-empty-inline {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
+  padding: 12px;
+  text-align: center;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+}
+
+.rpg-loot-card--active {
+  border-color: rgba(139, 92, 246, 0.45);
+  background: rgba(139, 92, 246, 0.08);
+}
+
+.rpg-loot-card--stacked {
+  padding: 0;
+}
+
+.rpg-loot-card-body {
+  flex: 1;
+  min-width: 0;
+  padding: 11px;
+  display: flex;
+  flex-direction: column;
+}
+
+.rpg-loot-card--stacked .rpg-loot-card-body {
+  gap: 6px;
+}
+
+.rpg-loot-card-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 8px 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+  box-sizing: border-box;
+}
+
+.rpg-loot-card-strip--active {
+  background: rgba(139, 92, 246, 0.12);
+  color: #c4b5fd;
+}
+
+.rpg-loot-card-strip--recharge {
+  color: #c4b5fd;
+  font-weight: 700;
+}
+
+.rpg-loot-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0 11px 11px;
+}
+
+.rpg-loot-card-actions .rpg-loot-claim-btn,
+.rpg-loot-card-actions .rpg-panel-tab {
+  margin-top: 0;
+  margin-right: 4px;
+}
+
+.rpg-loot-footer--center {
+  align-items: center;
+  padding: 0 11px 11px;
+}
+
+.rpg-loot-owned-mark {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.rpg-loot-claim-btn--full {
+  width: 100%;
+  margin-top: 0;
+}
+
+.inventory-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.inventory-meta .rpg-chip-tag {
+  margin-right: 4px;
+}
+
+.equip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #c4b5fd;
+  box-shadow: 0 0 6px rgba(139, 92, 246, 0.45);
+  flex-shrink: 0;
+}
+
+.equip-strip__row {
+  display: flex;
+  align-items: center;
+}
+
+.equip-strip__row .equip-dot {
+  margin-right: 4px;
+}
+
+.rpg-loot-card--inventory,
+.rpg-loot-card--pet {
+  min-height: 118px;
+  margin-bottom: 0;
+}
+
+.rpg-loot-card--pet-exchange {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  min-height: 168px;
+  padding: 11px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.rpg-loot-card--pet-exchange .rpg-loot-name {
+  margin-top: 6px;
+}
+
+.rpg-loot-card--pet-exchange .rpg-loot-desc {
+  margin-top: 2px;
+}
+
+.rpg-loot-card--pet-exchange .rpg-rarity-badge {
+  margin-top: 6px;
+}
+
+.rpg-loot-card--pet-owned {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  min-height: 128px;
+  padding: 11px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.rpg-loot-card--pet-owned .rpg-loot-name {
+  margin-top: 6px;
+}
+
+.rpg-loot-card--pet-owned .rpg-loot-desc {
+  margin-top: 2px;
+}
+
+.rpg-loot-card--stacked > .rpg-loot-footer {
+  padding: 0 11px 11px;
+  box-sizing: border-box;
+}
+
+.guild-mine {
+  padding: 12px;
+  margin-bottom: 0;
+}
+
+.member-grid .member-card {
+  min-height: 72px;
+  padding: 8px 10px;
+  margin-bottom: 0;
+}
+
+.member-grid .member-card .rpg-loot-name,
+.member-grid .member-card .rpg-loot-desc {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.member-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  flex-shrink: 0;
+}
+
+.member-avatar__img {
+  width: 100%;
+  height: 100%;
+}
+
+.member-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.guild-create-row {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.guild-create-row__input {
+  flex: 1;
+  min-width: 0;
+  margin-right: 8px;
+}

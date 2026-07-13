@@ -5,6 +5,7 @@
  */
 import type { CurrentActivitiesOverview, RpgActivitySummary } from '@/types/rpg'
 import { resolveStaticUrl } from '@/utils/static-url'
+import { formatExpBuffRate } from '@/utils/rpg-exp-buff'
 import { useRpgAudio } from '@/composables/use-rpg-audio'
 
 const props = defineProps<{
@@ -21,7 +22,7 @@ const ACTIVITY_TYPE_LABELS: Record<string, string> = {
 const { playSfx } = useRpgAudio()
 const activeIndex = ref(0)
 
-const effectiveExpBuffRate = computed(() => props.activityOverview?.effectiveExpBuffRate ?? 1)
+const effectiveExpBuffRate = computed(() => formatExpBuffRate(props.activityOverview?.effectiveExpBuffRate ?? 1))
 
 /** 合并赛季 + 限时，赛季在前 */
 const activityCards = computed<RpgActivitySummary[]>(() => {
@@ -31,7 +32,7 @@ const activityCards = computed<RpgActivitySummary[]>(() => {
   const list: RpgActivitySummary[] = []
   if (overview.season)
     list.push(overview.season)
-  list.push(...overview.limitedTime)
+  list.push(...(overview.limitedTime ?? []))
   return list
 })
 
@@ -132,7 +133,7 @@ function previewPoster(activity: RpgActivitySummary) {
                 class="season-banner__rate"
                 :class="activity.activityType === 'season' ? 'season-banner__rate--season' : 'season-banner__rate--limited'"
               >
-                ×{{ activity.expBuffRate }}
+                ×{{ formatExpBuffRate(activity.expBuffRate) }}
               </text>
               <text
                 v-if="resolvePosterUrl(activity.posterUrl)"
@@ -173,7 +174,7 @@ function previewPoster(activity: RpgActivitySummary) {
         </view>
         <view class="min-w-0 flex-1">
           <text class="season-banner__tab-name">{{ activity.name }}</text>
-          <text class="season-banner__tab-rate">×{{ activity.expBuffRate }}</text>
+          <text class="season-banner__tab-rate">×{{ formatExpBuffRate(activity.expBuffRate) }}</text>
         </view>
       </view>
     </view>

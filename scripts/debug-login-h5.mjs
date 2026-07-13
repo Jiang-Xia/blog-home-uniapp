@@ -1,8 +1,11 @@
 import { execSync } from 'node:child_process'
+import process from 'node:process'
 import { chromium } from 'playwright'
 
+const API_BASE = process.env.API_BASE || 'http://localhost:8000/api/v1'
+
 async function getCaptcha() {
-  const capRes = await fetch(`http://localhost:5000/api/v1/user/authCode?t=${Date.now()}`)
+  const capRes = await fetch(`${API_BASE}/user/authCode?t=${Date.now()}`)
   const capJson = await capRes.json()
   const captchaId = capJson.data.captchaId
   const authCode = execSync(`redis-cli GET captcha:${captchaId}`, { encoding: 'utf8' }).trim()
@@ -52,7 +55,7 @@ const loginResult = await page.evaluate(async ({ username, password, authCode, c
   const encrypted = e.encrypt(password)
   const pwd = enc.Hex.stringify(enc.Base64.parse(encrypted)).toUpperCase()
 
-  const loginRes = await fetch('http://localhost:5000/api/v1/user/login', {
+  const loginRes = await fetch(`${API_BASE}/user/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ loginType: 'account', username, password: pwd, authCode, captchaId }),
@@ -62,8 +65,8 @@ const loginResult = await page.evaluate(async ({ username, password, authCode, c
   // simulate token store + info fetch WITHOUT header
   const data = loginJson.data
   const accessToken = data?.info?.accessToken ?? data?.accessToken
-  const infoNoHeader = await fetch('http://localhost:5000/api/v1/user/info')
-  const infoWithHeader = await fetch('http://localhost:5000/api/v1/user/info', {
+  const infoNoHeader = await fetch(`${API_BASE}/user/info`)
+  const infoWithHeader = await fetch(`${API_BASE}/user/info`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   })
 

@@ -61,6 +61,8 @@ import { useRpgLotterySession } from '@/composables/use-rpg-lottery-session'
 import { registerRpgRefresh } from '@/composables/use-rpg-realtime-handlers'
 import type { RpgRefreshScope } from '@/composables/use-realtime-socket'
 import { filterLinkedLotteryPool } from '@/utils/lottery-reel'
+import { parseCurrentActivitiesOverview } from '@/utils/rpg-activity-overview'
+import { enrichGuildMembers, normalizeMyGuild } from '@/utils/rpg-guild'
 import { lotteryRevealSfxKey } from '@/constants/rpg-audio'
 import { LOTTERY_MAX_DRAW_COUNT } from '@/utils/rpg-economy'
 
@@ -164,7 +166,7 @@ export function useRpgPage() {
       lotteryTickets.value = (ticketsRes as any)?.tickets ?? (ticketsRes as any)?.count ?? 0
       levelRewards.value = (rewards as any)?.list ?? rewards ?? []
       lotteryPool.value = filterLinkedLotteryPool((pool as any)?.list ?? pool ?? [])
-      activityOverview.value = act as CurrentActivitiesOverview | null
+      activityOverview.value = parseCurrentActivitiesOverview(act)
       weatherBuff.value = weather
       loadedTabs.value.add('status')
     }
@@ -285,7 +287,8 @@ export function useRpgPage() {
       return
     guildLoading.value = true
     try {
-      myGuild.value = await getMyGuild()
+      const raw = await getMyGuild()
+      myGuild.value = await enrichGuildMembers(normalizeMyGuild(raw))
       if (!myGuild.value) {
         const res = await listGuilds(1)
         guildList.value = (res as any)?.list ?? []
@@ -298,7 +301,8 @@ export function useRpgPage() {
   }
 
   async function reloadGuildTab() {
-    myGuild.value = await getMyGuild()
+    const raw = await getMyGuild()
+    myGuild.value = await enrichGuildMembers(normalizeMyGuild(raw))
     if (!myGuild.value) {
       const res = await listGuilds(1)
       guildList.value = (res as any)?.list ?? []

@@ -11,6 +11,28 @@ const LABEL_TO_TIER: Record<string, RarityTier> = {
   传说: 'legendary',
 }
 
+/** 奖池/物品英文字段 rarity → 中文展示（对齐后端 RARITY_DISPLAY） */
+const TIER_TO_LABEL: Record<RarityTier, string> = {
+  common: '普通',
+  rare: '稀有',
+  epic: '史诗',
+  legendary: '传说',
+}
+
+const TIER_TO_COLOR: Record<RarityTier, string> = {
+  common: RARITY_SILVER_COLOR,
+  rare: '#22c55e',
+  epic: '#8b5cf6',
+  legendary: '#f59e0b',
+}
+
+const TIER_TO_ICON: Record<RarityTier, string> = {
+  common: '⚪',
+  rare: '🟢',
+  epic: '🟣',
+  legendary: '🟡',
+}
+
 const KNOWN_RARITY_COLORS: Record<string, RarityTier> = {
   '#c8d4e0': 'common',
   '#22c55e': 'rare',
@@ -30,6 +52,19 @@ export function rarityCodeToTier(rarity: string): RarityTier {
   if (rarity === 'rare')
     return 'rare'
   return 'common'
+}
+
+/** 从 rarity 英文字段补全 rarityLabel / rarityColor / rarityIcon（Go 宠物目录等场景） */
+export function resolveRarityDisplayFields(fields: RarityDisplayFields): RarityDisplayFields {
+  const tier = fields.rarity ? rarityCodeToTier(fields.rarity) : null
+  if (!tier)
+    return fields
+  return {
+    ...fields,
+    rarityLabel: fields.rarityLabel || TIER_TO_LABEL[tier],
+    rarityColor: fields.rarityColor || TIER_TO_COLOR[tier],
+    rarityIcon: fields.rarityIcon || TIER_TO_ICON[tier],
+  }
 }
 
 export function isCommonRarity(rarity?: string | null, rarityLabel?: string | null): boolean {

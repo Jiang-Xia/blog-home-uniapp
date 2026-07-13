@@ -13,7 +13,7 @@ const JSEncrypt = require('jsencrypt')
 const CryptoJS = require('crypto-js')
 
 const BASE = process.env.SMOKE_BASE_URL || 'http://localhost:9000'
-const API_BASE = process.env.API_BASE || 'http://localhost:5000/api/v1'
+const API_BASE = process.env.API_BASE || 'http://localhost:8000/api/v1'
 const USERNAME = process.env.LOGIN_USERNAME || '18888888888'
 const PASSWORD = process.env.LOGIN_PASSWORD || 'super'
 

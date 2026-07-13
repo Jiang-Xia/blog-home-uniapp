@@ -33,6 +33,8 @@ interface ImportMetaEnv {
   readonly VITE_APP_PROXY_ENABLE: 'true' | 'false'
   /** H5是否需要代理，需要的话有个前缀 */
   readonly VITE_APP_PROXY_PREFIX: string
+  /** true 时回退 Socket.IO（Nest）；默认原生 WebSocket（blog-server-go） */
+  readonly VITE_USE_SOCKET_IO?: 'true' | 'false'
   /** 后端是否有统一前缀 /api */
   readonly VITE_SERVER_HAS_API_PREFIX: 'true' | 'false'
   /** 认证模式，'single' | 'double' ==> 单token | 双token */

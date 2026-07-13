@@ -4,6 +4,7 @@
  * 宠物蛋来自背包 eggs；钻石兑换经 useRpgModal 确认后 emit buy
  */
 import RpgItemIcon from '@/components/rpg/rpg-item-icon.vue'
+import RpgPanelLoading from '@/components/rpg/rpg-panel-loading.vue'
 import RpgRarityBadge from '@/components/rpg/rpg-rarity-badge.vue'
 import { useRpgModal } from '@/composables/use-rpg-modal'
 import type { ItemConfigView } from '@/types/rpg'
@@ -35,6 +36,42 @@ const ownedPetCodes = computed(
 const exchangeCatalog = computed(() =>
   (props.catalog || []).filter(item => (item.effectJson?.currencyCost ?? 0) > 0),
 )
+
+const catalogByCode = computed(() => {
+  const map = new Map<string, ItemConfigView>()
+  for (const item of props.catalog || [])
+    map.set(item.code, item)
+  return map
+})
+
+/** 我的宠物展示配置：Go 列表可能缺 effectJson，从 catalog 补齐增益等字段 */
+function resolvePetConfig(pet: any): ItemConfigView | undefined {
+  const catalogItem = catalogByCode.value.get(pet.petCode)
+  const inline = pet.config || {}
+  if (!catalogItem && !inline.code)
+    return inline
+  return {
+    ...catalogItem,
+    ...inline,
+    effectJson: inline.effectJson ?? catalogItem?.effectJson,
+    rarityLabel: inline.rarityLabel ?? catalogItem?.rarityLabel,
+    rarityColor: inline.rarityColor ?? catalogItem?.rarityColor,
+    rarityIcon: inline.rarityIcon ?? catalogItem?.rarityIcon,
+    icon: inline.icon ?? catalogItem?.icon,
+    iconUrl: inline.iconUrl ?? catalogItem?.iconUrl,
+    bgUrl: inline.bgUrl ?? catalogItem?.bgUrl,
+    itemTypeIcon: inline.itemTypeIcon ?? catalogItem?.itemTypeIcon,
+    name: inline.name ?? catalogItem?.name,
+  }
+}
+
+/** 宠物经验加成百分比文案，无增益时返回 null */
+function petExpBoostLabel(pet: any): string | null {
+  const boost = resolvePetConfig(pet)?.effectJson?.expBoost
+  if (boost == null || boost <= 0)
+    return null
+  return `经验+${Math.round(boost * 100)}%`
+}
 
 function isOwned(code: string) {
   return ownedPetCodes.value.has(code)
@@ -70,6 +107,12 @@ function saveRename() {
   closeRenameModal()
 }
 
+function onSaveRenameClick() {
+  if (!renamePetName.value.trim())
+    return
+  saveRename()
+}
+
 /** 钻石兑换前二次确认 */
 async function handleBuy(catalogItem: ItemConfigView) {
   if (isOwned(catalogItem.code))
@@ -87,20 +130,18 @@ async function handleBuy(catalogItem: ItemConfigView) {
 </script>
 
 <template>
-  <view class="pet-panel u-stack-4">
-    <view v-if="loading" class="pet-panel__loading">
-      <text class="text-sm text-tech-subtle">加载中…</text>
-    </view>
+  <view class="pet-panel">
+    <RpgPanelLoading v-if="loading" />
     <template v-else>
-      <view v-if="exchangeCatalog.length">
-        <text class="pet-panel__heading">钻石兑换</text>
-        <view class="u-grid-2 u-grid-2--loose mt-2">
+      <view v-if="exchangeCatalog.length" class="pet-panel__section">
+        <text class="rpg-section-heading">钻石兑换</text>
+        <view class="rpg-loot-grid">
           <view v-for="c in exchangeCatalog" :key="c.code" class="u-grid-2-item">
-            <cyber-card
-              class="cyber-card-pad-sm"
-              :class="isOwned(c.code) ? 'pet-card--claimed' : ''"
+            <view
+              class="rpg-loot-card rpg-loot-card--pet rpg-loot-card--pet-exchange"
+              :class="{ 'rpg-loot-card--claimed': isOwned(c.code) }"
             >
-              <view class="u-gap-2 u-flex-row-center">
+              <view class="rpg-loot-card-head">
                 <RpgItemIcon
                   :icon="c.icon"
                   :icon-url="c.iconUrl"
@@ -108,92 +149,88 @@ async function handleBuy(catalogItem: ItemConfigView) {
                   :item-type-icon="c.itemTypeIcon"
                   :rarity-color="c.rarityColor"
                 />
-                <text v-if="isOwned(c.code)" class="text-xs text-green-400">已兑换</text>
+                <text v-if="isOwned(c.code)" class="rpg-loot-status rpg-loot-status--done">已兑换</text>
               </view>
-              <text class="mt-2 block text-sm text-tech font-medium">{{ c.name }}</text>
-              <text v-if="c.description" class="mt-1 block text-xs text-tech-muted">{{ c.description }}</text>
-              <view class="mt-1">
-                <RpgRarityBadge
-                  :rarity="c.rarity"
-                  :rarity-label="c.rarityLabel"
-                  :rarity-color="c.rarityColor"
-                  :rarity-icon="c.rarityIcon"
-                />
-              </view>
-              <view class="mt-2">
-                <view v-if="canExchange(c)">
-                  <wd-button size="small" @click="handleBuy(c)">
-                    💎 {{ c.effectJson?.currencyCost }} 兑换
-                  </wd-button>
+              <text class="rpg-loot-name">{{ c.name }}</text>
+              <text v-if="c.description" class="rpg-loot-desc">{{ c.description }}</text>
+              <RpgRarityBadge
+                :rarity="c.rarity"
+                :rarity-label="c.rarityLabel"
+                :rarity-color="c.rarityColor"
+                :rarity-icon="c.rarityIcon"
+              />
+              <view class="pet-exchange-card__footer">
+                <view
+                  v-if="canExchange(c)"
+                  class="pet-card-btn pet-card-btn--primary pet-card-btn--block"
+                  @click="handleBuy(c)"
+                >
+                  <text class="pet-card-btn__text">💎 {{ c.effectJson?.currencyCost }} 兑换</text>
                 </view>
-                <text v-else class="text-xs text-tech-subtle">已拥有</text>
+                <text v-else class="rpg-loot-owned-mark">已拥有</text>
               </view>
-            </cyber-card>
+            </view>
           </view>
         </view>
       </view>
 
-      <view v-if="eggs.length">
-        <text class="pet-panel__heading">宠物蛋</text>
-        <view class="u-gap-2 mt-2 flex flex-wrap">
-          <view v-for="e in eggs" :key="e.itemCode">
-            <wd-button size="small" @click="emit('hatch', e.itemCode)">
-              {{ resolveRpgItemEmoji(e.config) }} {{ e.config?.name }} 孵化
-            </wd-button>
-          </view>
+      <view v-if="eggs.length" class="pet-panel__section">
+        <text class="rpg-section-heading">宠物蛋</text>
+        <view class="rpg-panel-tabs">
+          <text
+            v-for="e in eggs"
+            :key="e.itemCode"
+            class="rpg-panel-tab"
+            @click="emit('hatch', e.itemCode)"
+          >
+            {{ resolveRpgItemEmoji(e.config) }} {{ e.config?.name }} 孵化
+          </text>
         </view>
       </view>
 
-      <view>
-        <view class="u-flex-row-center flex items-center justify-between">
-          <text class="pet-panel__heading">我的宠物</text>
-          <view v-if="equippedPetId">
-            <wd-button size="small" @click="emit('rest')">
-              休息（下架）
-            </wd-button>
-          </view>
+      <view class="pet-panel__section">
+        <view class="pet-panel__head">
+          <text class="rpg-section-heading pet-panel__heading-inline">我的宠物</text>
+          <text v-if="equippedPetId" class="rpg-panel-tab" @click="emit('rest')">
+            休息（下架）
+          </text>
         </view>
-        <view v-if="!pets.length" class="pet-panel__empty mt-2">
-          <text class="text-sm text-tech-subtle">暂无宠物</text>
+        <view v-if="!pets.length" class="rpg-empty-inline">
+          <text>暂无宠物</text>
         </view>
-        <view v-else class="u-grid-2 u-grid-2--loose mt-2">
+        <view v-else class="rpg-loot-grid">
           <view v-for="p in pets" :key="p.id" class="u-grid-2-item">
-            <cyber-card
-              class="cyber-card-pad-sm"
-              :class="equippedPetId === p.id ? 'pet-card--active' : ''"
+            <view
+              class="rpg-loot-card rpg-loot-card--pet rpg-loot-card--pet-owned"
+              :class="{ 'rpg-loot-card--active': equippedPetId === p.id }"
             >
-              <view class="u-gap-2 u-flex-row-center">
+              <view class="rpg-loot-card-head">
                 <RpgItemIcon
-                  :icon="p.config?.icon"
-                  :icon-url="p.config?.iconUrl"
-                  :bg-url="p.config?.bgUrl"
-                  :item-type-icon="p.config?.itemTypeIcon"
-                  :rarity-color="p.config?.rarityColor"
+                  :icon="resolvePetConfig(p)?.icon"
+                  :icon-url="resolvePetConfig(p)?.iconUrl"
+                  :bg-url="resolvePetConfig(p)?.bgUrl"
+                  :item-type-icon="resolvePetConfig(p)?.itemTypeIcon"
+                  :rarity-color="resolvePetConfig(p)?.rarityColor"
                 />
-                <text v-if="equippedPetId === p.id" class="text-xs text-green-400">出战中</text>
+                <text v-if="equippedPetId === p.id" class="rpg-loot-status rpg-loot-status--done">出战中</text>
               </view>
-              <text class="mt-2 block text-sm text-tech font-medium">
-                {{ p.nickname || p.config?.name }}
+              <text class="rpg-loot-name">{{ p.nickname || resolvePetConfig(p)?.name }}</text>
+              <text class="rpg-loot-desc">
+                Lv{{ p.level ?? 1 }}<text v-if="petExpBoostLabel(p)"> · {{ petExpBoostLabel(p) }}</text>
               </text>
-              <text class="mt-1 block text-xs text-tech-muted">
-                Lv{{ p.level }}
-                <text v-if="p.config?.effectJson?.expBoost">
-                  · 经验+{{ Math.round(p.config.effectJson.expBoost * 100) }}%
-                </text>
-              </text>
-              <view class="u-gap-2 mt-2 flex flex-wrap">
-                <view v-if="equippedPetId !== p.id">
-                  <wd-button size="small" @click="emit('deploy', p.id)">
-                    出战
-                  </wd-button>
+              <view class="pet-owned-card__actions">
+                <view
+                  v-if="equippedPetId !== p.id"
+                  class="pet-card-btn pet-card-btn--primary"
+                  @click="emit('deploy', p.id)"
+                >
+                  <text class="pet-card-btn__text">出战</text>
                 </view>
-                <view>
-                  <wd-button size="small" @click="openRenameModal(p)">
-                    改名
-                  </wd-button>
+                <view class="pet-card-btn pet-card-btn--secondary" @click="openRenameModal(p)">
+                  <text class="pet-card-btn__text">改名</text>
                 </view>
               </view>
-            </cyber-card>
+            </view>
           </view>
         </view>
       </view>
@@ -211,17 +248,15 @@ async function handleBuy(catalogItem: ItemConfigView) {
           :maxlength="20"
           placeholder="输入新昵称"
         />
-        <view class="u-gap-2 mt-4 flex flex-wrap">
-          <view>
-            <wd-button size="small" @click="closeRenameModal">
-              取消
-            </wd-button>
-          </view>
-          <view>
-            <wd-button size="small" type="primary" :disabled="!renamePetName.trim()" @click="saveRename">
-              保存
-            </wd-button>
-          </view>
+        <view class="pet-rename-modal__actions">
+          <text class="rpg-panel-tab" @click="closeRenameModal">取消</text>
+          <text
+            class="rpg-loot-claim-btn"
+            :class="{ 'pet-rename-modal__save--disabled': !renamePetName.trim() }"
+            @click="onSaveRenameClick"
+          >
+            保存
+          </text>
         </view>
       </view>
     </wd-popup>
@@ -229,28 +264,98 @@ async function handleBuy(catalogItem: ItemConfigView) {
 </template>
 
 <style scoped>
-.pet-panel__heading {
-  display: block;
-  font-size: 14px;
+.pet-panel__section {
+  margin-bottom: 16px;
+}
+
+.pet-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.pet-panel__heading-inline {
+  margin-bottom: 0;
+}
+
+.pet-exchange-card__footer {
+  width: 100%;
+  min-width: 0;
+  margin-top: auto;
+  padding-top: 6px;
+  box-sizing: border-box;
+}
+
+.pet-owned-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 6px;
+}
+
+.pet-card-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  padding: 0 12px;
+  margin-right: 6px;
+  border-radius: 999px;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+}
+
+.pet-card-btn__text {
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.pet-card-btn--primary {
+  background: linear-gradient(135deg, #fbbf24, #d97706);
+}
+
+.pet-card-btn--primary .pet-card-btn__text {
+  color: #fff;
+}
+
+.pet-card-btn--secondary {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.pet-card-btn--secondary .pet-card-btn__text {
+  color: rgba(255, 255, 255, 0.55);
   font-weight: 600;
-  color: var(--tech-text, rgba(255, 255, 255, 0.9));
 }
 
-.pet-panel__loading,
-.pet-panel__empty {
-  padding: 16px 0;
-  text-align: center;
-}
-
-.pet-card--active {
-  border-color: rgba(139, 92, 246, 0.45);
-}
-
-.pet-card--claimed {
-  opacity: 0.75;
+.pet-card-btn--block {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  margin-right: 0;
 }
 
 .pet-rename-modal {
   min-height: 200px;
+}
+
+.pet-rename-modal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.pet-rename-modal__actions .rpg-panel-tab,
+.pet-rename-modal__actions .rpg-loot-claim-btn {
+  margin-right: 8px;
+  margin-top: 0;
+}
+
+.pet-rename-modal__save--disabled {
+  opacity: 0.45;
 }
 </style>

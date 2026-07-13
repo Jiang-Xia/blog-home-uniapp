@@ -8,7 +8,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.2-646CFF?logo=vite)](https://vitejs.dev/)
 
-> **三端说明**：本仓库为博客 **移动端 / 小程序** 前台，基于 [unibest](https://unibest.tech) 脚手架；与 [blog-home-nuxt](https://github.com/Jiang-Xia/blog-home-nuxt)（Web 前台）、[blog-admin](https://github.com/Jiang-Xia/blog-admin)（管理后台）配套；后端 **blog-server 闭源**。
+> **三端说明**：本仓库为博客 **移动端 / 小程序** 前台，基于 [unibest](https://unibest.tech) 脚手架；与 [blog-home-nuxt](https://github.com/Jiang-Xia/blog-home-nuxt)（Web 前台）、[blog-admin](https://github.com/Jiang-Xia/blog-admin)（管理后台）配套；后端默认 **blog-server-go**，Nest **blog-server** 为辅调。
 
 ## 项目简介
 
@@ -19,7 +19,8 @@ Blog Home UniApp 是博客三端架构中的**移动端前台**，目标对齐 b
 | Web 前台 | blog-home-nuxt | 5050 |
 | 管理后台 | blog-admin | 9856 |
 | 移动端 | **blog-home-uniapp** | 9000 |
-| 后端 API | blog-server | 5000 |
+| 后端 API（默认） | blog-server-go | 8000 |
+| 后端 API（辅调） | blog-server（Nest） | 5000 |
 
 ## 技术栈
 
@@ -40,24 +41,26 @@ Blog Home UniApp 是博客三端架构中的**移动端前台**，目标对齐 b
 
 ```bash
 pnpm install
-pnpm dev          # H5，默认 http://localhost:9000
+pnpm dev          # H5，默认联调本地 Go :8000 → http://localhost:9000
 pnpm dev:mp       # 微信小程序 → 导入 dist/dev/mp-weixin
 pnpm dev:app      # App（需 HBuilderX 或模拟器）
 ```
 
-联调本地 blog-server 时，在 `env/.env.development` 配置：
+默认 `env/.env.development` 已指向本地 Go（`http://localhost:8000/api/v1`）。辅调 Nest 时使用：
 
-```env
-VITE_SERVER_BASEURL = 'http://localhost:5000/api/v1'
+```bash
+pnpm dev:nest-local    # 本地 Nest :5000
+pnpm dev:nest-online   # 线上 Nest /x-blog/api/v1
 ```
 
 ## 常用命令
 
 | 命令 | 说明 |
 | --- | --- |
-| `pnpm dev` / `pnpm dev:h5` | H5 开发 |
-| `pnpm dev:mp` | 微信小程序开发 |
-| `pnpm build` | 生产构建（H5） |
+| `pnpm dev` / `pnpm dev:h5` | H5 开发（默认本地 Go） |
+| `pnpm dev:mp` | 微信小程序开发（默认本地 Go） |
+| `pnpm dev:nest-local` | H5 辅调本地 Nest |
+| `pnpm build` | 生产构建（H5，走线上 Go） |
 | `pnpm build:mp` | 微信小程序生产构建 |
 | `pnpm run deploy` | H5 一键部署到生产（见下方） |
 | `pnpm run rollback` | 回滚上一版 H5 静态包 |

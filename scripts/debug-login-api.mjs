@@ -1,6 +1,9 @@
 import { createRequire } from 'node:module'
 import { execSync } from 'node:child_process'
+import process from 'node:process'
 import { enc } from 'crypto-js'
+
+const API_BASE = process.env.API_BASE || 'http://localhost:8000/api/v1'
 
 const require = createRequire(import.meta.url)
 const JSEncrypt = require('jsencrypt/bin/jsencrypt.min.js')
@@ -17,7 +20,7 @@ function rsaEncrypt(word) {
   return enc.Hex.stringify(enc.Base64.parse(encrypted)).toUpperCase()
 }
 
-const capJson = await (await fetch(`http://localhost:5000/api/v1/user/authCode?t=${Date.now()}`)).json()
+const capJson = await (await fetch(`${API_BASE}/user/authCode?t=${Date.now()}`)).json()
 const captchaId = capJson.data.captchaId
 let authCode = ''
 try {
@@ -31,7 +34,7 @@ if (!authCode) {
   console.log('No redis captcha, trying login with dummy to see error shape')
 }
 
-const loginJson = await (await fetch('http://localhost:5000/api/v1/user/login', {
+const loginJson = await (await fetch(`${API_BASE}/user/login`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({

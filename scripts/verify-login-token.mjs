@@ -1,6 +1,8 @@
 import process from 'node:process'
 import { chromium } from 'playwright'
 
+const API_BASE = process.env.API_BASE || 'http://localhost:8000/api/v1'
+
 const browser = await chromium.launch({ headless: true })
 const page = await browser.newPage()
 let authHeader = ''
@@ -19,7 +21,7 @@ const statusCode = await page.evaluate(() => {
   uni.setStorageSync('accessTokenExpireTime', Date.now() + 30 * 60 * 1000)
   return new Promise((resolve, reject) => {
     uni.request({
-      url: 'http://localhost:5000/api/v1/user/info',
+      url: `${API_BASE}/user/info`,
       method: 'GET',
       success: res => resolve(res.statusCode),
       fail: err => reject(err),

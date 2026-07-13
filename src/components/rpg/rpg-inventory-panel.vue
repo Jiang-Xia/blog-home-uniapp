@@ -4,6 +4,7 @@
  * 展示字段来自 item.config / item.sourceLabel；钻石行 emit recharge 由父层处理充值
  */
 import RpgItemIcon from '@/components/rpg/rpg-item-icon.vue'
+import RpgPanelLoading from '@/components/rpg/rpg-panel-loading.vue'
 import RpgRarityBadge from '@/components/rpg/rpg-rarity-badge.vue'
 import { useRpgAudio } from '@/composables/use-rpg-audio'
 import type { InventoryItem } from '@/types/rpg'
@@ -85,81 +86,84 @@ function switchTypeTab(key: string) {
 
 <template>
   <view class="inventory-panel">
-    <text class="inventory-panel__heading">背包</text>
+    <text class="rpg-section-heading">背包</text>
 
-    <view v-if="loading" class="inventory-panel__loading">
-      <text class="text-sm text-tech-subtle">加载中…</text>
-    </view>
-    <view v-else-if="!items.length" class="inventory-panel__empty">
-      <text class="text-sm text-tech-subtle">背包为空</text>
+    <RpgPanelLoading v-if="loading" />
+    <view v-else-if="!items.length" class="rpg-empty-inline">
+      <text>背包为空</text>
     </view>
     <template v-else>
-      <view v-if="typeTabs.length > 2" class="inventory-panel__tabs u-gap-2 flex flex-wrap">
-        <view v-for="tab in typeTabs" :key="tab.key">
-          <text
-            class="inventory-panel__tab"
-            :class="activeType === tab.key ? 'inventory-panel__tab--active' : ''"
-            @click="switchTypeTab(tab.key)"
-          >
-            {{ tab.label }}
-          </text>
-        </view>
+      <view v-if="typeTabs.length > 2" class="rpg-panel-tabs">
+        <text
+          v-for="tab in typeTabs"
+          :key="tab.key"
+          class="rpg-panel-tab"
+          :class="activeType === tab.key ? 'rpg-panel-tab--active' : ''"
+          @click="switchTypeTab(tab.key)"
+        >
+          {{ tab.label }}
+        </text>
       </view>
 
-      <view class="u-grid-2 u-grid-2--loose">
+      <view class="rpg-loot-grid inventory-grid">
         <view
           v-for="item in filteredItems"
           :key="item.id || item.itemCode"
           class="u-grid-2-item"
         >
-          <cyber-card
-            class="inventory-card cyber-card-pad-sm"
-            :class="isEquipped(item) ? 'inventory-card--active' : ''"
+          <view
+            class="rpg-loot-card rpg-loot-card--stacked rpg-loot-card--inventory"
+            :class="{ 'rpg-loot-card--active': isEquipped(item) }"
           >
-            <view class="u-gap-2 u-flex-row-center">
-              <RpgItemIcon
-                :icon="item.config?.icon"
-                :icon-url="item.config?.iconUrl"
-                :bg-url="item.config?.bgUrl"
-                :item-type-icon="item.config?.itemTypeIcon"
-                :rarity-color="item.config?.rarityColor"
-              />
-              <text class="inventory-card__qty text-xs text-tech-subtle">×{{ item.quantity }}</text>
-            </view>
-            <text class="inventory-card__name mt-2 block text-sm text-tech font-medium">
-              {{ item.config?.name || item.itemCode }}
-            </text>
-            <view class="u-gap-2 mt-1 flex flex-wrap">
-              <text v-if="item.config?.itemType" class="inventory-card__chip text-xs text-tech-subtle">
-                {{ item.config.itemTypeLabel || item.config.itemType }}
+            <view class="rpg-loot-card-body">
+              <view class="rpg-loot-card-head">
+                <RpgItemIcon
+                  :icon="item.config?.icon"
+                  :icon-url="item.config?.iconUrl"
+                  :bg-url="item.config?.bgUrl"
+                  :item-type-icon="item.config?.itemTypeIcon"
+                  :rarity-color="item.config?.rarityColor"
+                />
+                <text class="rpg-loot-progress-text">×{{ item.quantity }}</text>
+              </view>
+              <text class="rpg-loot-name inventory-card__name">
+                {{ item.config?.name || item.itemCode }}
               </text>
-              <RpgRarityBadge
-                :rarity="item.config?.rarity"
-                :rarity-label="item.config?.rarityLabel"
-                :rarity-color="item.config?.rarityColor"
-                :rarity-icon="item.config?.rarityIcon"
-              />
-            </view>
-            <text v-if="item.sourceLabel || item.source" class="inventory-card__source text-tech-faint mt-1 block text-xs">
-              {{ item.sourceLabel || item.source }}
-            </text>
-            <view class="mt-2">
-              <view v-if="isCurrencyItem(item)">
-                <wd-button size="small" @click="emit('recharge')">
-                  💎 充值
-                </wd-button>
+              <view class="inventory-meta">
+                <text v-if="item.config?.itemType" class="rpg-chip-tag">
+                  {{ item.config.itemTypeLabel || item.config.itemType }}
+                </text>
+                <RpgRarityBadge
+                  :rarity="item.config?.rarity"
+                  :rarity-label="item.config?.rarityLabel"
+                  :rarity-color="item.config?.rarityColor"
+                  :rarity-icon="item.config?.rarityIcon"
+                />
               </view>
-              <view v-else-if="isEquippable(item)">
-                <wd-button
-                  size="small"
-                  :type="isEquipped(item) ? 'primary' : undefined"
-                  @click="toggleEquip(item)"
-                >
-                  {{ isEquipped(item) ? '穿戴中 · 卸下' : '穿戴' }}
-                </wd-button>
-              </view>
+              <text v-if="item.sourceLabel || item.source" class="rpg-loot-desc inventory-card__source">
+                {{ item.sourceLabel || item.source }}
+              </text>
             </view>
-          </cyber-card>
+            <view
+              v-if="isCurrencyItem(item)"
+              class="rpg-loot-card-strip rpg-loot-card-strip--recharge"
+              @click="emit('recharge')"
+            >
+              <text>💎 充值</text>
+            </view>
+            <view
+              v-else-if="isEquippable(item)"
+              class="rpg-loot-card-strip equip-strip"
+              :class="{ 'rpg-loot-card-strip--active': isEquipped(item) }"
+              @click="toggleEquip(item)"
+            >
+              <view v-if="isEquipped(item)" class="equip-strip__row">
+                <view class="equip-dot" />
+                <text>穿戴中 · 卸下</text>
+              </view>
+              <text v-else>穿戴</text>
+            </view>
+          </view>
         </view>
       </view>
     </template>
@@ -167,51 +171,7 @@ function switchTypeTab(key: string) {
 </template>
 
 <style scoped>
-.inventory-panel__heading {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--tech-text, rgba(255, 255, 255, 0.9));
-}
-
-.inventory-panel__loading,
-.inventory-panel__empty {
-  padding: 20px 12px;
-  text-align: center;
-}
-
-.inventory-panel__tab {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.inventory-panel__tab--active {
-  color: #fbbf24;
-  border-color: rgba(251, 191, 36, 0.45);
-  background: rgba(251, 191, 36, 0.1);
-}
-
-.inventory-card--active {
-  border-color: rgba(139, 92, 246, 0.45);
-}
-
-.inventory-card__name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.inventory-card__chip {
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.06);
-}
-
+.inventory-card__name,
 .inventory-card__source {
   overflow: hidden;
   text-overflow: ellipsis;
