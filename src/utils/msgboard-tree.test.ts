@@ -12,6 +12,15 @@ describe('buildMsgboardTree', () => {
     expect(tree[0].children).toHaveLength(1)
     expect(tree[0].children![0].id).toBe(2)
   })
+
+  it('兼容字符串 pId', () => {
+    const tree = buildMsgboardTree([
+      { id: 1, pId: '0' as unknown as number, comment: 'top' },
+      { id: 2, pId: '1' as unknown as number, comment: 'reply' },
+    ])
+    expect(tree).toHaveLength(1)
+    expect(tree[0].children).toHaveLength(1)
+  })
 })
 
 describe('collectMsgboardDeleteIds', () => {

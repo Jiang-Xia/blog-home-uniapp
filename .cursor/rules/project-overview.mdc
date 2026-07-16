@@ -27,7 +27,7 @@ alwaysApply: true
 - `env/` - 环境变量
 
 ## 开发命令
-- `pnpm dev` - H5（端口 9000）
+- `pnpm dev` - H5（端口 8008）
 - `pnpm dev:mp` - 微信小程序
 - `pnpm dev:app` - App
 - `pnpm lint:fix` - ESLint 修复

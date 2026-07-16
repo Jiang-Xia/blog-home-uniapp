@@ -11,17 +11,17 @@ blog-home-uniapp 功能开发或修复完成后，**交付前须完成 H5 端浏
 
 - **禁止**在任务结束时**自动**启动 `pnpm dev`、跑 `smoke-h5.mjs` 或做浏览器验证，除非用户**明确要求**测试/验证/H5 冒烟。
 - 用户已自行开启本规则时，Agent 在回复中**提醒**「功能改动已完成，可按下方步骤做 H5 冒烟」，**不要**擅自开 dev 进程。
-- 用户说「测一下」「跑冒烟」「H5 验证」等时，再执行测试并在结束后关闭 9000 dev 进程。
+- 用户说「测一下」「跑冒烟」「H5 验证」等时，再执行测试并在结束后关闭 8008 dev 进程。
 
 ## 默认环境
 
 | 服务 | 命令 | 地址 |
 |------|------|------|
-| uniapp H5 | `pnpm dev` | http://localhost:9000/#/ |
+| uniapp H5 | `pnpm dev` | http://localhost:8008/#/ |
 | blog-server-go | `make dev`（blog-server-go 根目录） | http://localhost:8000/api/v1 |
 | blog-server（辅调） | `npm run start:dev` | http://localhost:5000/api/v1 |
 
-Agent 仅在用户要求验证时自启 dev；验证结束后按 [uniapp-16-dev-service-cleanup.mdc](uniapp-16-dev-service-cleanup.mdc) 关闭 **9000**，勿停 MySQL/Redis。
+Agent 仅在用户要求验证时自启 dev；验证结束后按 [uniapp-16-dev-service-cleanup.mdc](uniapp-16-dev-service-cleanup.mdc) 关闭 **8008**，勿停 MySQL/Redis。
 
 ## 测试方式（按优先级）
 

@@ -6,6 +6,7 @@
  */
 import type { LinkItem } from '@/api/link'
 import { createLink, getLinks } from '@/api/link'
+import { isValidHttpUrl, normalizeHttpUrl } from '@/utils/http-url'
 import { resolveStaticUrl } from '@/utils/static-url'
 
 definePage({
@@ -54,16 +55,6 @@ function openUrl(url: string) {
   // #endif
 }
 
-function isValidUrl(url: string) {
-  try {
-    const parsed = new URL(url)
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
-  }
-  catch {
-    return false
-  }
-}
-
 function resetForm() {
   linkForm.title = ''
   linkForm.url = ''
@@ -84,16 +75,22 @@ async function submitApply() {
     uni.showToast({ title: '请填写完整信息', icon: 'none' })
     return
   }
-  if (!isValidUrl(linkForm.url.trim())) {
+  // 无协议补 https；不用 new URL 以免小程序旧基础库误判
+  const url = normalizeHttpUrl(linkForm.url)
+  if (!isValidHttpUrl(url)) {
     uni.showToast({ title: '请输入有效的 http/https 网址', icon: 'none' })
     return
   }
+  // 图标：站点相对路径原样提交；外链补协议（Nest 仅要求非空字符串）
+  const iconRaw = linkForm.icon.trim()
+  const iconLooksAbsolute = /^(?:https?:)?\/\//i.test(iconRaw) || /^[\w-]+\.[\w.-]+/.test(iconRaw)
+  const icon = iconLooksAbsolute ? normalizeHttpUrl(iconRaw) : iconRaw
   submitting.value = true
   try {
     await createLink({
       title: linkForm.title.trim(),
-      url: linkForm.url.trim(),
-      icon: linkForm.icon.trim(),
+      url,
+      icon,
       desp: linkForm.desp.trim(),
     })
     showApplyPopup.value = false

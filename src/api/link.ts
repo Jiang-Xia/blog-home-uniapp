@@ -18,6 +18,7 @@ export function createLink(data: { title: string, url: string, desp?: string, ic
   return http.post<LinkItem>('/link', data)
 }
 
-export function deleteLink(id: number) {
-  return http.post<void>('/link/delete', { id })
+/** 删除友链 DELETE /link?id=（对齐 Nest/Go） */
+export function deleteLink(id: number | string) {
+  return http.delete<void>('/link', { id: String(id) })
 }

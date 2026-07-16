@@ -38,7 +38,7 @@ page.on('response', async (res) => {
   }
 })
 
-await page.goto('http://localhost:9000/#/pages/auth/login', { waitUntil: 'networkidle' })
+await page.goto('http://localhost:8008/#/pages/auth/login', { waitUntil: 'networkidle' })
 await page.waitForTimeout(1000)
 
 const { captchaId, authCode } = await getCaptcha()

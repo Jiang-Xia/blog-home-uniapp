@@ -12,7 +12,7 @@ page.on('request', (req) => {
     authHeader = req.headers().authorization || ''
 })
 
-await page.goto('http://localhost:9000/#/', { waitUntil: 'domcontentloaded', timeout: 60000 })
+await page.goto('http://localhost:8008/#/', { waitUntil: 'domcontentloaded', timeout: 60000 })
 await page.waitForTimeout(2000)
 
 const statusCode = await page.evaluate(() => {

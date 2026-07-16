@@ -1,12 +1,12 @@
 /**
  * H5 冒烟测试：验证关键页面可加载、无致命控制台错误
  * 用法：node scripts/smoke-h5.mjs
- * 前置：pnpm dev（9000）+ blog-server-go（8000）
+ * 前置：pnpm dev（8008）+ blog-server-go（8000）
  */
 import process from 'node:process'
 import { chromium } from 'playwright'
 
-const BASE = process.env.SMOKE_BASE_URL || 'http://localhost:9000'
+const BASE = process.env.SMOKE_BASE_URL || 'http://localhost:8008'
 const API_BASE = process.env.API_BASE || 'http://localhost:8000/api/v1'
 
 const routes = [

@@ -103,13 +103,18 @@ export function http<T>(options: CustomRequestOptions) {
 
         // 处理其他成功状态（HTTP状态码200-299）
         if (res.statusCode >= 200 && res.statusCode < 300) {
-          // 处理业务逻辑错误
-          if (code !== ResultEnum.Success0 && code !== ResultEnum.Success200) {
-            uni.showToast({
-              icon: 'none',
-              title: responseData.msg || responseData.message || '请求错误',
-            })
-            return reject(responseData.data)
+          // 处理业务逻辑错误（兼容部分网关偶发缺 code：有 data 且无 message 时放行）
+          const bizOk = code === ResultEnum.Success0 || code === ResultEnum.Success200
+          if (!bizOk && code !== undefined && code !== null) {
+            const errMsg = responseData.msg || responseData.message || '请求错误'
+            if (!options.hideErrorToast) {
+              uni.showToast({
+                icon: 'none',
+                title: errMsg,
+              })
+            }
+            // 透传完整业务体，便于 catch 展示 message（勿只 reject data）
+            return reject(responseData)
           }
           return resolve(responseData.data)
         }
@@ -118,7 +123,7 @@ export function http<T>(options: CustomRequestOptions) {
         !options.hideErrorToast
         && uni.showToast({
           icon: 'none',
-          title: (res.data as any).msg || '请求错误',
+          title: (res.data as any).msg || (res.data as any).message || '请求错误',
         })
         reject(res)
       },

@@ -48,9 +48,17 @@ const httpInterceptor = {
     }
     // 1. 请求超时
     options.timeout = 60000 // 60s
-    // 2. （可选）添加小程序端请求头标识
+    // 2. 默认 header；带 body 的写请求显式 JSON，避免小程序按 form 编码导致 Hertz/Nest Bind 失败
     options.header = {
       ...options.header,
+    }
+    const method = String(options.method || 'GET').toUpperCase()
+    const hasBody = options.data !== undefined && options.data !== null
+    if (hasBody && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+      const headers = options.header as Record<string, string>
+      const contentTypeKey = Object.keys(headers).find(k => k.toLowerCase() === 'content-type')
+      if (!contentTypeKey)
+        headers['Content-Type'] = 'application/json;charset=UTF-8'
     }
     // 3. 添加 token 请求头（Pinia + 本地 storage 双通道，避免登录后立即请求丢 token）
     const tokenStore = useTokenStore()

@@ -48,10 +48,10 @@ const alovaInstance = createAlova({
   statesHook: VueHook,
 
   beforeRequest: onAuthRequired((method) => {
-    // 设置默认 Content-Type
+    // 设置默认 Content-Type（键名必须为 Content-Type）
     method.config.headers = {
-      ContentType: ContentTypeEnum.JSON,
-      Accept: 'application/json, text/plain, */*',
+      'Content-Type': ContentTypeEnum.JSON,
+      'Accept': 'application/json, text/plain, */*',
       ...method.config.headers,
     }
 

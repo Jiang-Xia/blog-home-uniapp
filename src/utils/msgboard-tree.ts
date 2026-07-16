@@ -21,8 +21,10 @@ export interface MsgboardNode {
 /** 将扁平留言列表构建为树（仅一层 children，与 Nuxt 一致） */
 export function buildMsgboardTree(list: MsgboardNode[], rootId = 0): MsgboardNode[] {
   const tree: MsgboardNode[] = []
+  const root = Number(rootId)
   for (const item of list) {
-    if (item.pId === rootId) {
+    // Go/部分序列化可能把 pId 成字符串，严格 === 会导致整棵树为空
+    if (Number(item.pId ?? 0) === root) {
       const child = buildMsgboardTree(list, item.id)
       if (child.length)
         item.children = child

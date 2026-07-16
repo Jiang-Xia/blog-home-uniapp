@@ -18,7 +18,7 @@ Blog Home UniApp 是博客三端架构中的**移动端前台**，目标对齐 b
 | --- | --- | --- |
 | Web 前台 | blog-home-nuxt | 5050 |
 | 管理后台 | blog-admin | 9856 |
-| 移动端 | **blog-home-uniapp** | 9000 |
+| 移动端 | **blog-home-uniapp** | 8008 |
 | 后端 API（默认） | blog-server-go | 8000 |
 | 后端 API（辅调） | blog-server（Nest） | 5000 |
 
@@ -41,7 +41,7 @@ Blog Home UniApp 是博客三端架构中的**移动端前台**，目标对齐 b
 
 ```bash
 pnpm install
-pnpm dev          # H5，默认联调本地 Go :8000 → http://localhost:9000
+pnpm dev          # H5，默认联调本地 Go :8000 → http://localhost:8008
 pnpm dev:mp       # 微信小程序 → 导入 dist/dev/mp-weixin
 pnpm dev:app      # App（需 HBuilderX 或模拟器）
 ```

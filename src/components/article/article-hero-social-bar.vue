@@ -59,8 +59,8 @@ async function act(
       icon: 'success',
     })
   }
-  catch (e: any) {
-    uni.showToast({ title: e?.message || e?.msg || '操作失败', icon: 'none' })
+  catch {
+    // http 层已 toast 业务错误
   }
   finally {
     loading.value = false

@@ -155,7 +155,8 @@ async function submitReply() {
   }
   submitting.value = true
   try {
-    const rootPid = target.pId && target.pId !== 0 ? target.pId : target.id
+    // 子回复仍挂在顶层 pId 下（与 Nuxt 一致）；兼容字符串 pId
+    const rootPid = Number(target.pId) ? Number(target.pId) : target.id
     await postMsgboard({
       pId: rootPid,
       name: replyForm.name.trim(),
@@ -221,8 +222,8 @@ function avatarUrl(item: MsgboardNode) {
       <cyber-card class="mb-4 !p-4">
         <text class="mb-3 block text-tech font-medium">发表留言</text>
         <wd-input v-model="msgForm.name" label="昵称" placeholder="您的昵称" maxlength="10" />
-        <wd-input v-model="msgForm.eamil" label="邮箱" placeholder="您的邮箱" class="mt-2" maxlength="30" />
-        <wd-input v-model="msgForm.address" label="主页" placeholder="您的主页 URL" class="mt-2" maxlength="30" />
+        <wd-input v-model="msgForm.eamil" label="邮箱" placeholder="您的邮箱" class="mt-2" maxlength="64" />
+        <wd-input v-model="msgForm.address" label="主页" placeholder="您的主页 URL" class="mt-2" maxlength="200" />
         <wd-textarea v-model="msgForm.comment" label="留言" placeholder="写下你的想法..." class="mt-2" :maxlength="800" />
         <cyber-button size="small" class="mt-3 inline-flex" variant="primary" @click="submitMessage">
           发表
