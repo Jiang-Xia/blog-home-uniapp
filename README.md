@@ -64,6 +64,7 @@ pnpm dev:nest-online   # 线上 Nest /x-blog/api/v1
 | `pnpm build:mp` | 微信小程序生产构建 |
 | `pnpm run deploy` | H5 一键部署到生产（见下方） |
 | `pnpm run rollback` | 回滚上一版 H5 静态包 |
+| Docker 本地试验 | 见 [deploy/docker/README.md](deploy/docker/README.md)（与 Go 单体 compose 联调） |
 | `pnpm lint` | ESLint 检查 |
 | `pnpm lint:fix` | ESLint 自动修复 |
 | `pnpm type-check` | Vue TSC 类型检查 |
