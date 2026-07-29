@@ -82,6 +82,9 @@ blog-home-uniapp/
 │   ├── pages-tool/       # 分包：实用工具
 │   ├── api/              # 接口封装
 │   ├── http/             # 请求层
+│   ├── utils/toast.ts    # 统一 Toast（`toast` / `toastSuccess`，默认延后避免 hideLoading 冲突）
+│   ├── utils/biz-error.ts # 后端错误文案 + toastBizError（避免覆盖 http 已提示）
+│   ├── utils/global-loading.ts # 全局请求 Loading（引用计数 + 防闪烁）
 │   ├── store/            # Pinia
 │   ├── tabbar/           # 自定义 TabBar
 │   └── layouts/          # 布局

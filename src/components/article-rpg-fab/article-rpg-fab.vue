@@ -8,6 +8,7 @@ import { checkCollected, checkLiked, toggleCollect, toggleLike } from '@/api/art
 import RpgArticleTip from '@/components/rpg/rpg-article-tip.vue'
 import { LOGIN_PAGE } from '@/router/config'
 import { useTokenStore } from '@/store/token'
+import { toast } from '@/utils/toast'
 
 const props = defineProps<{
   articleId: number | string
@@ -83,7 +84,7 @@ async function handleCollect() {
   try {
     await toggleCollect(props.articleId)
     collected.value = !collected.value
-    uni.showToast({ title: collected.value ? '收藏成功' : '已取消收藏', icon: 'none' })
+    toast(collected.value ? '收藏成功' : '已取消收藏')
     fabOpen.value = false
   }
   finally {

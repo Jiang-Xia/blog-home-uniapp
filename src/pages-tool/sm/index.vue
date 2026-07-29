@@ -3,6 +3,7 @@
  * 国密 SM2 加解密 — 对齐 Nuxt tool/sm，支持公钥 130/66 压缩格式与 C1C3C2/C1C2C3
  */
 import { sm2 } from 'sm-crypto'
+import { toast } from '@/utils/toast'
 
 definePage({
   style: { navigationBarTitleText: '国密 SM2' },
@@ -59,7 +60,7 @@ function createKey() {
 
 function encryptText() {
   if (!plaintext.value) {
-    uni.showToast({ title: '请先输入原文', icon: 'none' })
+    toast('请先输入原文')
     return
   }
   ciphertext.value = sm2.doEncrypt(plaintext.value, publicKey.value, cipherMode.value)
@@ -67,19 +68,19 @@ function encryptText() {
 
 function decryptText() {
   if (!ciphertext.value) {
-    uni.showToast({ title: '请先输入密文', icon: 'none' })
+    toast('请先输入密文')
     return
   }
   try {
     const result = sm2.doDecrypt(ciphertext.value, privateKey.value, cipherMode.value)
     if (!result) {
-      uni.showToast({ title: '解密失败', icon: 'none' })
+      toast('解密失败')
       return
     }
     plaintext.value = result
   }
   catch {
-    uni.showToast({ title: '解密失败', icon: 'none' })
+    toast('解密失败')
   }
 }
 

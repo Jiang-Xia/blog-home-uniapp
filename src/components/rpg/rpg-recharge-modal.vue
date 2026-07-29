@@ -4,6 +4,8 @@
  */
 import { createRpgRechargeOrder } from '@/api/rpg-recharge'
 import { useRpgRecharge } from '@/composables/use-rpg-recharge'
+import { toastBizError } from '@/utils/biz-error'
+import { toast } from '@/utils/toast'
 
 const { visible, closeRechargeModal } = useRpgRecharge()
 const amount = ref('10')
@@ -12,7 +14,7 @@ const submitting = ref(false)
 async function submit() {
   const yuan = Number(amount.value)
   if (!yuan || yuan <= 0) {
-    uni.showToast({ title: '请输入有效金额', icon: 'none' })
+    toast('请输入有效金额')
     return
   }
   submitting.value = true
@@ -31,8 +33,8 @@ async function submit() {
     // #endif
     closeRechargeModal()
   }
-  catch (e: any) {
-    uni.showToast({ title: e?.message || '创建订单失败', icon: 'none' })
+  catch (e: unknown) {
+    toastBizError(e, '创建订单失败')
   }
   finally {
     submitting.value = false

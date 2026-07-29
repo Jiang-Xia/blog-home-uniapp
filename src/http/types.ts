@@ -1,10 +1,18 @@
 /**
  * 在 uniapp 的 RequestOptions 和 IUniUploadFileOptions 基础上，添加自定义参数
  */
+import type { RequestLoadingOption } from '@/utils/global-loading'
+
 export type CustomRequestOptions = UniApp.RequestOptions & {
   query?: Record<string, any>
   /** 出错时是否隐藏错误提示 */
   hideErrorToast?: boolean
+  /**
+   * 全局 Loading：默认开启（引用计数 + 防闪烁）
+   * - false：本次关闭
+   * - { title/mask/debounceMs/enabled }：覆盖默认
+   */
+  loading?: RequestLoadingOption
 } & IUniUploadFileOptions // 添加uni.uploadFile参数类型
 
 /** 主要提供给 openapi-ts-request 生成的代码使用 */

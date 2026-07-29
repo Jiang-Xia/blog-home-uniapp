@@ -10,6 +10,7 @@ import { ROUTE_HOME } from '@/router/routes'
 import { useTokenStore } from '@/store/token'
 import { currRoute } from '@/utils'
 import { rsaEncrypt } from '@/utils/rsa'
+import { toast } from '@/utils/toast'
 
 definePage({
   style: { navigationBarTitleText: '登录' },
@@ -47,7 +48,6 @@ async function handleOAuthTicket(ticket: string) {
   if (oauthTicketLoading.value || tokenStore.hasLogin)
     return
   oauthTicketLoading.value = true
-  uni.showLoading({ title: '正在完成登录...' })
   try {
     await tokenStore.loginByOAuthTicket(ticket)
     navigateAfterLogin()
@@ -57,7 +57,6 @@ async function handleOAuthTicket(ticket: string) {
   }
   finally {
     oauthTicketLoading.value = false
-    uni.hideLoading()
     // #ifdef H5
     if (typeof window !== 'undefined')
       window.history.replaceState({}, '', window.location.pathname)
@@ -87,7 +86,7 @@ onLoad((query) => {
   void loadCaptcha()
   // #ifdef H5
   if (query?.accessToken || query?.refreshToken) {
-    uni.showToast({ title: 'URL 携带敏感登录信息已拦截', icon: 'none' })
+    toast('URL 携带敏感登录信息已拦截')
     if (typeof window !== 'undefined')
       window.history.replaceState({}, '', window.location.pathname)
     return
@@ -125,7 +124,7 @@ async function handleLogin() {
   try {
     if (loginType.value === 'account') {
       if (!form.username || !form.password || !form.authCode) {
-        uni.showToast({ title: '请填写完整信息', icon: 'none' })
+        toast('请填写完整信息')
         return
       }
       await tokenStore.login({
@@ -137,7 +136,7 @@ async function handleLogin() {
     }
     else {
       if (!form.email || !form.verificationCode) {
-        uni.showToast({ title: '请填写邮箱与验证码', icon: 'none' })
+        toast('请填写邮箱与验证码')
         return
       }
       await tokenStore.loginByEmail({
@@ -162,7 +161,7 @@ async function handleLogin() {
 /** H5 跳转 server GitHub 授权页 */
 function githubLogin() {
   githubLoginLoading.value = true
-  uni.showToast({ title: '正在跳转 GitHub...', icon: 'none' })
+  toast('正在跳转 GitHub...')
   window.location.href = getGithubOAuthUrl()
 }
 // #endif

@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { getEnvBaseUrl } from '@/utils/index'
+import { toast } from '@/utils/toast'
 
 const VITE_UPLOAD_BASEURL = `${getEnvBaseUrl()}/upload`
 
@@ -32,10 +33,7 @@ export default function useUpload<T extends TfileType>(options: TOptions<T> = {}
 
   const handleFileChoose = ({ tempFilePath, size }: { tempFilePath: string, size: number }) => {
     if (size > maxSize) {
-      uni.showToast({
-        title: `文件大小不能超过 ${maxSize / 1024 / 1024}MB`,
-        icon: 'none',
-      })
+      toast(`文件大小不能超过 ${maxSize / 1024 / 1024}MB`)
       return
     }
 

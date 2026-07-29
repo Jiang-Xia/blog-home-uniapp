@@ -5,7 +5,7 @@ export function getNotificationList(params?: { page?: number, pageSize?: number,
 }
 
 export function getUnreadCount() {
-  return http.get<{ count: number }>('/notification/unread-count')
+  return http.get<{ count: number }>('/notification/unread-count', undefined, undefined, { loading: false })
 }
 
 export function markNotificationRead(ids: number[]) {
@@ -24,5 +24,5 @@ export function getNotificationsSince(seq: number) {
     payload: Record<string, unknown>
     read: number
     createTime: string
-  }[]>('/notification/since', { seq })
+  }[]>('/notification/since', { seq }, undefined, { loading: false })
 }

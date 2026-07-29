@@ -3,6 +3,8 @@
  */
 import SparkMD5 from 'spark-md5'
 import { checkFile, mergeFile, uploadFileChunk } from '@/api/tool'
+import { toastBizError } from '@/utils/biz-error'
+import { toast, toastSuccess } from '@/utils/toast'
 
 const CHUNK_SIZE = 2097152
 const MAX_CONCURRENCY = 3
@@ -147,7 +149,7 @@ export function useUploadSlice() {
 
       const check = await checkFile({ hash })
       if (check.isExist) {
-        uni.showToast({ title: '文件已存在', icon: 'none' })
+        toast('文件已存在')
         return
       }
       const uploaded = new Set(check.chunks ?? [])
@@ -157,10 +159,10 @@ export function useUploadSlice() {
       if (stopUpload.value)
         return
       await mergeFile({ chunks: chunkTotal.value, fileName: fileName.value, hash })
-      uni.showToast({ title: '上传成功', icon: 'success' })
+      toastSuccess('上传成功')
     }
-    catch {
-      uni.showToast({ title: '上传失败', icon: 'none' })
+    catch (e) {
+      toastBizError(e, '上传失败')
     }
     finally {
       loading.value = false

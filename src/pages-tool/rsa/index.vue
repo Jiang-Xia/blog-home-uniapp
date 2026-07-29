@@ -4,6 +4,7 @@
  */
 import JSEncrypt from 'jsencrypt'
 import { rsaDecrypt, rsaEncrypt } from '@/utils/rsa'
+import { toast } from '@/utils/toast'
 
 definePage({
   style: { navigationBarTitleText: 'RSA 加解密' },
@@ -45,7 +46,7 @@ function createKey() {
 
 function encryptText() {
   if (!plaintext.value) {
-    uni.showToast({ title: '请先输入原文', icon: 'none' })
+    toast('请先输入原文')
     return
   }
   ciphertext.value = rsaEncrypt(plaintext.value, publicKey.value, outputType.value)
@@ -53,12 +54,12 @@ function encryptText() {
 
 function decryptText() {
   if (!ciphertext.value) {
-    uni.showToast({ title: '请先输入密文', icon: 'none' })
+    toast('请先输入密文')
     return
   }
   const result = rsaDecrypt(ciphertext.value, privateKey.value, outputType.value)
   if (!result) {
-    uni.showToast({ title: '解密失败', icon: 'none' })
+    toast('解密失败')
     return
   }
   plaintext.value = result

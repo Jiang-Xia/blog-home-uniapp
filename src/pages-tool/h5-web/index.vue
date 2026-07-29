@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { toastSuccess } from '@/utils/toast'
+
 const props = defineProps<{
   path: string
   title?: string
@@ -28,7 +30,7 @@ function openInBrowser() {
   // #ifndef H5
   uni.setClipboardData({
     data: fullUrl.value,
-    success: () => uni.showToast({ title: '链接已复制', icon: 'success' }),
+    success: () => toastSuccess('链接已复制'),
   })
   // #endif
 }

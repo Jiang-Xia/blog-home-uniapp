@@ -2,6 +2,8 @@
 /**
  * 非对称密钥对面板 — 对齐 Nuxt CryptoKeyPairPanel
  */
+import { toastSuccess } from '@/utils/toast'
+
 withDefaults(defineProps<{
   compact?: boolean
 }>(), {
@@ -14,7 +16,7 @@ const publicKey = defineModel<string>('publicKey', { default: '' })
 function copyText(text: string) {
   if (!text)
     return
-  uni.setClipboardData({ data: text, success: () => uni.showToast({ title: '已复制', icon: 'success' }) })
+  uni.setClipboardData({ data: text, success: () => toastSuccess('已复制') })
 }
 </script>
 

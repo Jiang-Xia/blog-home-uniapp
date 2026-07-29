@@ -3,6 +3,7 @@
  */
 import { aesDecrypt } from '@/utils/crypto'
 import { parseSseDeltaContent, startSseStream } from '@/utils/tool/sse-stream'
+import { toast, toastSuccess } from '@/utils/toast'
 
 export type SummaryStyle = 'concise' | 'detailed' | 'technical' | 'casual'
 export type SummaryLength = 'short' | 'medium' | 'long'
@@ -144,15 +145,15 @@ ${originalText.value}
 
   function generateSummary() {
     if (!originalText.value.trim()) {
-      uni.showToast({ title: '请输入文章内容', icon: 'none' })
+      toast('请输入文章内容')
       return
     }
     if (originalText.value.length < MIN_CONTENT_CHARS) {
-      uni.showToast({ title: `建议至少 ${MIN_CONTENT_CHARS} 字`, icon: 'none' })
+      toast(`建议至少 ${MIN_CONTENT_CHARS} 字`)
       return
     }
     if (originalText.value.length > MAX_CONTENT_CHARS) {
-      uni.showToast({ title: `请控制在 ${MAX_CONTENT_CHARS} 字以内`, icon: 'none' })
+      toast(`请控制在 ${MAX_CONTENT_CHARS} 字以内`)
       return
     }
 
@@ -178,7 +179,7 @@ ${originalText.value}
       onError: (msg) => {
         loading.value = false
         if (!summary.value.trim())
-          uni.showToast({ title: msg, icon: 'none' })
+          toast(msg)
       },
       onDone: () => {
         loading.value = false
@@ -197,7 +198,7 @@ ${originalText.value}
   function clearHistory() {
     summaryHistory.value = []
     persistHistory()
-    uni.showToast({ title: '历史已清空', icon: 'success' })
+    toastSuccess('历史已清空')
   }
 
   function clearOriginal() {
@@ -207,7 +208,7 @@ ${originalText.value}
   function copySummary() {
     uni.setClipboardData({
       data: summary.value,
-      success: () => uni.showToast({ title: '已复制', icon: 'success' }),
+      success: () => toastSuccess('已复制'),
     })
   }
 
@@ -235,12 +236,12 @@ ${summary.value}
     a.download = `文章摘要_${Date.now()}.md`
     a.click()
     URL.revokeObjectURL(url)
-    uni.showToast({ title: '已导出', icon: 'success' })
+    toastSuccess('已导出')
     // #endif
     // #ifndef H5
     uni.setClipboardData({
       data: markdown,
-      success: () => uni.showToast({ title: 'Markdown 已复制', icon: 'success' }),
+      success: () => toastSuccess('Markdown 已复制'),
     })
     // #endif
   }
@@ -266,7 +267,7 @@ ${summary.value}
         originalText.value = params.content
     }
     catch {
-      uni.showToast({ title: '预填参数解析失败', icon: 'none' })
+      toast('预填参数解析失败')
     }
   }
 

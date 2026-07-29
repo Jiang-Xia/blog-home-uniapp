@@ -13,6 +13,7 @@ import {
 } from '@/utils/tool/photo-constants'
 import type { PhotoSettings } from '@/utils/tool/photo-constants'
 import { EXPORT_SIZE, renderPhotoFrameOutput } from '@/utils/tool/photo-renderer'
+import { toast, toastSuccess } from '@/utils/toast'
 
 definePage({
   style: { navigationBarTitleText: '光影边框' },
@@ -58,7 +59,7 @@ async function rerenderAll() {
     items.value = next
   }
   catch {
-    uni.showToast({ title: '预览更新失败', icon: 'none' })
+    toast('预览更新失败')
   }
   finally {
     processing.value = false
@@ -77,7 +78,7 @@ function readFileAsDataUrl(file: File): Promise<string> {
 async function addPaths(paths: { path: string, name: string }[]) {
   const remain = MAX_PHOTOS - items.value.length
   if (remain <= 0) {
-    uni.showToast({ title: `最多 ${MAX_PHOTOS} 张`, icon: 'none' })
+    toast(`最多 ${MAX_PHOTOS} 张`)
     return
   }
   const toAdd = paths.slice(0, remain)
@@ -94,7 +95,7 @@ async function addPaths(paths: { path: string, name: string }[]) {
     }
   }
   catch {
-    uni.showToast({ title: '图片处理失败', icon: 'none' })
+    toast('图片处理失败')
   }
   finally {
     processing.value = false
@@ -176,10 +177,10 @@ async function exportSingle(item: PhotoItem) {
     // #ifndef H5
     await saveToAlbum(output)
     // #endif
-    uni.showToast({ title: '已保存', icon: 'success' })
+    toastSuccess('已保存')
   }
   catch {
-    uni.showToast({ title: '导出失败', icon: 'none' })
+    toast('导出失败')
   }
   finally {
     exportLoading.value = false
@@ -218,10 +219,10 @@ async function exportAll() {
       await saveToAlbum(path)
     }
     // #endif
-    uni.showToast({ title: '导出完成', icon: 'success' })
+    toastSuccess('导出完成')
   }
   catch {
-    uni.showToast({ title: '导出失败', icon: 'none' })
+    toast('导出失败')
   }
   finally {
     exportLoading.value = false

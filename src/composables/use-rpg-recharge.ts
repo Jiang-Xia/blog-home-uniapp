@@ -6,6 +6,7 @@ import { ref } from 'vue'
 import { onRealtimeEvent } from '@/composables/use-realtime-socket'
 import { useRpgAudio } from '@/composables/use-rpg-audio'
 import { useRpg } from '@/composables/use-rpg'
+import { toastSuccess } from '@/utils/toast'
 
 const visible = ref(false)
 let rechargeListenerBound = false
@@ -21,10 +22,7 @@ function bindRechargeListener() {
     visible.value = false
     const diamonds = data?.diamonds ?? 0
     if (diamonds > 0) {
-      uni.showToast({
-        title: `充值成功 +${diamonds} 钻`,
-        icon: 'success',
-      })
+      toastSuccess(`充值成功 +${diamonds} 钻`)
     }
   })
 }

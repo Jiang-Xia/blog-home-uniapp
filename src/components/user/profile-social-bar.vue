@@ -8,6 +8,7 @@ import { socialCheer, socialEgg, socialFlower } from '@/api/rpg'
 import { useRpgAudio } from '@/composables/use-rpg-audio'
 import { LOGIN_PAGE } from '@/router/config'
 import { useTokenStore } from '@/store/token'
+import { toast, toastSuccess } from '@/utils/toast'
 
 const props = defineProps<{ targetUid: number }>()
 
@@ -21,7 +22,7 @@ async function act(
   sfx: RpgSfxKey = 'uiClick',
 ) {
   if (!tokenStore.hasLogin) {
-    uni.showToast({ title: '请先登录', icon: 'none' })
+    toastSuccess('请先登录')
     uni.navigateTo({ url: LOGIN_PAGE })
     return
   }
@@ -30,10 +31,7 @@ async function act(
     const res = await fn()
     if (sfx)
       void playSfx(sfx)
-    uni.showToast({
-      title: getLabel ? getLabel(res) : '操作成功',
-      icon: 'success',
-    })
+    toast(getLabel ? getLabel(res) : '操作成功')
   }
   catch {
     // http 层已 toast 业务错误

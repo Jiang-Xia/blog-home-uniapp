@@ -4,6 +4,7 @@
  */
 import { isH5 } from '@uni-helper/uni-env'
 import { ROUTE_DETAIL } from '@/router/routes'
+import { toastSuccess } from '@/utils/toast'
 
 const props = defineProps<{
   articleId?: string | number
@@ -25,7 +26,7 @@ function copyLink() {
   uni.setClipboardData({
     data: url,
     success: () => {
-      uni.showToast({ title: '链接已复制', icon: 'success' })
+      toastSuccess('链接已复制')
     },
   })
 }

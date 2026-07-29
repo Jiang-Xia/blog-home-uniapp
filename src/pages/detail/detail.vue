@@ -38,6 +38,7 @@ import { resolvePublicAvatarFrame } from '@/utils/avatar-frame'
 import { parseCommentCreateStatus, resolveCommentUserUid } from '@/utils/comment'
 import { formatRelativeTime } from '@/utils/date-time'
 import { resolveStaticUrl } from '@/utils/static-url'
+import { toast, toastSuccess } from '@/utils/toast'
 
 definePage({
   style: { navigationBarTitleText: '文章详情' },
@@ -237,10 +238,10 @@ async function submitComment() {
   const status = parseCommentCreateStatus(res)
   commentText.value = ''
   if (status === 'pending') {
-    uni.showToast({ title: '评论已提交，审核通过后将展示', icon: 'none' })
+    toastSuccess('评论已提交，审核通过后将展示')
     return
   }
-  uni.showToast({ title: '评论成功', icon: 'success' })
+  toast('评论成功')
   await reloadComments()
 }
 
@@ -252,7 +253,7 @@ function startReply(comment: any, reply?: any) {
   const target = reply ?? comment
   const replyUid = resolveCommentUserUid(target)
   if (!replyUid) {
-    uni.showToast({ title: '无法获取回复对象', icon: 'none' })
+    toast('无法获取回复对象')
     return
   }
   replyTarget.value = {
@@ -280,7 +281,7 @@ async function submitReply() {
     return
   }
   if (!replyText.value.trim()) {
-    uni.showToast({ title: '请输入回复内容', icon: 'none' })
+    toast('请输入回复内容')
     return
   }
   if (replySubmitting.value)
@@ -295,10 +296,10 @@ async function submitReply() {
     const status = parseCommentCreateStatus(res)
     closeReply()
     if (status === 'pending') {
-      uni.showToast({ title: '回复已提交，审核通过后将展示', icon: 'none' })
+      toastSuccess('回复已提交，审核通过后将展示')
       return
     }
-    uni.showToast({ title: '回复成功', icon: 'success' })
+    toast('回复成功')
     await reloadComments()
   }
   catch {
@@ -312,7 +313,7 @@ async function submitReply() {
 /** 删除本人评论 DELETE /comment/delete */
 async function handleDeleteComment(id: number | string) {
   await delComment(id)
-  uni.showToast({ title: '删除成功', icon: 'success' })
+  toastSuccess('删除成功')
   if (replyTarget.value && String(replyTarget.value.commentId) === String(id))
     closeReply()
   await reloadComments()
@@ -321,7 +322,7 @@ async function handleDeleteComment(id: number | string) {
 /** 删除本人回复 DELETE /reply/delete */
 async function handleDeleteReply(id: number | string) {
   await delReply(id)
-  uni.showToast({ title: '删除成功', icon: 'success' })
+  toastSuccess('删除成功')
   await reloadComments()
 }
 

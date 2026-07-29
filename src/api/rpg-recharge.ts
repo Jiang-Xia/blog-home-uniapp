@@ -26,7 +26,7 @@ export function createRpgRechargeOrder(amountYuan: number) {
 
 export function getRpgRechargeStatus(outTradeNo: string) {
   return afterRpgMutation(['status'], () =>
-    http.get<RpgRechargeStatusResult>('/rpg/recharge/status', { out_trade_no: outTradeNo }))
+    http.get<RpgRechargeStatusResult>('/rpg/recharge/status', { out_trade_no: outTradeNo }, undefined, { loading: false }))
 }
 
 /** 微信小程序支付 POST /pay/trade/create */

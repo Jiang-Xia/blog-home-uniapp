@@ -5,6 +5,7 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
 import { resolveStaticUrl } from '@/utils/static-url'
+import { toast } from '@/utils/toast'
 
 const props = withDefaults(defineProps<{
   pdfSrc: string
@@ -271,12 +272,12 @@ function signatureToPngDataUrl(): string {
 
 async function editPdf() {
   // #ifndef H5
-  uni.showToast({ title: 'PDF 签名请在 H5 浏览器完成', icon: 'none' })
+  toast('PDF 签名请在 H5 浏览器完成')
   return
   // #endif
   // #ifdef H5
   if (!pdfSourceBuffer.value) {
-    uni.showToast({ title: 'PDF 尚未加载', icon: 'none' })
+    toast('PDF 尚未加载')
     return
   }
   signing.value = true
@@ -313,7 +314,7 @@ async function editPdf() {
   }
   catch (err) {
     console.error('[pdf-signature] 合成失败:', err)
-    uni.showToast({ title: '签名写入失败', icon: 'none' })
+    toast('签名写入失败')
   }
   finally {
     signing.value = false
@@ -343,7 +344,7 @@ async function reloadPdfFromBuffer(bytes: Uint8Array) {
 
 async function finishSignature() {
   if (isSignatureEmpty()) {
-    uni.showToast({ title: '请先手写签名', icon: 'none' })
+    toast('请先手写签名')
     return
   }
   showSignature.value = false

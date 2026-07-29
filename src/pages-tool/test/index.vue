@@ -5,6 +5,7 @@
 import RpgDevEventPanel from '@/components/rpg/rpg-dev-event-panel.vue'
 import { useRpg } from '@/composables/use-rpg'
 import { useRpgRecharge } from '@/composables/use-rpg-recharge'
+import { toast } from '@/utils/toast'
 
 definePage({
   style: { navigationBarTitleText: '开发测试' },
@@ -26,7 +27,7 @@ const toastItems = [
 ]
 
 function showToastDemo(item: typeof toastItems[number]) {
-  uni.showToast({ title: item.title, icon: item.icon, duration: 2000 })
+  toast(item.title, { icon: item.icon, duration: 2000 })
 }
 
 /** 探测 Nuxt ai-summary-status 是否已配置 API Key */
@@ -75,7 +76,7 @@ async function checkAiSummaryStatus() {
 
       <tool-card title="Toast 提示">
         <text class="test-tip mb-3 block text-xs text-tech-subtle">
-          测试 uni.showToast 各 icon 变体（success / none / error / loading）。
+          测试 `toast()` 各 icon 变体（success / none / error / loading）。
         </text>
         <view class="u-gap-2 flex flex-wrap">
           <view v-for="item in toastItems" :key="item.label">

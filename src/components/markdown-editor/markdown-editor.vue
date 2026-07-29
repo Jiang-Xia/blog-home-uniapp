@@ -4,6 +4,7 @@
  * - 非 H5 降级为 wd-textarea
  * - H5 支持 @onUploadImg → POST /resources/upload-media?category=article
  */
+import { toastBizError } from '@/utils/biz-error'
 // #ifdef H5
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
@@ -19,8 +20,8 @@ async function onUploadImg(files: File[], callback: (urls: string[]) => void) {
     const urls = await Promise.all(files.map(file => uploadArticleImage(file)))
     callback(urls)
   }
-  catch {
-    uni.showToast({ title: '图片上传失败', icon: 'none' })
+  catch (e) {
+    toastBizError(e, '图片上传失败')
   }
 }
 // #endif

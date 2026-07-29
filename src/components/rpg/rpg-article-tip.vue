@@ -6,6 +6,7 @@
 import { tipArticle } from '@/api/rpg'
 import { useUserStore } from '@/store'
 import { useTokenStore } from '@/store/token'
+import { toast, toastSuccess } from '@/utils/toast'
 
 const props = withDefaults(defineProps<{
   articleId: number
@@ -36,21 +37,21 @@ async function submitTip() {
     return
   }
   if (userStore.userInfo.userId === props.authorUid) {
-    uni.showToast({ title: '不能打赏自己的文章', icon: 'none' })
+    toast('不能打赏自己的文章')
     return
   }
   if (amount.value < 1) {
-    uni.showToast({ title: '打赏数量至少为 1', icon: 'none' })
+    toast('打赏数量至少为 1')
     return
   }
   loading.value = true
   try {
     await tipArticle(props.articleId, amount.value)
-    uni.showToast({ title: `打赏 ${amount.value} 钻石成功`, icon: 'success' })
+    toastSuccess(`打赏 ${amount.value} 钻石成功`)
     emit('tipped')
   }
   catch {
-    uni.showToast({ title: '打赏失败，钻石可能不足', icon: 'none' })
+    // 失败文案已由 http 展示后端 message（如钻石不足）
   }
   finally {
     loading.value = false

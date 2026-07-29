@@ -5,6 +5,7 @@
 <script lang="ts" setup>
 import { resolveStaticUrl } from '@/utils/static-url'
 import PdfSignature from '@/components/tool/pdf-signature.vue'
+import { toast, toastSuccess } from '@/utils/toast'
 
 definePage({
   style: { navigationBarTitleText: 'PDF 电子签名' },
@@ -118,11 +119,11 @@ function onSignSuccess(blob: Blob) {
       success: () => {
         uni.openDocument({ filePath: path, showMenu: true })
       },
-      fail: () => uni.showToast({ title: '保存失败', icon: 'none' }),
+      fail: () => toast('保存失败'),
     })
   })
   // #endif
-  uni.showToast({ title: '已签名 PDF', icon: 'success' })
+  toastSuccess('已签名 PDF')
 }
 
 onLoad(() => {

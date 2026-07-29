@@ -48,7 +48,7 @@ export function getArticleList(data: ArticleListParams) {
 export function getArticleInfo(params: { id?: string | number }) {
   if (!params.id)
     return Promise.resolve(null)
-  return http.get<ArticleDetailResponse | Record<string, unknown>>('/article/info', params, undefined, { hideErrorToast: true }).catch(() => null)
+  return http.get<ArticleDetailResponse | Record<string, unknown>>('/article/info', params, undefined, { hideErrorToast: true, loading: false }).catch(() => null)
 }
 
 export function getArchives() {
@@ -56,7 +56,7 @@ export function getArchives() {
 }
 
 export function postArticleViews(id: string | number) {
-  return http.post<void>('/article/views', { id })
+  return http.post<void>('/article/views', { id }, undefined, undefined, { loading: false })
 }
 
 export function getComment(articleId: string, params?: { page?: number, pageSize?: number }) {
@@ -107,7 +107,7 @@ export function toggleLike(articleId: string | number) {
 }
 
 export function checkLiked(articleId: string | number) {
-  return http.get<{ liked: boolean }>('/like/check', { articleId: String(articleId) })
+  return http.get<{ liked: boolean }>('/like/check', { articleId: String(articleId) }, undefined, { loading: false })
 }
 
 export function toggleCollect(articleId: string | number) {
@@ -115,7 +115,7 @@ export function toggleCollect(articleId: string | number) {
 }
 
 export function checkCollected(articleId: string | number) {
-  return http.get<{ collected: boolean }>('/collect/check', { articleId: String(articleId) })
+  return http.get<{ collected: boolean }>('/collect/check', { articleId: String(articleId) }, undefined, { loading: false })
 }
 
 export function getMyArticleList(params: { page?: number, pageSize?: number }) {

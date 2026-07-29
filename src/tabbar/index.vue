@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { toast } from '@/utils/toast'
 // i-carbon-code
 // i-carbon-compass
 // i-carbon-game-console
@@ -17,10 +18,7 @@ defineOptions({
  * 中间的鼓包tabbarItem的点击事件
  */
 function handleClickBulge() {
-  uni.showToast({
-    title: '点击了中间的鼓包tabbarItem',
-    icon: 'none',
-  })
+  toast('点击了中间的鼓包tabbarItem')
 }
 
 function handleClick(index: number) {

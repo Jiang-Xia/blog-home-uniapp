@@ -14,6 +14,8 @@ import { useTokenStore } from '@/store/token'
 import { debounce } from '@/utils/debounce'
 import { apiDisplayLabel } from '@/utils/display-label'
 import { resolveStaticUrl } from '@/utils/static-url'
+import { toastBizError } from '@/utils/biz-error'
+import { toast, toastSuccess } from '@/utils/toast'
 
 definePage({
   style: { navigationBarTitleText: '编辑文章' },
@@ -136,10 +138,11 @@ async function pickCover() {
       uni.showLoading({ title: '上传中' })
       try {
         form.cover = await uploadCover(path)
-        uni.showToast({ title: '封面上传成功', icon: 'success' })
+        toastSuccess('封面上传成功')
       }
-      catch {
-        uni.showToast({ title: '上传失败', icon: 'none' })
+      catch (e) {
+        // uploadMedia 非 http 封装，需本地 toast 后端/本地文案
+        toastBizError(e, '上传失败')
       }
       finally {
         uni.hideLoading()
@@ -182,11 +185,11 @@ const scheduledTimeValue = computed(() =>
 
 async function submit() {
   if (!form.title.trim()) {
-    uni.showToast({ title: '请填写标题', icon: 'none' })
+    toast('请填写标题')
     return
   }
   if (form.status === 'scheduled' && !scheduledDateValue.value) {
-    uni.showToast({ title: '请选择定时发布时间', icon: 'none' })
+    toast('请选择定时发布时间')
     return
   }
   submitting.value = true
@@ -210,7 +213,7 @@ async function submit() {
       params.id = Number(articleId.value)
       await editArticle(params)
       clearLocalDraft()
-      uni.showToast({ title: '更新成功', icon: 'success' })
+      toastSuccess('更新成功')
       setTimeout(() => {
         uni.navigateTo({ url: `${ROUTE_DETAIL}?id=${articleId.value}` })
       }, 500)
@@ -219,7 +222,7 @@ async function submit() {
       const created = await createArticle(params)
       clearLocalDraft()
       const newId = created?.id ?? created?.info?.id
-      uni.showToast({ title: '创建成功', icon: 'success' })
+      toastSuccess('创建成功')
       setTimeout(() => {
         if (newId)
           uni.navigateTo({ url: `${ROUTE_DETAIL}?id=${newId}` })

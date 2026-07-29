@@ -13,6 +13,7 @@ import type { MsgboardNode } from '@/utils/msgboard-tree'
 import { formatRelativeTime } from '@/utils/date-time'
 import { getRandomNickname } from '@/utils/nickname'
 import { resolveStaticUrl } from '@/utils/static-url'
+import { toast, toastSuccess } from '@/utils/toast'
 
 definePage({
   excludeLoginPath: true,
@@ -98,12 +99,12 @@ async function submitMessage() {
   if (submitting.value)
     return
   if (!msgForm.name.trim() || !msgForm.eamil.trim() || !msgForm.address.trim() || !msgForm.comment.trim()) {
-    uni.showToast({ title: '请填写完整信息', icon: 'none' })
+    toast('请填写完整信息')
     return
   }
   const emailReg = /^[\w-]+@[\w-]+\.[\w-]+$/
   if (!emailReg.test(msgForm.eamil)) {
-    uni.showToast({ title: '邮箱格式不正确', icon: 'none' })
+    toast('邮箱格式不正确')
     return
   }
   submitting.value = true
@@ -116,7 +117,7 @@ async function submitMessage() {
       avatar: userStore.userInfo.avatar,
       uid: userStore.userInfo.userId > 0 ? userStore.userInfo.userId : undefined,
     })
-    uni.showToast({ title: '留言发表成功', icon: 'success' })
+    toastSuccess('留言发表成功')
     msgForm.name = resolveFormName()
     msgForm.eamil = ''
     msgForm.address = ''
@@ -124,7 +125,7 @@ async function submitMessage() {
     await reloadMsgboard()
   }
   catch {
-    uni.showToast({ title: '发表失败，请稍后重试', icon: 'none' })
+    // 失败文案已由 http 展示后端 message
   }
   finally {
     submitting.value = false
@@ -150,7 +151,7 @@ async function submitReply() {
   if (!target)
     return
   if (!replyForm.name.trim() || !replyForm.comment.trim()) {
-    uni.showToast({ title: '请填写名称与内容', icon: 'none' })
+    toast('请填写名称与内容')
     return
   }
   submitting.value = true
@@ -168,12 +169,12 @@ async function submitReply() {
       avatar: userStore.userInfo.avatar,
       uid: userStore.userInfo.userId > 0 ? userStore.userInfo.userId : undefined,
     })
-    uni.showToast({ title: '回复成功', icon: 'success' })
+    toastSuccess('回复成功')
     closeReply()
     await reloadMsgboard()
   }
   catch {
-    uni.showToast({ title: '回复失败', icon: 'none' })
+    // 失败文案已由 http 展示后端 message
   }
   finally {
     submitting.value = false
@@ -193,11 +194,11 @@ async function handleDelete(isTopLevel: boolean, item: MsgboardNode) {
         return
       try {
         await deleteMsgboard(collectMsgboardDeleteIds(item, isTopLevel))
-        uni.showToast({ title: '删除成功', icon: 'success' })
+        toastSuccess('删除成功')
         await reloadMsgboard()
       }
       catch {
-        uni.showToast({ title: '删除失败', icon: 'none' })
+        // 失败文案已由 http 展示后端 message
       }
     },
   })

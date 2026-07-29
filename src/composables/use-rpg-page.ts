@@ -65,6 +65,7 @@ import { parseCurrentActivitiesOverview } from '@/utils/rpg-activity-overview'
 import { enrichGuildMembers, normalizeMyGuild } from '@/utils/rpg-guild'
 import { lotteryRevealSfxKey } from '@/constants/rpg-audio'
 import { LOTTERY_MAX_DRAW_COUNT } from '@/utils/rpg-economy'
+import { toastSuccess } from '@/utils/toast'
 
 export type RpgTabKey = 'status' | 'inventory' | 'pet' | 'guild' | 'leaderboard'
 
@@ -358,7 +359,7 @@ export function useRpgPage() {
         showLevelUp.value = true
         playSfx('levelUp')
       }
-      uni.showToast({ title: result.message || '签到成功', icon: 'success' })
+      toastSuccess(result.message || '签到成功')
       loadedTabs.value.delete('status')
       await Promise.all([reloadStatusCore(), reloadQuests()])
       await loadStatusTab()
@@ -372,7 +373,7 @@ export function useRpgPage() {
   async function claimQuest(code: string) {
     await claimQuestReward(code)
     playSfx('questReward')
-    uni.showToast({ title: '奖励已领取', icon: 'success' })
+    toastSuccess('奖励已领取')
     await Promise.all([reloadQuests(), reloadStatusCore()])
     loadedTabs.value.delete('status')
     await loadStatusTab()

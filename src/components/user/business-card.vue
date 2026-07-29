@@ -12,6 +12,7 @@ import { useUserStore } from '@/store'
 import { storeToRefs } from 'pinia'
 import { openExternalUrl } from '@/utils/open-external-url'
 import { resolveStaticUrl } from '@/utils/static-url'
+import { toast, toastSuccess } from '@/utils/toast'
 
 const userStore = useUserStore()
 const { userInfo } = storeToRefs(userStore)
@@ -48,8 +49,8 @@ function copyUid() {
     return
   uni.setClipboardData({
     data: uidText.value,
-    success: () => uni.showToast({ title: 'UID 已复制', icon: 'success' }),
-    fail: () => uni.showToast({ title: '复制失败', icon: 'none' }),
+    success: () => toastSuccess('UID 已复制'),
+    fail: () => toast('复制失败'),
   })
 }
 

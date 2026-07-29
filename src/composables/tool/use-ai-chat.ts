@@ -3,6 +3,7 @@
  */
 import { getEnvBaseUrl } from '@/utils'
 import { parseSseDeltaContent, parseSseDeltaReasoning, startSseStream } from '@/utils/tool/sse-stream'
+import { toast } from '@/utils/toast'
 
 export interface ChatMessage {
   role: 'user' | 'assistant'
@@ -28,11 +29,11 @@ export function useAiChat() {
 
   function sendMessage() {
     if (!apiKey.value || !baseURL.value || !model.value) {
-      uni.showToast({ title: '请输入完整参数', icon: 'none' })
+      toast('请输入完整参数')
       return
     }
     if (!inputText.value.trim()) {
-      uni.showToast({ title: '请输入问题', icon: 'none' })
+      toast('请输入问题')
       return
     }
 

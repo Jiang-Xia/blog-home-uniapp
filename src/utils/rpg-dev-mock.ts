@@ -4,12 +4,12 @@
  */
 import {
   dispatchLocalEvent,
-
 } from '@/composables/use-realtime-socket'
 import type { RealtimeSocketEvent } from '@/composables/use-realtime-socket'
 import { useTokenStore } from '@/store/token'
 import type { LevelUpResult, RpgStatus } from '@/types/rpg'
 import { canUseRpgDevMock } from '@/utils/rpg-dev-mock-guard'
+import { toast } from '@/utils/toast'
 
 /** 与 server / use-realtime-socket ALL_EVENTS 对齐 */
 export const RPG_ALL_WS_EVENTS: RealtimeSocketEvent[] = [
@@ -67,15 +67,15 @@ export function dispatchRpgMockEvent(
 
   const tokenStore = useTokenStore()
   if (!tokenStore.hasLogin) {
-    uni.showToast({ title: '[WS挡板] 请先登录', icon: 'none' })
+    toast('[WS挡板] 请先登录')
     return false
   }
 
   dispatchLocalEvent(event, payload ?? buildDefaultRpgMockPayload(event, ctx))
-  uni.showToast({ title: `[WS挡板] ${event}`, icon: 'none' })
+  toast(`[WS挡板] ${event}`)
   if (event === 'expGain') {
     setTimeout(() => {
-      uni.showToast({ title: '[WS挡板] expGain Toast 约 5s 后合并', icon: 'none' })
+      toast('[WS挡板] expGain Toast 约 5s 后合并')
     }, 300)
   }
   return true

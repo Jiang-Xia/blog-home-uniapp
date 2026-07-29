@@ -23,6 +23,7 @@ import { useRpgAudio } from '@/composables/use-rpg-audio'
 import { useRpgRecharge } from '@/composables/use-rpg-recharge'
 import { useTokenStore } from '@/store/token'
 import type { DrawResult } from '@/types/rpg'
+import { toastBizError } from '@/utils/biz-error'
 
 definePage({
   style: { navigationBarTitleText: '冒险中心' },
@@ -140,9 +141,10 @@ async function onDraw(count: number, currency: 'ticket' | 'currency') {
     const results = await handleDraw(count, currency)
     lotteryBoxRef.value?.showDrawResults(results)
   }
-  catch (e: any) {
+  catch (e: unknown) {
     lotteryBoxRef.value?.cancelDrawAnimation()
-    uni.showToast({ title: e?.message || '抽奖失败', icon: 'none' })
+    // http 已 toast 后端文案；仅本地异常兜底
+    toastBizError(e, '抽奖失败')
   }
 }
 

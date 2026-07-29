@@ -7,6 +7,8 @@ import { updateUserProfile, uploadAvatar } from '@/api/resources'
 import { useUserStore } from '@/store'
 import { storeToRefs } from 'pinia'
 import { resolveStaticUrl } from '@/utils/static-url'
+import { toastBizError } from '@/utils/biz-error'
+import { toast, toastSuccess } from '@/utils/toast'
 
 const emit = defineEmits<{
   saved: []
@@ -64,8 +66,8 @@ async function chooseAvatar() {
         const url = await uploadAvatar(filePath)
         form.avatar = resolveStaticUrl(url)
       }
-      catch {
-        uni.showToast({ title: '头像上传失败', icon: 'none' })
+      catch (e) {
+        toastBizError(e, '头像上传失败')
       }
       finally {
         avatarUploading.value = false
@@ -77,12 +79,12 @@ async function chooseAvatar() {
 async function handleSubmit() {
   const nickname = form.nickname.trim()
   if (!nickname) {
-    uni.showToast({ title: '请填写昵称', icon: 'none' })
+    toast('请填写昵称')
     return
   }
   const uid = userInfo.value.uid ?? userInfo.value.userId
   if (!uid || uid <= 0) {
-    uni.showToast({ title: '请先登录', icon: 'none' })
+    toast('请先登录')
     return
   }
 
@@ -96,7 +98,7 @@ async function handleSubmit() {
       avatar: form.avatar,
     })
     await userStore.fetchUserInfo()
-    uni.showToast({ title: '资料已保存', icon: 'success' })
+    toastSuccess('资料已保存')
     emit('saved')
   }
   catch {

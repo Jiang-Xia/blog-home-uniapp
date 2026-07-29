@@ -26,16 +26,30 @@ export function uploadMedia(filePath: string, category: UploadMediaCategory): Pr
       header: getUploadAuthHeader(),
       success: (res) => {
         try {
-          const body = JSON.parse(res.data)
+          if (res.statusCode && (res.statusCode < 200 || res.statusCode >= 300)) {
+            reject(new Error(`上传失败(${res.statusCode})`))
+            return
+          }
+          const body = JSON.parse(res.data as string)
+          const code = body.code
+          if (code !== undefined && code !== null && code !== 0 && code !== 200) {
+            reject(new Error(body.msg || body.message || '上传失败'))
+            return
+          }
           const data = body.data ?? body
           const list = Array.isArray(data) ? data : [data]
-          resolve((list[0] as { url?: string })?.url || '')
+          const url = (list[0] as { url?: string })?.url || ''
+          if (!url) {
+            reject(new Error('上传成功但未返回文件地址'))
+            return
+          }
+          resolve(url)
         }
-        catch {
-          reject(new Error('上传响应解析失败'))
+        catch (e) {
+          reject(e instanceof Error ? e : new Error('上传响应解析失败'))
         }
       },
-      fail: err => reject(err),
+      fail: err => reject(new Error(err?.errMsg || '上传失败')),
     })
   })
 }

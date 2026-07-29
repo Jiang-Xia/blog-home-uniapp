@@ -3,6 +3,7 @@
  * 对称加解密 — 对齐 Nuxt tool/des，切换算法时清空密文
  */
 import CryptoJS from 'crypto-js'
+import { toast } from '@/utils/toast'
 
 definePage({
   style: { navigationBarTitleText: '对称加密' },
@@ -56,11 +57,11 @@ function createKey() {
 
 function encryptText() {
   if (!plaintext.value) {
-    uni.showToast({ title: '请先输入原文', icon: 'none' })
+    toast('请先输入原文')
     return
   }
   if (!secretKey.value) {
-    uni.showToast({ title: '请先输入密钥', icon: 'none' })
+    toast('请先输入密钥')
     return
   }
   try {
@@ -78,17 +79,17 @@ function encryptText() {
       : encrypted.toString()
   }
   catch {
-    uni.showToast({ title: '加密失败', icon: 'none' })
+    toast('加密失败')
   }
 }
 
 function decryptText() {
   if (!ciphertext.value) {
-    uni.showToast({ title: '请先输入密文', icon: 'none' })
+    toast('请先输入密文')
     return
   }
   if (!secretKey.value) {
-    uni.showToast({ title: '请先输入密钥', icon: 'none' })
+    toast('请先输入密钥')
     return
   }
   try {
@@ -105,13 +106,13 @@ function decryptText() {
     })
     const result = bytes.toString(CryptoJS.enc.Utf8)
     if (!result) {
-      uni.showToast({ title: '解密失败', icon: 'none' })
+      toast('解密失败')
       return
     }
     plaintext.value = result
   }
   catch {
-    uni.showToast({ title: '解密失败', icon: 'none' })
+    toast('解密失败')
   }
 }
 

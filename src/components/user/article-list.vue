@@ -8,6 +8,7 @@ import { disableArticle, getMyArticleList } from '@/api/article'
 import { ROUTE_ARTICLE_EDIT, ROUTE_DETAIL } from '@/router/routes'
 import { beforeTimeNow } from '@/utils/date-time'
 import { apiDisplayLabel } from '@/utils/display-label'
+import { toastSuccess } from '@/utils/toast'
 
 const loading = ref(false)
 const list = ref<any[]>([])
@@ -107,10 +108,10 @@ function handleDelete(item: { id: number, title?: string }) {
         await disableArticle(item.id, true)
         list.value = list.value.filter(row => row.id !== item.id)
         total.value = Math.max(0, total.value - 1)
-        uni.showToast({ title: '文章已删除', icon: 'success' })
+        toastSuccess('文章已删除')
       }
       catch {
-        uni.showToast({ title: '删除失败，请稍后重试', icon: 'none' })
+        // 失败文案已由 http 展示后端 message
       }
       finally {
         deletingId.value = null

@@ -13,6 +13,7 @@
  *   },
  * )
  */
+import { toast } from '@/utils/toast'
 
 /**
  * 上传文件的URL配置
@@ -109,10 +110,7 @@ export function useUpload<T = string>(url: string, formData: Record<string, any>
   const checkFileSize = (size: number) => {
     const sizeInMB = size / 1024 / 1024
     if (sizeInMB > maxSize) {
-      uni.showToast({
-        title: `文件大小不能超过${maxSize}MB`,
-        icon: 'none',
-      })
+      toast(`文件大小不能超过${maxSize}MB`)
       return false
     }
     return true

@@ -5,6 +5,7 @@
  */
 import JsBarcode from 'jsbarcode'
 import QRCode from 'qrcode'
+import { toast } from '@/utils/toast'
 
 definePage({
   style: { navigationBarTitleText: '条形/二维码' },
@@ -39,7 +40,7 @@ function renderBarcodeH5() {
     })
   }
   catch {
-    uni.showToast({ title: '条码生成失败', icon: 'none' })
+    toast('条码生成失败')
   }
   // #endif
 }
@@ -65,7 +66,7 @@ function renderBarcodeMp() {
         })
       }
       catch {
-        uni.showToast({ title: '条码生成失败', icon: 'none' })
+        toast('条码生成失败')
       }
     })
   // #endif
@@ -92,7 +93,7 @@ async function createQRCode() {
     })
   }
   catch {
-    uni.showToast({ title: '二维码生成失败', icon: 'none' })
+    toast('二维码生成失败')
   }
 }
 

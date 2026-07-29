@@ -18,6 +18,7 @@ import {
 
 } from '@/utils/tool/watermark-renderer'
 import type { ExportFormat, ExportOptions, FontSizeMode, TimeMark, WatermarkColorMode, WatermarkFontKey, WatermarkItem, WatermarkPosition, WatermarkStyle } from '@/utils/tool/watermark-renderer'
+import { toast, toastSuccess } from '@/utils/toast'
 
 definePage({
   style: { navigationBarTitleText: '批量水印' },
@@ -217,12 +218,12 @@ async function getExportPath(item: WatermarkItem): Promise<string> {
 async function processPaths(paths: { path: string, name: string }[]) {
   const remain = appendMode.value ? MAX_WATERMARK_PHOTOS - items.value.length : MAX_WATERMARK_PHOTOS
   if (remain <= 0) {
-    uni.showToast({ title: `最多 ${MAX_WATERMARK_PHOTOS} 张`, icon: 'none' })
+    toast(`最多 ${MAX_WATERMARK_PHOTOS} 张`)
     return
   }
   const toAdd = paths.slice(0, remain)
   if (paths.length > remain)
-    uni.showToast({ title: `最多 ${MAX_WATERMARK_PHOTOS} 张，已添加 ${toAdd.length} 张`, icon: 'none' })
+    toast(`最多 ${MAX_WATERMARK_PHOTOS} 张，已添加 ${toAdd.length} 张`)
 
   if (!appendMode.value)
     items.value = []
@@ -247,7 +248,7 @@ async function processPaths(paths: { path: string, name: string }[]) {
     }
   }
   catch {
-    uni.showToast({ title: '图片处理失败', icon: 'none' })
+    toast('图片处理失败')
     if (!appendMode.value)
       items.value = []
   }
@@ -262,7 +263,7 @@ async function processPaths(paths: { path: string, name: string }[]) {
 function pickImagesMp() {
   const remain = appendMode.value ? MAX_WATERMARK_PHOTOS - items.value.length : MAX_WATERMARK_PHOTOS
   if (remain <= 0) {
-    uni.showToast({ title: `最多 ${MAX_WATERMARK_PHOTOS} 张`, icon: 'none' })
+    toast(`最多 ${MAX_WATERMARK_PHOTOS} 张`)
     return
   }
   uni.chooseMedia({
@@ -325,7 +326,7 @@ const rerenderAll = debounce(async () => {
     items.value = next
   }
   catch {
-    uni.showToast({ title: '水印更新失败', icon: 'none' })
+    toast('水印更新失败')
   }
   finally {
     processing.value = false
@@ -371,7 +372,7 @@ async function saveToAlbum(filePath: string) {
 
 async function downloadSingle(item: WatermarkItem) {
   if (processing.value) {
-    uni.showToast({ title: '处理中，请稍候', icon: 'none' })
+    toastSuccess('处理中，请稍候')
     return
   }
   downloadingId.value = item.id
@@ -387,10 +388,10 @@ async function downloadSingle(item: WatermarkItem) {
     // #ifndef H5
     await saveToAlbum(path)
     // #endif
-    uni.showToast({ title: '已保存', icon: 'success' })
+    toast('已保存')
   }
   catch {
-    uni.showToast({ title: '保存失败', icon: 'none' })
+    toast('保存失败')
   }
   finally {
     downloadingId.value = ''
@@ -399,11 +400,11 @@ async function downloadSingle(item: WatermarkItem) {
 
 async function downloadAllImages() {
   if (!items.value.length) {
-    uni.showToast({ title: '请先选择图片', icon: 'none' })
+    toast('请先选择图片')
     return
   }
   if (processing.value) {
-    uni.showToast({ title: '处理中，请稍候', icon: 'none' })
+    toast('处理中，请稍候')
     return
   }
   if (items.value.length === 1) {
@@ -430,18 +431,18 @@ async function downloadAllImages() {
     link.download = 'watermarked-images.zip'
     link.click()
     URL.revokeObjectURL(url)
-    uni.showToast({ title: '已开始下载', icon: 'success' })
+    toastSuccess('已开始下载')
     // #endif
     // #ifndef H5
     for (const item of items.value) {
       const path = await getExportPath(item)
       await saveToAlbum(path)
     }
-    uni.showToast({ title: '已全部保存到相册', icon: 'success' })
+    toastSuccess('已全部保存到相册')
     // #endif
   }
   catch {
-    uni.showToast({ title: '导出失败', icon: 'none' })
+    toast('导出失败')
   }
   finally {
     loading.value = false

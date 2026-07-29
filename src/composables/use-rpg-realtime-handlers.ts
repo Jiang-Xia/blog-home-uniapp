@@ -24,6 +24,7 @@ import { itemGrantedSfxKey } from '@/constants/rpg-audio'
 import type { LevelUpResult, RpgSocialFeedbackData } from '@/types/rpg'
 import { formatRpgCurrencyReasonLabel, shouldShowCurrencyGainFx } from '@/utils/rpg-currency'
 import { shouldShowItemRevealCelebration } from '@/utils/rpg-rarity'
+import { toast, toastSuccess } from '@/utils/toast'
 
 const EXP_TOAST_DEBOUNCE_MS = 5000
 
@@ -91,10 +92,7 @@ function flushExpToast() {
   if (pendingExpAmount <= 0)
     return
   const labels = [...new Set(pendingExpLabels)].join('、') || '活动'
-  uni.showToast({
-    title: `+${pendingExpAmount} EXP（${labels}）`,
-    icon: 'none',
-  })
+  toast(`+${pendingExpAmount} EXP（${labels}）`)
   pendingExpAmount = 0
   pendingExpLabels = []
   expToastTimer = null
@@ -183,17 +181,11 @@ export function useRpgRealtimeHandlers() {
     deferCelebration(() => {
       if (data.lifeRecovered && data.lifeRecovered > 0) {
         triggerScreenPulse('lifeRecover')
-        uni.showToast({
-          title: `生命值 +${data.lifeRecovered}（当前 ${data.currentLife}）`,
-          icon: 'none',
-        })
+        toast(`生命值 +${data.lifeRecovered}（当前 ${data.currentLife}）`)
       }
       else if (data.lifeDeducted > 0) {
         triggerScreenPulse('lifeDeduct')
-        uni.showToast({
-          title: `命中敏感词，生命值 -${data.lifeDeducted}（剩余 ${data.currentLife}）`,
-          icon: 'none',
-        })
+        toast(`命中敏感词，生命值 -${data.lifeDeducted}（剩余 ${data.currentLife}）`)
       }
     })
   })
@@ -207,7 +199,7 @@ export function useRpgRealtimeHandlers() {
     deferCelebration(() => {
       if (data.banned) {
         const reason = data.banReason ? `：${data.banReason}` : ''
-        uni.showToast({ title: `您已被禁言${reason}`, icon: 'none' })
+        toast(`您已被禁言${reason}`)
         s.banPunishVisible.value = true
         playSfx('banPunish')
       }
@@ -232,7 +224,7 @@ export function useRpgRealtimeHandlers() {
     deferCelebration(() => {
       const label = data.questName ? `「${data.questName}」` : '任务'
       const exp = data.expReward ?? 0
-      uni.showToast({ title: `${label} 奖励已发放${exp ? ` +${exp} EXP` : ''}`, icon: 'none' })
+      toast(`${label} 奖励已发放${exp ? ` +${exp} EXP` : ''}`)
       s.questRewardName.value = data.questName || '任务'
       s.questRewardExp.value = exp
       s.questRewardVisible.value = true
@@ -243,7 +235,7 @@ export function useRpgRealtimeHandlers() {
   onRealtimeEvent('buffGranted', (data: any) => {
     void fetchBuffs()
     deferCelebration(() => {
-      uni.showToast({ title: `获得增益：${data.name}`, icon: 'none' })
+      toast(`获得增益：${data.name}`)
       triggerScreenPulse('buffGrant', data.name)
     })
   })
@@ -252,7 +244,7 @@ export function useRpgRealtimeHandlers() {
     void fetchQuests()
     deferCelebration(() => {
       const label = data.questName ? `「${data.questName}」` : '任务'
-      uni.showToast({ title: `${label} 已完成，去领取奖励吧！`, icon: 'none' })
+      toast(`${label} 已完成，去领取奖励吧！`)
       s.questCompleteName.value = data.questName || '任务'
       s.questCompleteVisible.value = true
       playSfx('questComplete')
@@ -276,22 +268,22 @@ export function useRpgRealtimeHandlers() {
       const actionLabel = SOCIAL_ACTION_LABEL[data.action] || data.action
       const from = data.fromNickname || '冒险者'
       if (data.action === 'cheer') {
-        uni.showToast({ title: `${from} 给你加油了！HP +${data.hpDelta}`, icon: 'none' })
+        toast(`${from} 给你加油了！HP +${data.hpDelta}`)
         showSocialFeedback({ kind: 'cheer', fromNickname: from, hpDelta: data.hpDelta })
         playSfx('socialCheer')
       }
       else if (data.action === 'egg') {
-        uni.showToast({ title: `${from} 向你扔了鸡蛋！HP ${data.hpDelta}`, icon: 'none' })
+        toast(`${from} 向你扔了鸡蛋！HP ${data.hpDelta}`)
         showSocialFeedback({ kind: 'egg', fromNickname: from, hpDelta: data.hpDelta })
         playSfx('socialEgg')
       }
       else if (data.action === 'flower') {
-        uni.showToast({ title: `${from} 向你送了鲜花！声望 +${data.reputationDelta}`, icon: 'none' })
+        toast(`${from} 向你送了鲜花！声望 +${data.reputationDelta}`)
         showSocialFeedback({ kind: 'flower', fromNickname: from, reputationDelta: data.reputationDelta })
         playSfx('socialFlower')
       }
       else {
-        uni.showToast({ title: `${from} 对你进行了${actionLabel}`, icon: 'none' })
+        toast(`${from} 对你进行了${actionLabel}`)
       }
     })
   })
@@ -300,10 +292,7 @@ export function useRpgRealtimeHandlers() {
     void fetchStatus()
     deferCelebration(() => {
       const from = data.fromNickname || '冒险者'
-      uni.showToast({
-        title: `收到打赏 +${data.amount} 钻石《${data.articleTitle}》`,
-        icon: 'success',
-      })
+      toastSuccess(`收到打赏 +${data.amount} 钻石《${data.articleTitle}》`)
       showSocialFeedback({
         kind: 'tip',
         fromNickname: from,
@@ -316,10 +305,7 @@ export function useRpgRealtimeHandlers() {
 
   onRealtimeEvent('articleLevelUp', (data: any) => {
     deferCelebration(() => {
-      uni.showToast({
-        title: `文章《${data.articleTitle}》升级至 Lv${data.newLevel}`,
-        icon: 'none',
-      })
+      toast(`文章《${data.articleTitle}》升级至 Lv${data.newLevel}`)
       s.articleLevelUpData.value = {
         articleId: data.articleId,
         articleTitle: data.articleTitle,
@@ -334,10 +320,7 @@ export function useRpgRealtimeHandlers() {
     deferCelebration(() => {
       s.masterpieceTitle.value = data.articleTitle || '你的文章'
       s.masterpieceVisible.value = true
-      uni.showToast({
-        title: `文章《${data.articleTitle}》晋升神作！`,
-        icon: 'none',
-      })
+      toast(`文章《${data.articleTitle}》晋升神作！`)
     })
   })
 
@@ -350,20 +333,14 @@ export function useRpgRealtimeHandlers() {
     deferCelebration(() => {
       const label = formatRpgCurrencyReasonLabel(data.reason, data.reasonLabel)
       if (data.delta > 0) {
-        uni.showToast({
-          title: `+${data.delta} 钻石（${label}），余额 ${data.balance}`,
-          icon: 'none',
-        })
+        toast(`+${data.delta} 钻石（${label}），余额 ${data.balance}`)
         if (shouldShowCurrencyGainFx(data.delta)) {
           triggerCurrencyGainFx(data.delta, label)
           playSfx('currencyGain')
         }
       }
       else if (data.delta < 0) {
-        uni.showToast({
-          title: `${data.delta} 钻石（${label}），余额 ${data.balance}`,
-          icon: 'none',
-        })
+        toast(`${data.delta} 钻石（${label}），余额 ${data.balance}`)
       }
     })
   })
@@ -373,7 +350,7 @@ export function useRpgRealtimeHandlers() {
       const name = data.config?.name || data.itemName || data.itemCode || '物品'
       const rarityLabel = data.config?.rarityLabel || data.rarityLabel
       const rarity = rarityLabel ? ` [${rarityLabel}]` : ''
-      uni.showToast({ title: `获得 ${name}${rarity} x${data.quantity ?? 1}`, icon: 'none' })
+      toast(`获得 ${name}${rarity} x${data.quantity ?? 1}`)
       const showReveal = data.source !== 'lottery' && shouldShowItemRevealCelebration(rarityLabel)
       if (showReveal) {
         s.itemRevealData.value = {
@@ -395,19 +372,13 @@ export function useRpgRealtimeHandlers() {
     void fetchStatus()
     deferCelebration(() => {
       const sign = data.delta > 0 ? '+' : ''
-      uni.showToast({
-        title: `抽奖券 ${sign}${data.delta}（${data.reasonLabel || data.reason}），当前 ${data.total} 张`,
-        icon: 'none',
-      })
+      toast(`抽奖券 ${sign}${data.delta}（${data.reasonLabel || data.reason}），当前 ${data.total} 张`)
     })
   })
 
   onRealtimeEvent('petHatched', (data: any) => {
     deferCelebration(() => {
-      uni.showToast({
-        title: `孵化成功：${data.name} [${data.rarityLabel}]`,
-        icon: 'none',
-      })
+      toast(`孵化成功：${data.name} [${data.rarityLabel}]`)
       s.petHatchName.value = data.name || '新宠物'
       s.petHatchVisible.value = true
       playSfx('petHatch')
@@ -418,16 +389,13 @@ export function useRpgRealtimeHandlers() {
     void fetchBuffs()
     deferCelebration(() => {
       triggerScreenPulse('shield', data.buffName || '护盾')
-      uni.showToast({
-        title: `${data.buffName || '护盾'}已抵消敏感词扣血`,
-        icon: 'none',
-      })
+      toast(`${data.buffName || '护盾'}已抵消敏感词扣血`)
     })
   })
 
   onRealtimeEvent('weatherBuff', (data: any) => {
     deferCelebration(() => {
-      uni.showToast({ title: `今日天气：${data.label}`, icon: 'none' })
+      toast(`今日天气：${data.label}`)
     })
   })
 
@@ -436,7 +404,7 @@ export function useRpgRealtimeHandlers() {
       const activities = data.activities || []
       const names = activities.map((a: any) => a.name).join('、')
       if (data.type === 'start') {
-        uni.showToast({ title: `活动开始：${names}`, icon: 'none' })
+        toast(`活动开始：${names}`)
         if (activities.length) {
           s.activityBannerName.value = names
           const buff = activities[0]?.expBuffRate
@@ -445,10 +413,10 @@ export function useRpgRealtimeHandlers() {
         }
       }
       else if (data.type === 'end') {
-        uni.showToast({ title: `活动结束：${names}`, icon: 'none' })
+        toast(`活动结束：${names}`)
       }
       else if (activities.length) {
-        uni.showToast({ title: `进行中活动：${names}`, icon: 'none' })
+        toast(`进行中活动：${names}`)
       }
     })
   })
@@ -456,7 +424,7 @@ export function useRpgRealtimeHandlers() {
   onRealtimeEvent('rankChange', (data: any) => {
     deferCelebration(() => {
       const periodLabel = LEADERBOARD_PERIOD_LABEL[data.period] || data.period
-      uni.showToast({ title: `${periodLabel}第 ${data.rank} 名！`, icon: 'none' })
+      toast(`${periodLabel}第 ${data.rank} 名！`)
       s.rankChangeRank.value = data.rank ?? 0
       s.rankChangeTypeLabel.value = LEADERBOARD_TYPE_LABEL[data.type] || data.type || ''
       s.rankChangePeriodLabel.value = periodLabel
@@ -467,17 +435,14 @@ export function useRpgRealtimeHandlers() {
 
   onRealtimeEvent('guildEvent', (data: any) => {
     deferCelebration(() => {
-      uni.showToast({
-        title: formatGuildEventMessage(data.type, data.nickname || '', data.guildName || ''),
-        icon: 'none',
-      })
+      toast(formatGuildEventMessage(data.type, data.nickname || '', data.guildName || ''))
     })
   })
 
   onRealtimeEvent('buffExpired', (data: any) => {
     void fetchBuffs()
     deferCelebration(() => {
-      uni.showToast({ title: `增益「${data.name}」已过期`, icon: 'none' })
+      toast(`增益「${data.name}」已过期`)
       triggerScreenPulse('buffExpire', data.name)
     })
   })

@@ -7,6 +7,7 @@ import { exploreSections } from '@/config/quick-entries'
 import type { ExploreItem } from '@/config/quick-entries'
 import { LOGIN_PAGE } from '@/router/config'
 import { useTokenStore } from '@/store/token'
+import { toast } from '@/utils/toast'
 
 definePage({
   excludeLoginPath: true,
@@ -19,7 +20,7 @@ const tokenStore = useTokenStore()
 
 function handleEntry(item: ExploreItem) {
   if (item.phase !== 1) {
-    uni.showToast({ title: '即将上线', icon: 'none' })
+    toast('即将上线')
     return
   }
   if (item.requiresLogin && !tokenStore.hasLogin) {

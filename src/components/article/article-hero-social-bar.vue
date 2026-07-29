@@ -10,6 +10,7 @@ import { useRpgAudio } from '@/composables/use-rpg-audio'
 import { LOGIN_PAGE } from '@/router/config'
 import { useUserStore } from '@/store'
 import { useTokenStore } from '@/store/token'
+import { toast, toastSuccess } from '@/utils/toast'
 
 const props = defineProps<{
   authorUid: number
@@ -31,7 +32,7 @@ const isAuthor = computed(() =>
 function ensureLogin() {
   if (tokenStore.hasLogin)
     return true
-  uni.showToast({ title: '请先登录', icon: 'none' })
+  toast('请先登录')
   uni.navigateTo({ url: LOGIN_PAGE })
   return false
 }
@@ -44,7 +45,7 @@ async function act(
   if (!ensureLogin())
     return
   if (isAuthor.value) {
-    uni.showToast({ title: '不能对自己操作', icon: 'none' })
+    toastSuccess('不能对自己操作')
     return
   }
   if (loading.value)
@@ -54,10 +55,7 @@ async function act(
     const res = await fn()
     if (sfx)
       void playSfx(sfx)
-    uni.showToast({
-      title: getLabel ? getLabel(res) : '操作成功',
-      icon: 'success',
-    })
+    toast(getLabel ? getLabel(res) : '操作成功')
   }
   catch {
     // http 层已 toast 业务错误
@@ -87,7 +85,7 @@ function openTip() {
   if (!ensureLogin())
     return
   if (isAuthor.value) {
-    uni.showToast({ title: '不能打赏自己', icon: 'none' })
+    toast('不能打赏自己')
     return
   }
   showTipPopup.value = true
