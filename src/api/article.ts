@@ -29,10 +29,16 @@ export interface ArticleItem {
   description?: string
   cover?: string
   createTime?: string
-  tags?: { id: number, name?: string, label?: string }[]
-  category?: { id: number, name?: string, label?: string }
+  uid?: number
+  topping?: boolean | number
+  articleLevel?: number
+  isMasterpiece?: boolean | number
+  tags?: { id: number, name?: string, label?: string, color?: string }[]
+  category?: { id: number, name?: string, label?: string, color?: string }
+  userInfo?: { id?: number, nickname?: string, avatar?: string, username?: string }
   views?: number
   likes?: number
+  commentCount?: number
 }
 
 export function getArticleList(data: ArticleListParams) {
@@ -42,7 +48,7 @@ export function getArticleList(data: ArticleListParams) {
 export function getArticleInfo(params: { id?: string | number }) {
   if (!params.id)
     return Promise.resolve(null)
-  return http.get<ArticleDetailResponse | Record<string, unknown>>('/article/info', params, undefined, { hideErrorToast: true }).catch(() => null)
+  return http.get<ArticleDetailResponse | Record<string, unknown>>('/article/info', params, undefined, { hideErrorToast: true, loading: false }).catch(() => null)
 }
 
 export function getArchives() {
@@ -50,7 +56,7 @@ export function getArchives() {
 }
 
 export function postArticleViews(id: string | number) {
-  return http.post<void>('/article/views', { id })
+  return http.post<void>('/article/views', { id }, undefined, undefined, { loading: false })
 }
 
 export function getComment(articleId: string, params?: { page?: number, pageSize?: number }) {
@@ -101,7 +107,7 @@ export function toggleLike(articleId: string | number) {
 }
 
 export function checkLiked(articleId: string | number) {
-  return http.get<{ liked: boolean }>('/like/check', { articleId: String(articleId) })
+  return http.get<{ liked: boolean }>('/like/check', { articleId: String(articleId) }, undefined, { loading: false })
 }
 
 export function toggleCollect(articleId: string | number) {
@@ -109,7 +115,7 @@ export function toggleCollect(articleId: string | number) {
 }
 
 export function checkCollected(articleId: string | number) {
-  return http.get<{ collected: boolean }>('/collect/check', { articleId: String(articleId) })
+  return http.get<{ collected: boolean }>('/collect/check', { articleId: String(articleId) }, undefined, { loading: false })
 }
 
 export function getMyArticleList(params: { page?: number, pageSize?: number }) {

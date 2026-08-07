@@ -2,6 +2,7 @@
 import { emailRegister, getAuthCode, register, sendEmailCode } from '@/api/login'
 import { ROUTE_LOGIN } from '@/router/routes'
 import { rsaEncrypt } from '@/utils/rsa'
+import { toast, toastSuccess } from '@/utils/toast'
 
 definePage({
   style: { navigationBarTitleText: '注册' },
@@ -43,7 +44,7 @@ async function handleSendEmailCode() {
     return
   try {
     await sendEmailCode(form.email, 'register')
-    uni.showToast({ title: '验证码已发送', icon: 'success' })
+    toastSuccess('验证码已发送')
     let countdown = 60
     emailCodeDisabled.value = true
     const timer = setInterval(() => {
@@ -66,11 +67,11 @@ async function handleRegister() {
   try {
     if (registerType.value === 'account') {
       if (!form.username || !form.password || !form.authCode) {
-        uni.showToast({ title: '请填写完整信息', icon: 'none' })
+        toast('请填写完整信息')
         return
       }
       if (form.password !== form.passwordRepeat) {
-        uni.showToast({ title: '两次密码不一致', icon: 'none' })
+        toast('两次密码不一致')
         return
       }
       await register({
@@ -91,7 +92,7 @@ async function handleRegister() {
         verificationCode: form.verificationCode,
       })
     }
-    uni.showToast({ title: '注册成功', icon: 'success' })
+    toastSuccess('注册成功')
     uni.redirectTo({ url: ROUTE_LOGIN })
   }
   catch {

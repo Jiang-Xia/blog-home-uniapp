@@ -1,0 +1,13 @@
+node_modules
+dist
+.DS_Store
+.git
+.idea
+.hbuilderx
+*.log
+.eslintcache
+.stylelintcache
+docs/.vitepress/dist
+docs/.vitepress/cache
+deploy/pm2/deploy.local.env
+deploy/pm2/.pack

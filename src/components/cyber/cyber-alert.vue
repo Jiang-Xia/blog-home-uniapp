@@ -1,23 +1,27 @@
 <script setup lang="ts">
+import type { AppIconName } from '@/config/app-icons'
+
 defineOptions({
   // #ifdef MP-WEIXIN
   virtualHost: true,
   // #endif
 })
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   variant?: 'warning' | 'info'
 }>(), {
   variant: 'info',
 })
+
+const alertIcon = computed<AppIconName>(() => props.variant === 'warning' ? 'warning' : 'bulb')
 </script>
 
 <template>
   <view
     class="cyber-alert"
-    :class="variant === 'warning' ? 'cyber-alert-warning' : 'cyber-alert-info'"
+    :class="props.variant === 'warning' ? 'cyber-alert-warning' : 'cyber-alert-info'"
   >
-    <text class="shrink-0 text-lg">{{ variant === 'warning' ? '⚠️' : '💡' }}</text>
+    <cyber-icon :name="alertIcon" size="40rpx" class="cyber-alert-icon" />
     <view class="u-flex-1 min-w-0">
       <slot />
     </view>

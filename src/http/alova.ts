@@ -5,7 +5,9 @@ import { createAlova } from 'alova'
 import { createServerTokenAuthentication } from 'alova/client'
 import VueHook from 'alova/vue'
 import { toLoginPage } from '@/utils/toLoginPage'
+import { markHttpToastShown } from '@/utils/biz-error'
 import { ContentTypeEnum, ResultEnum, ShowMessage } from './tools/enum'
+import { toast } from '@/utils/toast'
 
 // 配置动态Tag
 export const API_DOMAINS = {
@@ -48,10 +50,10 @@ const alovaInstance = createAlova({
   statesHook: VueHook,
 
   beforeRequest: onAuthRequired((method) => {
-    // 设置默认 Content-Type
+    // 设置默认 Content-Type（键名必须为 Content-Type）
     method.config.headers = {
-      ContentType: ContentTypeEnum.JSON,
-      Accept: 'application/json, text/plain, */*',
+      'Content-Type': ContentTypeEnum.JSON,
+      'Accept': 'application/json, text/plain, */*',
       ...method.config.headers,
     }
 
@@ -92,11 +94,8 @@ const alovaInstance = createAlova({
     if (statusCode !== 200) {
       const errorMessage = ShowMessage(statusCode) || `HTTP请求错误[${statusCode}]`
       console.error('errorMessage===>', errorMessage)
-      uni.showToast({
-        title: errorMessage,
-        icon: 'error',
-      })
-      throw new Error(`${errorMessage}：${errMsg}`)
+      toast(errorMessage, { icon: 'error' })
+      throw markHttpToastShown(new Error(`${errorMessage}：${errMsg}`))
     }
 
     // 处理业务逻辑错误
@@ -104,10 +103,8 @@ const alovaInstance = createAlova({
     // 0和200当做成功都很普遍，这里直接兼容两者，见 ResultEnum
     if (code !== ResultEnum.Success0 && code !== ResultEnum.Success200) {
       if (config.meta?.toast !== false) {
-        uni.showToast({
-          title: message,
-          icon: 'none',
-        })
+        toast(message)
+        throw markHttpToastShown(new Error(`请求错误[${code}]：${message}`))
       }
       throw new Error(`请求错误[${code}]：${message}`)
     }

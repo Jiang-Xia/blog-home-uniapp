@@ -29,7 +29,7 @@
 - 使用 HBuilderX 调试 APP
 
 ## 调试技巧
-- 使用 console.log 和 uni.showToast 调试
+- 使用 `console.log` 与统一 `toast()`（`@/utils/toast`）调试，勿直接 `uni.showToast`
 - 利用 Vue DevTools 调试组件状态
 - 使用网络面板调试 API 请求
 - 平台差异测试和兼容性检查

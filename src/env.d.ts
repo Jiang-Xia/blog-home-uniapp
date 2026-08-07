@@ -15,9 +15,9 @@ interface ImportMetaEnv {
   readonly VITE_SERVER_PORT: string
   /** 后台接口地址 */
   readonly VITE_SERVER_BASEURL: string
-  /** WebSocket origin（线上 https://jiang-xia.top） */
+  /** WebSocket origin（线上 https://go.jiang-xia.top） */
   readonly VITE_WS_ORIGIN?: string
-  /** 静态资源前缀（线上 /x-api/blog-server） */
+  /** 静态资源前缀（线上 /x-api/blog-server，挂 go 子域） */
   readonly VITE_STATIC_BASEURL?: string
   /** blog-home-nuxt 站点地址 */
   readonly VITE_NUXT_HOME_URL?: string
@@ -33,6 +33,8 @@ interface ImportMetaEnv {
   readonly VITE_APP_PROXY_ENABLE: 'true' | 'false'
   /** H5是否需要代理，需要的话有个前缀 */
   readonly VITE_APP_PROXY_PREFIX: string
+  /** true 时回退 Socket.IO（Nest）；默认原生 WebSocket（blog-server-go） */
+  readonly VITE_USE_SOCKET_IO?: 'true' | 'false'
   /** 后端是否有统一前缀 /api */
   readonly VITE_SERVER_HAS_API_PREFIX: 'true' | 'false'
   /** 认证模式，'single' | 'double' ==> 单token | 双token */

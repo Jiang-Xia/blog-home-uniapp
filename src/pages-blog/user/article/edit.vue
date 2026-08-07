@@ -14,6 +14,8 @@ import { useTokenStore } from '@/store/token'
 import { debounce } from '@/utils/debounce'
 import { apiDisplayLabel } from '@/utils/display-label'
 import { resolveStaticUrl } from '@/utils/static-url'
+import { toastBizError } from '@/utils/biz-error'
+import { toast, toastSuccess } from '@/utils/toast'
 
 definePage({
   style: { navigationBarTitleText: '编辑文章' },
@@ -35,7 +37,8 @@ const form = reactive({
   category: '',
   cover: '',
   tags: [] as number[],
-  status: 'publish' as 'publish' | 'draft',
+  status: 'publish' as 'publish' | 'draft' | 'scheduled',
+  scheduledPublishAt: '',
 })
 
 /** 草稿 storage key；新建与编辑分 key */
@@ -106,7 +109,9 @@ onLoad(async (query) => {
         form.cover = String(info.cover ?? '')
         form.category = String((info.category as any)?.id ?? info.category ?? '')
         form.tags = Array.isArray(info.tags) ? info.tags.map((t: any) => t.id) : []
-        form.status = (info.status as 'publish' | 'draft') || 'publish'
+        form.status = (info.status as 'publish' | 'draft' | 'scheduled') || 'publish'
+        if (info.scheduledPublishAt)
+          form.scheduledPublishAt = String(info.scheduledPublishAt).replace(' ', 'T').slice(0, 16)
       }
     }
     else {
@@ -133,10 +138,11 @@ async function pickCover() {
       uni.showLoading({ title: '上传中' })
       try {
         form.cover = await uploadCover(path)
-        uni.showToast({ title: '封面上传成功', icon: 'success' })
+        toastSuccess('封面上传成功')
       }
-      catch {
-        uni.showToast({ title: '上传失败', icon: 'none' })
+      catch (e) {
+        // uploadMedia 非 http 封装，需本地 toast 后端/本地文案
+        toastBizError(e, '上传失败')
       }
       finally {
         uni.hideLoading()
@@ -154,9 +160,36 @@ function toggleTag(id: number) {
 }
 
 /** 提交创建/更新；成功后清除草稿 */
+function onScheduledDateChange(e: { detail: { value: string } }) {
+  const date = e.detail.value
+  const time = form.scheduledPublishAt.includes('T') ? form.scheduledPublishAt.split('T')[1] : '12:00'
+  form.scheduledPublishAt = `${date}T${time}`
+}
+
+function onScheduledTimeChange(e: { detail: { value: string } }) {
+  const time = e.detail.value
+  const date = form.scheduledPublishAt.includes('T') ? form.scheduledPublishAt.split('T')[0] : ''
+  if (date)
+    form.scheduledPublishAt = `${date}T${time}`
+  else
+    form.scheduledPublishAt = `T${time}`
+}
+
+const scheduledDateValue = computed(() =>
+  form.scheduledPublishAt.includes('T') ? form.scheduledPublishAt.split('T')[0] : '',
+)
+
+const scheduledTimeValue = computed(() =>
+  form.scheduledPublishAt.includes('T') ? form.scheduledPublishAt.split('T')[1] : '12:00',
+)
+
 async function submit() {
   if (!form.title.trim()) {
-    uni.showToast({ title: '请填写标题', icon: 'none' })
+    toast('请填写标题')
+    return
+  }
+  if (form.status === 'scheduled' && !scheduledDateValue.value) {
+    toast('请选择定时发布时间')
     return
   }
   submitting.value = true
@@ -171,12 +204,16 @@ async function submit() {
       cover: form.cover,
       tags: form.tags,
       status: form.status,
+      scheduledPublishAt:
+        form.status === 'scheduled'
+          ? `${scheduledDateValue.value} ${scheduledTimeValue.value}:00`
+          : undefined,
     }
     if (isEdit.value) {
       params.id = Number(articleId.value)
       await editArticle(params)
       clearLocalDraft()
-      uni.showToast({ title: '更新成功', icon: 'success' })
+      toastSuccess('更新成功')
       setTimeout(() => {
         uni.navigateTo({ url: `${ROUTE_DETAIL}?id=${articleId.value}` })
       }, 500)
@@ -185,7 +222,7 @@ async function submit() {
       const created = await createArticle(params)
       clearLocalDraft()
       const newId = created?.id ?? created?.info?.id
-      uni.showToast({ title: '创建成功', icon: 'success' })
+      toastSuccess('创建成功')
       setTimeout(() => {
         if (newId)
           uni.navigateTo({ url: `${ROUTE_DETAIL}?id=${newId}` })
@@ -214,7 +251,9 @@ async function submit() {
         <wd-input v-model="form.description" label="摘要" placeholder="简短描述" class="mt-3" />
         <view class="mt-3">
           <text class="mb-1 block text-sm text-tech-muted">封面</text>
-          <image v-if="form.cover" :src="coverDisplayUrl" mode="aspectFill" class="mb-2 h-32 w-full border border-tech rounded-lg" />
+          <view v-if="form.cover" class="article-cover-wrap article-edit-cover mb-2">
+            <image :src="coverDisplayUrl" mode="aspectFill" class="article-cover-wrap__img article-edit-cover__img" />
+          </view>
           <wd-button size="small" @click="pickCover">
             选择封面
           </wd-button>
@@ -247,13 +286,34 @@ async function submit() {
         </view>
         <view class="mt-3">
           <text class="mb-1 block text-sm text-tech-muted">状态</text>
-          <view class="u-gap-2 flex">
+          <view class="u-gap-2 flex flex-wrap">
             <wd-button size="small" :type="form.status === 'publish' ? 'primary' : undefined" @click="form.status = 'publish'">
               发布
             </wd-button>
             <wd-button size="small" :type="form.status === 'draft' ? 'primary' : undefined" @click="form.status = 'draft'">
               草稿
             </wd-button>
+            <wd-button size="small" :type="form.status === 'scheduled' ? 'primary' : undefined" @click="form.status = 'scheduled'">
+              定时发布
+            </wd-button>
+          </view>
+        </view>
+        <view v-if="form.status === 'scheduled'" class="u-stack-3 mt-3">
+          <view>
+            <text class="mb-1 block text-sm text-tech-muted">发布日期</text>
+            <picker mode="date" :value="scheduledDateValue" @change="onScheduledDateChange">
+              <view class="border border-tech rounded px-3 py-2 text-sm text-tech">
+                {{ scheduledDateValue || '选择日期' }}
+              </view>
+            </picker>
+          </view>
+          <view>
+            <text class="mb-1 block text-sm text-tech-muted">发布时间</text>
+            <picker mode="time" :value="scheduledTimeValue" @change="onScheduledTimeChange">
+              <view class="border border-tech rounded px-3 py-2 text-sm text-tech">
+                {{ scheduledTimeValue }}
+              </view>
+            </picker>
           </view>
         </view>
         <view class="u-form-actions">

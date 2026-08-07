@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { getEnvBaseUrl } from '@/utils/index'
+import { toast } from '@/utils/toast'
 
 const VITE_UPLOAD_BASEURL = `${getEnvBaseUrl()}/upload`
 
@@ -32,10 +33,7 @@ export default function useUpload<T extends TfileType>(options: TOptions<T> = {}
 
   const handleFileChoose = ({ tempFilePath, size }: { tempFilePath: string, size: number }) => {
     if (size > maxSize) {
-      uni.showToast({
-        title: `文件大小不能超过 ${maxSize / 1024 / 1024}MB`,
-        icon: 'none',
-      })
+      toast(`文件大小不能超过 ${maxSize / 1024 / 1024}MB`)
       return
     }
 
@@ -89,7 +87,7 @@ export default function useUpload<T extends TfileType>(options: TOptions<T> = {}
       success: (res: any) => {
         console.log('File selected successfully:', res)
         // 小程序中res:{errMsg: "chooseImage:ok", tempFiles: [{fileType: "image", size: 48976, tempFilePath: "http://tmp/5iG1WpIxTaJf3ece38692a337dc06df7eb69ecb49c6b.jpeg"}]}
-        // h5中res:{errMsg: "chooseImage:ok", tempFilePaths: "blob:http://localhost:9000/f74ab6b8-a14d-4cb6-a10d-fcf4511a0de5", tempFiles: [File]}
+        // h5中res:{errMsg: "chooseImage:ok", tempFilePaths: "blob:http://localhost:8008/f74ab6b8-a14d-4cb6-a10d-fcf4511a0de5", tempFiles: [File]}
         // h5的File有以下字段：{name: "girl.jpeg", size: 48976, type: "image/jpeg"}
         // App中res:{errMsg: "chooseImage:ok", tempFilePaths: "file:///Users/feige/xxx/gallery/1522437259-compressed-IMG_0006.jpg", tempFiles: [File]}
         // App的File有以下字段：{path: "file:///Users/feige/xxx/gallery/1522437259-compressed-IMG_0006.jpg", size: 48976}

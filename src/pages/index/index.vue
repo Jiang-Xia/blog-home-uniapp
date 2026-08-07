@@ -3,6 +3,8 @@ import { getArticleList } from '@/api/article'
 import type { ArticleItem } from '@/api/article'
 import ArticleCard from '@/components/article-card/article-card.vue'
 import CyberBackTop from '@/components/cyber/cyber-back-top.vue'
+import { useAuthorRpgLevels } from '@/composables/use-author-rpg-levels'
+import { useTheme } from '@/composables/use-theme'
 import { gushici, TOOL_COUNT } from '@/config/site-constant'
 import { ROUTE_RPG_ENTRY, ROUTE_RPG_GUIDE, ROUTE_SEARCH } from '@/router/routes'
 
@@ -13,6 +15,8 @@ definePage({
 
 const articleList = ref<ArticleItem[]>([])
 const articleTotal = ref(0)
+const { fetchLevelsForUids } = useAuthorRpgLevels()
+const { shellColor } = useTheme()
 const pagingRef = ref<{ complete: (list: ArticleItem[]) => void, completeByTotal?: (list: ArticleItem[], total: number) => void, scrollToY?: (y: number) => void, scrollToTop?: (animate?: boolean) => void } | null>(null)
 const backTopRef = ref<InstanceType<typeof CyberBackTop> | null>(null)
 
@@ -93,13 +97,17 @@ function handleGoTop() {
 onMounted(() => {
   void loadPoetry()
 })
+
+watch(articleList, (list) => {
+  void fetchLevelsForUids(list.map(item => item.uid ?? item.userInfo?.id))
+}, { immediate: true })
 </script>
 
 <template>
   <z-paging
     ref="pagingRef"
     v-model="articleList"
-    bg-color="#050505"
+    :bg-color="shellColor"
     :default-page-size="12"
     @query="queryList"
     @scroll-top-change="onScrollTopChange"
@@ -110,7 +118,7 @@ onMounted(() => {
         <view class="home-hero-brand flex justify-center">
           <view class="home-hero-brand-chip">
             <view class="home-hero-brand-icon site-logo-badge">
-              <text class="home-hero-brand-emoji">⚔️</text>
+              <cyber-icon name="sword" size="40rpx" />
             </view>
             <view class="home-hero-status-dot" />
             <text class="home-hero-brand-label">Blog × RPG · 签到 · 任务 · 抽奖 · 排行榜</text>
@@ -140,12 +148,18 @@ onMounted(() => {
           <view class="home-hero-buttons mt-4 flex flex-wrap items-center justify-center">
             <view>
               <cyber-button size="small" variant="primary" @click="goRpg">
-                ⚔️ 开始冒险
+                <view class="flex items-center">
+                  <cyber-icon name="sword" size="32rpx" />
+                  <text class="ml-2">开始冒险</text>
+                </view>
               </cyber-button>
             </view>
             <view>
               <cyber-button size="small" variant="secondary" @click="scrollToArticles">
-                📖 浏览文章
+                <view class="flex items-center">
+                  <cyber-icon name="book" size="32rpx" />
+                  <text class="ml-2">浏览文章</text>
+                </view>
               </cyber-button>
             </view>
             <view>
@@ -227,11 +241,6 @@ onMounted(() => {
   height: 40rpx;
   width: 40rpx;
   border-radius: 8rpx;
-}
-
-.home-hero-brand-emoji {
-  font-size: 22rpx;
-  line-height: 1;
 }
 
 .home-hero-status-dot {

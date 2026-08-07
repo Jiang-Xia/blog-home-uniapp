@@ -8,6 +8,7 @@ import { checkCollected, checkLiked, toggleCollect, toggleLike } from '@/api/art
 import RpgArticleTip from '@/components/rpg/rpg-article-tip.vue'
 import { LOGIN_PAGE } from '@/router/config'
 import { useTokenStore } from '@/store/token'
+import { toast } from '@/utils/toast'
 
 const props = defineProps<{
   articleId: number | string
@@ -83,7 +84,7 @@ async function handleCollect() {
   try {
     await toggleCollect(props.articleId)
     collected.value = !collected.value
-    uni.showToast({ title: collected.value ? '收藏成功' : '已取消收藏', icon: 'none' })
+    toast(collected.value ? '收藏成功' : '已取消收藏')
     fabOpen.value = false
   }
   finally {
@@ -109,15 +110,12 @@ function toggleFab() {
 </script>
 
 <template>
-  <view v-show="!showTipPopup" class="article-rpg-fab-wrap">
+  <view class="article-rpg-fab-wrap">
     <view v-if="fabOpen" class="fab-actions">
       <view class="fab-action-item">
-        <view
-          class="fab-action-btn"
-          :class="liked ? 'fab-action-btn--liked' : 'fab-action-btn--ghost'"
-          @tap="handleLike"
-        >
-          <text class="fab-action-icon">{{ liked ? '♥' : '♡' }}</text>
+        <view class="fab-action-btn" :class="liked ? 'fab-action-btn--liked' : 'fab-action-btn--ghost'" @tap="handleLike">
+          <cyber-icon v-if="liked" name="heart" size="40rpx" class="fab-action-icon" />
+          <wd-icon v-else name="heart" custom-class="fab-action-icon fab-action-icon--wd" color="var(--tech-fg-muted)" />
         </view>
         <text class="fab-action-label">{{ liked ? '取消' : '点赞' }}</text>
       </view>
@@ -127,34 +125,47 @@ function toggleFab() {
           :class="collected ? 'fab-action-btn--collected' : 'fab-action-btn--ghost'"
           @tap="handleCollect"
         >
-          <text class="fab-action-icon">{{ collected ? '🔖' : '📑' }}</text>
+          <cyber-icon name="bookmark" size="40rpx" class="fab-action-icon" :class="collected ? '' : 'fab-action-icon--dim'" />
         </view>
         <text class="fab-action-label">{{ collected ? '已藏' : '收藏' }}</text>
       </view>
       <view class="fab-action-item">
         <view class="fab-action-btn fab-action-btn--tip" @tap="openTipPopup">
-          <text class="fab-action-icon">💎</text>
+          <cyber-icon name="gem" size="40rpx" class="fab-action-icon" />
         </view>
         <text class="fab-action-label">打赏</text>
       </view>
     </view>
 
     <view class="fab-main-btn" @tap="toggleFab">
-      <text class="fab-main-icon">{{ fabOpen ? '✕' : '⚔️' }}</text>
+      <cyber-icon v-if="!fabOpen" name="sword" size="44rpx" class="fab-main-icon" />
+      <wd-icon v-else name="close" custom-class="fab-main-icon fab-main-icon--wd" color="var(--tech-fg)" />
     </view>
   </view>
 
-  <wd-popup v-model="showTipPopup" position="bottom" closable @close="showTipPopup = false">
-    <view class="tip-popup cyber-page p-4">
-      <text class="mb-3 block text-tech font-medium">💎 打赏作者</text>
+  <view
+    v-if="showTipPopup"
+    class="tip-dialog-overlay u-overlay fixed inset-0 z-50 flex items-center justify-center"
+    @tap="showTipPopup = false"
+  >
+    <cyber-card class="tip-dialog cyber-card-pad-xl" @tap.stop>
+      <view class="tip-dialog-title u-gap-2 mb-3 flex items-center">
+        <cyber-icon name="gem" size="36rpx" />
+        <text class="text-lg text-tech font-bold">打赏作者</text>
+      </view>
       <RpgArticleTip
         :article-id="Number(articleId)"
         :author-uid="authorUid"
         embedded
         @tipped="onTipped"
       />
-    </view>
-  </wd-popup>
+      <view class="mt-4">
+        <wd-button block type="info" @click="showTipPopup = false">
+          关闭
+        </wd-button>
+      </view>
+    </cyber-card>
+  </view>
 </template>
 
 <style scoped>
@@ -225,8 +236,19 @@ function toggleFab() {
 }
 
 .fab-action-icon {
-  font-size: 32rpx;
   line-height: 1;
+}
+
+.fab-action-icon--dim {
+  opacity: 0.55;
+}
+
+.fab-action-icon--wd {
+  font-size: 32rpx !important;
+}
+
+.fab-main-icon--wd {
+  font-size: 40rpx !important;
 }
 
 .fab-main-btn {
@@ -246,15 +268,21 @@ function toggleFab() {
   line-height: 1;
 }
 
-.tip-popup {
-  padding-bottom: 48rpx;
+.tip-dialog-overlay {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.tip-dialog {
+  width: 85%;
+  max-width: 360px;
+}
+
+.tip-dialog-title {
+  line-height: 1.3;
 }
 
 /* #ifdef H5 */
-.tip-popup {
-  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
-}
-
 .article-rpg-fab-wrap {
   bottom: calc(48rpx + env(safe-area-inset-bottom));
 }

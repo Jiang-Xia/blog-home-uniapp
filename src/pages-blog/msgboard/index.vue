@@ -13,6 +13,7 @@ import type { MsgboardNode } from '@/utils/msgboard-tree'
 import { formatRelativeTime } from '@/utils/date-time'
 import { getRandomNickname } from '@/utils/nickname'
 import { resolveStaticUrl } from '@/utils/static-url'
+import { toast, toastSuccess } from '@/utils/toast'
 
 definePage({
   excludeLoginPath: true,
@@ -98,12 +99,12 @@ async function submitMessage() {
   if (submitting.value)
     return
   if (!msgForm.name.trim() || !msgForm.eamil.trim() || !msgForm.address.trim() || !msgForm.comment.trim()) {
-    uni.showToast({ title: '请填写完整信息', icon: 'none' })
+    toast('请填写完整信息')
     return
   }
   const emailReg = /^[\w-]+@[\w-]+\.[\w-]+$/
   if (!emailReg.test(msgForm.eamil)) {
-    uni.showToast({ title: '邮箱格式不正确', icon: 'none' })
+    toast('邮箱格式不正确')
     return
   }
   submitting.value = true
@@ -116,7 +117,7 @@ async function submitMessage() {
       avatar: userStore.userInfo.avatar,
       uid: userStore.userInfo.userId > 0 ? userStore.userInfo.userId : undefined,
     })
-    uni.showToast({ title: '留言发表成功', icon: 'success' })
+    toastSuccess('留言发表成功')
     msgForm.name = resolveFormName()
     msgForm.eamil = ''
     msgForm.address = ''
@@ -124,7 +125,7 @@ async function submitMessage() {
     await reloadMsgboard()
   }
   catch {
-    uni.showToast({ title: '发表失败，请稍后重试', icon: 'none' })
+    // 失败文案已由 http 展示后端 message
   }
   finally {
     submitting.value = false
@@ -150,12 +151,13 @@ async function submitReply() {
   if (!target)
     return
   if (!replyForm.name.trim() || !replyForm.comment.trim()) {
-    uni.showToast({ title: '请填写名称与内容', icon: 'none' })
+    toast('请填写名称与内容')
     return
   }
   submitting.value = true
   try {
-    const rootPid = target.pId && target.pId !== 0 ? target.pId : target.id
+    // 子回复仍挂在顶层 pId 下（与 Nuxt 一致）；兼容字符串 pId
+    const rootPid = Number(target.pId) ? Number(target.pId) : target.id
     await postMsgboard({
       pId: rootPid,
       name: replyForm.name.trim(),
@@ -167,12 +169,12 @@ async function submitReply() {
       avatar: userStore.userInfo.avatar,
       uid: userStore.userInfo.userId > 0 ? userStore.userInfo.userId : undefined,
     })
-    uni.showToast({ title: '回复成功', icon: 'success' })
+    toastSuccess('回复成功')
     closeReply()
     await reloadMsgboard()
   }
   catch {
-    uni.showToast({ title: '回复失败', icon: 'none' })
+    // 失败文案已由 http 展示后端 message
   }
   finally {
     submitting.value = false
@@ -192,11 +194,11 @@ async function handleDelete(isTopLevel: boolean, item: MsgboardNode) {
         return
       try {
         await deleteMsgboard(collectMsgboardDeleteIds(item, isTopLevel))
-        uni.showToast({ title: '删除成功', icon: 'success' })
+        toastSuccess('删除成功')
         await reloadMsgboard()
       }
       catch {
-        uni.showToast({ title: '删除失败', icon: 'none' })
+        // 失败文案已由 http 展示后端 message
       }
     },
   })
@@ -221,8 +223,8 @@ function avatarUrl(item: MsgboardNode) {
       <cyber-card class="mb-4 !p-4">
         <text class="mb-3 block text-tech font-medium">发表留言</text>
         <wd-input v-model="msgForm.name" label="昵称" placeholder="您的昵称" maxlength="10" />
-        <wd-input v-model="msgForm.eamil" label="邮箱" placeholder="您的邮箱" class="mt-2" maxlength="30" />
-        <wd-input v-model="msgForm.address" label="主页" placeholder="您的主页 URL" class="mt-2" maxlength="30" />
+        <wd-input v-model="msgForm.eamil" label="邮箱" placeholder="您的邮箱" class="mt-2" maxlength="64" />
+        <wd-input v-model="msgForm.address" label="主页" placeholder="您的主页 URL" class="mt-2" maxlength="200" />
         <wd-textarea v-model="msgForm.comment" label="留言" placeholder="写下你的想法..." class="mt-2" :maxlength="800" />
         <cyber-button size="small" class="mt-3 inline-flex" variant="primary" @click="submitMessage">
           发表

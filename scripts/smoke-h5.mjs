@@ -1,12 +1,13 @@
 /**
  * H5 冒烟测试：验证关键页面可加载、无致命控制台错误
  * 用法：node scripts/smoke-h5.mjs
- * 前置：pnpm dev（9000）+ blog-server（5000）
+ * 前置：pnpm dev（8008）+ blog-server-go（8000）
  */
 import process from 'node:process'
 import { chromium } from 'playwright'
 
-const BASE = process.env.SMOKE_BASE_URL || 'http://localhost:9000'
+const BASE = process.env.SMOKE_BASE_URL || 'http://localhost:8008'
+const API_BASE = process.env.API_BASE || 'http://localhost:8000/api/v1'
 
 const routes = [
   { name: '首页', path: 'pages/index/index', expectText: 'Blog Home' },
@@ -21,11 +22,17 @@ const routes = [
   { name: '留言板', path: 'pages-blog/msgboard/index', expectText: '留言' },
   { name: '开源', path: 'pages-blog/open-source/index', expectText: '三端项目' },
   { name: '工具箱', path: 'pages-tool/index/index', expectText: '实用工具' },
-  { name: '编码转换', path: 'pages-tool/codes/index', expectText: '输出' },
-  { name: 'RSA', path: 'pages-tool/rsa/index', expectText: '生成密钥对' },
-  { name: 'SM2', path: 'pages-tool/sm/index', expectText: '生成密钥对' },
-  { name: '二维码', path: 'pages-tool/qrcode/index', expectText: '重新生成' },
+  { name: '编码转换', path: 'pages-tool/codes/index', expectText: '条形码' },
+  { name: 'RSA', path: 'pages-tool/rsa/index', expectText: '生成秘钥' },
+  { name: 'SM2', path: 'pages-tool/sm/index', expectText: '生成秘钥' },
+  { name: '二维码', path: 'pages-tool/qrcode/index', expectText: '条形码' },
   { name: 'AI摘要', path: 'pages-tool/ai-summary/index', expectText: '生成摘要' },
+  { name: 'AI对话', path: 'pages-tool/ai/index', expectText: 'baseURL' },
+  { name: '批量水印', path: 'pages-tool/watermark/index', expectText: '水印' },
+  { name: '光影边框', path: 'pages-tool/photos/index', expectText: '光影' },
+  { name: '音频可视化', path: 'pages-tool/audio-visualized/index', expectText: '音频' },
+  { name: '切片上传', path: 'pages-tool/upload-slice/index', expectText: '分片' },
+  { name: 'PDF签名', path: 'pages-tool/pdf/index', expectText: 'PDF' },
   { name: '友链', path: 'pages-blog/links/index', expectText: '友链' },
   { name: '写文章', path: 'pages-blog/user/article/edit', expectText: '账号登录' },
 ]
@@ -64,7 +71,7 @@ async function main() {
   // 首页应能发起 article/list（不要求有数据）
   try {
     const apiOk = await page.evaluate(async () => {
-      const res = await fetch('http://localhost:5000/api/v1/article/list', {
+      const res = await fetch(`${API_BASE}/article/list`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ page: 1, pageSize: 5, client: true, sort: 'DESC' }),

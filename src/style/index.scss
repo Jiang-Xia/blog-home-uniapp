@@ -10,13 +10,28 @@
 }
 
 @import './cyber-theme.scss';
+@import './rpg-theme.scss';
+@import './wot-cyber-theme.scss';
 @import './markdown-preview.scss';
 
 /* #ifdef H5 */
 :root,
+html,
+body,
+#app {
+  min-height: 100%;
+  background-color: var(--tech-shell, #050505);
+}
+
+html[data-theme='cyber-light'],
+html[data-theme='cyber-light'] body,
+html[data-theme='cyber-light'] #app {
+  background-color: var(--tech-shell, #f0f4f9);
+}
 /* #endif */
+
 page {
-  // cyber 主题色在 cyber-theme.scss 中定义
+  // cyber / cyber-light 令牌见 cyber-theme.scss；运行时由 App.ku 根节点 data-theme 切换
 }
 
 /*

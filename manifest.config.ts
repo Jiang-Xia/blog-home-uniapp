@@ -16,6 +16,7 @@ const {
   VITE_APP_TITLE,
   VITE_UNI_APPID,
   VITE_WX_APPID,
+  VITE_ALIPAY_APPID,
   VITE_APP_PUBLIC_BASE,
   VITE_FALLBACK_LOCALE,
 } = env
@@ -121,8 +122,8 @@ export default defineManifestConfig({
     appid: VITE_WX_APPID,
     setting: {
       urlCheck: false,
-      // 是否启用 ES6 转 ES5
-      es6: true,
+      // 基础库 3.x 已原生支持 ES6；关闭转 ES5，避免 vendor 内 class 方法与顶层 const 同名冲突
+      es6: false,
       minified: true,
     },
     optimization: {
@@ -136,6 +137,7 @@ export default defineManifestConfig({
     // __usePrivacyCheck__: true,
   },
   'mp-alipay': {
+    appid: VITE_ALIPAY_APPID,
     usingComponents: true,
     styleIsolation: 'shared',
     optimization: {

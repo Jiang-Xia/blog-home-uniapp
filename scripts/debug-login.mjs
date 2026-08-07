@@ -3,6 +3,8 @@ import process from 'node:process'
 import { enc } from 'crypto-js'
 import JSEncrypt from 'jsencrypt'
 
+const API_BASE = process.env.API_BASE || 'http://localhost:8000/api/v1'
+
 const pub = `-----BEGIN PUBLIC KEY-----
 MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAL9r8jKkfORpiunFylF4XwvNi06sTD3N
 4hYLAmGNmviZ1IhCnu4VZ0sShdj7LYfh/Rw5IuqY55XXr6zVB/LzQ70CAwEAAQ==
@@ -15,7 +17,7 @@ function rsaEncrypt(word) {
   return enc.Hex.stringify(enc.Base64.parse(encrypted)).toUpperCase()
 }
 
-const capRes = await fetch(`http://localhost:5000/api/v1/user/authCode?t=${Date.now()}`)
+const capRes = await fetch(`${API_BASE}/user/authCode?t=${Date.now()}`)
 const capJson = await capRes.json()
 const captchaId = capJson.data.captchaId
 console.log('captchaId', captchaId)
@@ -31,7 +33,7 @@ catch (e) {
 }
 console.log('authCode from redis', authCode)
 
-const loginRes = await fetch('http://localhost:5000/api/v1/user/login', {
+const loginRes = await fetch(`${API_BASE}/user/login`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -48,7 +50,7 @@ console.log('login response', JSON.stringify(loginJson, null, 2))
 const accessToken = loginJson.data?.info?.accessToken || loginJson.data?.accessToken
 console.log('accessToken present', !!accessToken)
 
-const infoRes = await fetch('http://localhost:5000/api/v1/user/info', {
+const infoRes = await fetch(`${API_BASE}/user/info`, {
   headers: { Authorization: `Bearer ${accessToken}` },
 })
 console.log('info with token', infoRes.status, await infoRes.text())

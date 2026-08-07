@@ -5,8 +5,10 @@ import { isDoubleTokenRes } from '@/api/types/login'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { clearPersistedAccessToken, persistAccessToken } from '@/utils/auth-token'
+import { toastBizError } from '@/utils/biz-error'
 import { isDoubleTokenMode } from '@/utils'
 import { useUserStore } from './user'
+import { toastSuccess } from '@/utils/toast'
 
 const tokenInfoState: IAuthLoginRes = isDoubleTokenMode
   ? {
@@ -72,11 +74,12 @@ export const useTokenStore = defineStore(
       try {
         const res = await apiLogin(loginForm)
         await _postLogin(toTokenInfo(res))
-        uni.showToast({ title: '登录成功', icon: 'success' })
+        toastSuccess('登录成功')
         return res
       }
       catch (error) {
-        uni.showToast({ title: '登录失败', icon: 'none' })
+        // 业务/网络错误已由 http 展示后端 msg；仅本地异常（如缺 token）兜底
+        toastBizError(error, '登录失败')
         throw error
       }
       finally {
@@ -88,11 +91,11 @@ export const useTokenStore = defineStore(
       try {
         const res = await emailLogin(params)
         await _postLogin(toTokenInfo(res))
-        uni.showToast({ title: '登录成功', icon: 'success' })
+        toastSuccess('登录成功')
         return res
       }
       catch (error) {
-        uni.showToast({ title: '登录失败', icon: 'none' })
+        toastBizError(error, '登录失败')
         throw error
       }
       finally {
@@ -105,11 +108,11 @@ export const useTokenStore = defineStore(
         const code = await getWxCode()
         const res = await apiWxLogin(code)
         await _postLogin(toTokenInfo(res))
-        uni.showToast({ title: '登录成功', icon: 'success' })
+        toastSuccess('登录成功')
         return res
       }
       catch (error) {
-        uni.showToast({ title: '微信登录失败', icon: 'none' })
+        toastBizError(error, '微信登录失败')
         throw error
       }
       finally {
@@ -122,11 +125,11 @@ export const useTokenStore = defineStore(
       try {
         const res = await exchangeOAuthTicket(ticket)
         await _postLogin(toTokenInfo(res))
-        uni.showToast({ title: '登录成功', icon: 'success' })
+        toastSuccess('登录成功')
         return res
       }
       catch (error) {
-        uni.showToast({ title: '登录凭证无效或已过期', icon: 'none' })
+        toastBizError(error, '登录凭证无效或已过期')
         throw error
       }
       finally {

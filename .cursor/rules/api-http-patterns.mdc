@@ -42,10 +42,24 @@ export const useLogin = () => {
 }
 ```
 
+## Loading
+- 普通接口默认开启全局 Loading（[`src/utils/global-loading.ts`](mdc:src/utils/global-loading.ts)）：引用计数 + 防闪烁（默认 150ms）
+- 在 `http.ts` 的 `complete` 中成对 `beginGlobalLoading` / `endGlobalLoading`
+- 单次关闭：`http.get(url, query, undefined, { loading: false })`
+- 单次覆盖文案：`{ loading: { title: '提交中...' } }`
+- 静默请求（轮询、refresh、埋点、软失败查询）须显式 `loading: false`
+- 页面勿再包一层 `uni.showLoading` 与 http 重复（上传等非 http 除外）
+
 ## 错误处理
-- 统一错误处理在拦截器中配置
-- 支持网络错误、业务错误、认证错误等
+- 统一 Toast：一律用 [`src/utils/toast.ts`](mdc:src/utils/toast.ts) 的 `toast(title, options?)`（亦可 AutoImport），**禁止**业务代码直接 `uni.showToast`
+- 详见 [uniapp-22-toast.mdc](mdc:.cursor/rules/uniapp-22-toast.mdc)
+- 统一错误处理在 [src/http/http.ts](mdc:src/http/http.ts)：业务失败优先 `toast(后端 msg/message)`，并 `markHttpToastShown` 后 reject
+- 页面 / store 的 `catch` **不要**再写死「登录失败」「xxx失败」覆盖后端文案
+- 正确写法：
+  - 仅副作用：`catch { /* http 已 toast */ }`
+  - 本地 / 上传等兜底：`toastBizError(error, '兜底文案')`（见 [src/utils/biz-error.ts](mdc:src/utils/biz-error.ts)）
+- 仅当前端自行处理提示时用 `hideErrorToast: true`，再在 catch 里 `toast(getBizErrorMessage(...))`
 - 自动处理 token 过期和刷新
 ---
-globs: src/api/*.ts,src/http/*.ts
+globs: src/api/*.ts,src/http/*.ts,src/utils/toast.ts,src/utils/biz-error.ts,src/utils/global-loading.ts
 ---

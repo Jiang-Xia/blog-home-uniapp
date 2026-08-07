@@ -29,9 +29,12 @@ const httpInterceptor = {
     // 非 http 开头需拼接地址
     if (!options.url.startsWith('http')) {
       // #ifdef H5
-      if (JSON.parse(import.meta.env.VITE_APP_PROXY_ENABLE)) {
-        // 自动拼接代理前缀
-        options.url = import.meta.env.VITE_APP_PROXY_PREFIX + options.url
+      // 仅本地 dev 经 Vite 代理；生产 H5 直连 VITE_SERVER_BASEURL（避免线上误拼 /fg-api）
+      if (import.meta.env.DEV && JSON.parse(import.meta.env.VITE_APP_PROXY_ENABLE)) {
+        // zone-server 走 /x-zone 代理；blog-server 走 /fg-api 代理（避免 localhost 直连线上 CORS）
+        if (!options.url.startsWith('/x-zone/')) {
+          options.url = import.meta.env.VITE_APP_PROXY_PREFIX + options.url
+        }
       }
       else {
         options.url = baseUrl + options.url
@@ -45,9 +48,17 @@ const httpInterceptor = {
     }
     // 1. 请求超时
     options.timeout = 60000 // 60s
-    // 2. （可选）添加小程序端请求头标识
+    // 2. 默认 header；带 body 的写请求显式 JSON，避免小程序按 form 编码导致 Hertz/Nest Bind 失败
     options.header = {
       ...options.header,
+    }
+    const method = String(options.method || 'GET').toUpperCase()
+    const hasBody = options.data !== undefined && options.data !== null
+    if (hasBody && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+      const headers = options.header as Record<string, string>
+      const contentTypeKey = Object.keys(headers).find(k => k.toLowerCase() === 'content-type')
+      if (!contentTypeKey)
+        headers['Content-Type'] = 'application/json;charset=UTF-8'
     }
     // 3. 添加 token 请求头（Pinia + 本地 storage 双通道，避免登录后立即请求丢 token）
     const tokenStore = useTokenStore()

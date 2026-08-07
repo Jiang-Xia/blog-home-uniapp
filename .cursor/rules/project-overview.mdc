@@ -9,7 +9,7 @@ alwaysApply: true
 - 支持 H5、微信小程序、APP 多平台
 - 约定式路由、layout 布局、请求封装、登录拦截、自定义 TabBar
 - 无需依赖 HBuilderX，支持命令行开发
-- 联调后端：blog-server（默认 `http://localhost:5000/api/v1`）
+- 联调后端：blog-server-go（默认 `http://localhost:8000/api/v1`）；Nest 辅调 `pnpm dev:nest-local`
 
 ## 核心配置文件
 - [package.json](mdc:package.json) - 依赖与脚本
@@ -27,7 +27,7 @@ alwaysApply: true
 - `env/` - 环境变量
 
 ## 开发命令
-- `pnpm dev` - H5（端口 9000）
+- `pnpm dev` - H5（端口 8008）
 - `pnpm dev:mp` - 微信小程序
 - `pnpm dev:app` - App
 - `pnpm lint:fix` - ESLint 修复

@@ -1,0 +1,45 @@
+---
+description: 统一使用 toast() 提示，禁止业务代码直接 uni.showToast
+globs: src/**/*.{vue,ts}
+alwaysApply: false
+---
+
+# Toast 统一封装
+
+## 必用 API
+
+```ts
+import { toast, toastSuccess } from '@/utils/toast'
+import { toastBizError, getBizErrorMessage } from '@/utils/biz-error'
+
+toast('请填写完整信息')                 // 默认 icon:none，delay 50ms
+toastSuccess('登录成功')                // icon:success
+toastBizError(err, '操作失败')          // http 已 toast 则跳过
+```
+
+也可依赖 AutoImport（`vite.config.ts`）直接写 `toast` / `toastSuccess` / `toastBizError`，无需 import。
+
+## 为何延后
+
+微信小程序 `showToast` 与 `showLoading` 共用原生层。`try` 里 toast、`finally` 里 `hideLoading` 会把 toast 立刻关掉。`toast()` 默认 `delay: 50` 避开该问题。
+
+http 层已接全局 Loading（见 `global-loading.ts`），错误 toast 发生在 `complete`→`hideLoading` 之后仍靠 delay 正常展示。
+
+## 禁止
+
+- 业务代码直接 `uni.showToast(...)`（仅允许在 `src/utils/toast.ts` 内）
+- catch 里再写死「登录失败」「上传失败」覆盖后端 `msg`/`message`（http 已 toast 时）
+- 对已走 `http` 的请求再包一层 `uni.showLoading`（与全局 Loading 重复）
+
+## 约定
+
+| 场景 | 写法 |
+|------|------|
+| 本地表单校验 | `toast('请填写…')` |
+| 接口业务失败 | 交给 `http.ts`（已 toast 后端文案） |
+| catch 仅副作用 | `catch { /* http 已 toast */ }` |
+| 非 http 失败（上传/uni.login） | `toastBizError(e, '兜底')` |
+| hideErrorToast 后自行提示 | `toast(getBizErrorMessage(e, '兜底'))` |
+| 普通接口 Loading | 默认开启；静默用 `{ loading: false }` |
+
+详见 [api-http-patterns.mdc](mdc:.cursor/rules/api-http-patterns.mdc)。

@@ -2,6 +2,7 @@
 /**
  * 登录页
  * - 账号/邮箱登录；H5 支持 GitHub OAuth 与 ticket 回调兑换
+ * - H5 Enter 触发表单提交；小程序末项输入框键盘「完成」触发 @confirm
  * - 成功后按 redirect 回跳（仅允许 /pages/ 内路径）
  */
 import { getAuthCode, getGithubOAuthUrl } from '@/api/login'
@@ -9,6 +10,7 @@ import { ROUTE_HOME } from '@/router/routes'
 import { useTokenStore } from '@/store/token'
 import { currRoute } from '@/utils'
 import { rsaEncrypt } from '@/utils/rsa'
+import { toast } from '@/utils/toast'
 
 definePage({
   style: { navigationBarTitleText: '登录' },
@@ -46,7 +48,6 @@ async function handleOAuthTicket(ticket: string) {
   if (oauthTicketLoading.value || tokenStore.hasLogin)
     return
   oauthTicketLoading.value = true
-  uni.showLoading({ title: '正在完成登录...' })
   try {
     await tokenStore.loginByOAuthTicket(ticket)
     navigateAfterLogin()
@@ -56,7 +57,6 @@ async function handleOAuthTicket(ticket: string) {
   }
   finally {
     oauthTicketLoading.value = false
-    uni.hideLoading()
     // #ifdef H5
     if (typeof window !== 'undefined')
       window.history.replaceState({}, '', window.location.pathname)
@@ -86,7 +86,7 @@ onLoad((query) => {
   void loadCaptcha()
   // #ifdef H5
   if (query?.accessToken || query?.refreshToken) {
-    uni.showToast({ title: 'URL 携带敏感登录信息已拦截', icon: 'none' })
+    toast('URL 携带敏感登录信息已拦截')
     if (typeof window !== 'undefined')
       window.history.replaceState({}, '', window.location.pathname)
     return
@@ -96,6 +96,27 @@ onLoad((query) => {
   // #endif
 })
 
+// #ifdef H5
+/** H5：wd-input 内层 input 按 Enter 快速登录（与 Nuxt form submit 行为一致） */
+function onLoginEnterKey(e: KeyboardEvent) {
+  if (e.key !== 'Enter')
+    return
+  const tag = (e.target as HTMLElement | null)?.tagName?.toLowerCase()
+  if (tag !== 'input' && tag !== 'textarea')
+    return
+  e.preventDefault()
+  void handleLogin()
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', onLoginEnterKey)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', onLoginEnterKey)
+})
+// #endif
+
 async function handleLogin() {
   if (submitting.value || tokenStore.hasLogin)
     return
@@ -103,7 +124,7 @@ async function handleLogin() {
   try {
     if (loginType.value === 'account') {
       if (!form.username || !form.password || !form.authCode) {
-        uni.showToast({ title: '请填写完整信息', icon: 'none' })
+        toast('请填写完整信息')
         return
       }
       await tokenStore.login({
@@ -115,7 +136,7 @@ async function handleLogin() {
     }
     else {
       if (!form.email || !form.verificationCode) {
-        uni.showToast({ title: '请填写邮箱与验证码', icon: 'none' })
+        toast('请填写邮箱与验证码')
         return
       }
       await tokenStore.loginByEmail({
@@ -140,7 +161,7 @@ async function handleLogin() {
 /** H5 跳转 server GitHub 授权页 */
 function githubLogin() {
   githubLoginLoading.value = true
-  uni.showToast({ title: '正在跳转 GitHub...', icon: 'none' })
+  toast('正在跳转 GitHub...')
   window.location.href = getGithubOAuthUrl()
 }
 // #endif
@@ -189,50 +210,68 @@ async function wxLogin() {
     </view>
 
     <cyber-card>
-      <template v-if="loginType === 'account'">
-        <wd-input v-model="form.username" label="用户名" placeholder="请输入用户名" clearable />
-        <wd-input v-model="form.password" label="密码" placeholder="请输入密码" show-password clearable />
-        <view class="u-captcha-row">
-          <view class="u-captcha-input-wrap">
-            <wd-input v-model="form.authCode" label="验证码" placeholder="验证码" />
+      <form class="login-form" @submit.prevent="handleLogin">
+        <template v-if="loginType === 'account'">
+          <wd-input v-model="form.username" label="用户名" placeholder="请输入用户名" clearable />
+          <wd-input v-model="form.password" label="密码" placeholder="请输入密码" show-password clearable />
+          <view class="u-captcha-row">
+            <view class="u-captcha-input-wrap">
+              <wd-input
+                v-model="form.authCode"
+                label="验证码"
+                placeholder="验证码"
+                confirm-type="done"
+                @confirm="handleLogin"
+              />
+            </view>
+            <image
+              v-if="captchaImage"
+              :src="captchaImage"
+              class="u-captcha-img"
+              mode="aspectFit"
+              @click="loadCaptcha"
+            />
           </view>
-          <image
-            v-if="captchaImage"
-            :src="captchaImage"
-            class="u-captcha-img"
-            mode="aspectFit"
-            @click="loadCaptcha"
+        </template>
+        <template v-else>
+          <wd-input v-model="form.email" label="邮箱" placeholder="请输入邮箱" clearable />
+          <wd-input
+            v-model="form.verificationCode"
+            label="验证码"
+            placeholder="邮箱验证码"
+            clearable
+            confirm-type="done"
+            @confirm="handleLogin"
           />
-        </view>
-      </template>
-      <template v-else>
-        <wd-input v-model="form.email" label="邮箱" placeholder="请输入邮箱" clearable />
-        <wd-input v-model="form.verificationCode" label="验证码" placeholder="邮箱验证码" clearable />
-      </template>
+        </template>
 
-      <view class="u-form-actions">
-        <view class="u-form-action-item">
-          <cyber-button block :disabled="submitting || oauthTicketLoading" @click="handleLogin">
-            登录
-          </cyber-button>
-        </view>
+        <view class="u-form-actions">
+          <view class="u-form-action-item">
+            <cyber-button block :disabled="submitting || oauthTicketLoading" @click="handleLogin">
+              登录
+            </cyber-button>
+          </view>
 
-        <!-- #ifdef H5 -->
-        <view class="u-form-action-item">
-          <cyber-button block variant="secondary" @click="githubLogin">
-            GitHub 登录
-          </cyber-button>
-        </view>
-        <!-- #endif -->
+          <!-- #ifdef H5 -->
+          <view class="u-form-action-item">
+            <cyber-button block variant="secondary" @click="githubLogin">
+              GitHub 登录
+            </cyber-button>
+          </view>
+          <!-- #endif -->
 
-        <!-- #ifdef MP-WEIXIN -->
-        <view class="u-form-action-item">
-          <cyber-button block variant="secondary" @click="wxLogin">
-            微信登录
-          </cyber-button>
+          <!-- #ifdef MP-WEIXIN -->
+          <view class="u-form-action-item">
+            <cyber-button block variant="secondary" @click="wxLogin">
+              微信登录
+            </cyber-button>
+          </view>
+          <!-- #endif -->
+
+          <!-- 隐藏提交按钮：H5 Enter 触发表单 submit；小程序键盘「完成」走 @confirm -->
+          <button form-type="submit" type="submit" class="login-form-submit-hidden" aria-hidden="true" />
         </view>
-        <!-- #endif -->
-      </view>
+      </form>
     </cyber-card>
 
     <navigator url="/pages/auth/register" open-type="navigate" class="mt-4 text-center text-sm text-tech-muted">
@@ -240,3 +279,13 @@ async function wxLogin() {
     </navigator>
   </view>
 </template>
+
+<style scoped lang="scss">
+.login-form-submit-hidden {
+  position: fixed;
+  left: -9999px;
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+</style>

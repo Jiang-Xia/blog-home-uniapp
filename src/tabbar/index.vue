@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { toast } from '@/utils/toast'
 // i-carbon-code
 // i-carbon-compass
 // i-carbon-game-console
 import { customTabbarEnable, needHideNativeTabbar, tabbarCacheEnable } from './config'
 import { tabbarList, tabbarStore } from './store'
 import TabbarItem from './TabbarItem.vue'
+import { useTheme } from '@/composables/use-theme'
 
 // #ifdef MP-WEIXIN
 // 将自定义节点设置成虚拟的（去掉自定义组件包裹层），更加接近Vue组件的表现，能更好的使用flex属性
@@ -17,10 +19,7 @@ defineOptions({
  * 中间的鼓包tabbarItem的点击事件
  */
 function handleClickBulge() {
-  uni.showToast({
-    title: '点击了中间的鼓包tabbarItem',
-    icon: 'none',
-  })
+  toast('点击了中间的鼓包tabbarItem')
 }
 
 function handleClick(index: number) {
@@ -90,10 +89,10 @@ onMounted(() => {
   })
 })
 // #endif
-const activeColor = '#22d3ee'
-const inactiveColor = 'rgba(255,255,255,0.45)'
+const { chrome } = useTheme()
+
 function getColorByIndex(index: number) {
-  return tabbarStore.curIdx === index ? activeColor : inactiveColor
+  return tabbarStore.curIdx === index ? chrome.value.tabActive : chrome.value.tabInactive
 }
 </script>
 
@@ -149,8 +148,8 @@ function getColorByIndex(index: number) {
   width: 250rpx;
   height: 250rpx;
   border-radius: 50%;
-  background-color: rgba(17, 24, 39, 0.96);
-  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.35);
+  background-color: var(--tech-dropdown-bg);
+  box-shadow: 0 -4px 24px var(--tech-glass-shadow);
 
   &:active {
     // opacity: 0.8;

@@ -27,7 +27,7 @@ export function toTokenInfo(data: unknown): IAuthLoginRes {
 
 /** 图形验证码 GET /user/authCode */
 export function getAuthCode() {
-  return http.get<ICaptcha>('/user/authCode', { t: Date.now() })
+  return http.get<ICaptcha>('/user/authCode', { t: Date.now() }, undefined, { loading: false })
 }
 
 /** 账号登录 POST /user/login */
@@ -55,7 +55,7 @@ export function refreshToken(refreshTokenValue: string) {
     accessToken: string
     refreshToken: string
     user?: Record<string, unknown>
-  }>('/user/refresh', { token: refreshTokenValue })
+  }>('/user/refresh', { token: refreshTokenValue }, undefined, { loading: false })
 }
 
 /** 用户信息 GET /user/info */
@@ -108,7 +108,9 @@ export function getGithubOAuthUrl() {
 
 /** OAuth 回调 ticket 兑换 POST /user/auth/ticket/exchange */
 export function exchangeOAuthTicket(ticket: string) {
-  return http.post<ILoginResult>('/user/auth/ticket/exchange', { ticket })
+  return http.post<ILoginResult>('/user/auth/ticket/exchange', { ticket }, undefined, undefined, {
+    loading: { title: '正在完成登录...' },
+  })
 }
 
 export type { ILoginForm }

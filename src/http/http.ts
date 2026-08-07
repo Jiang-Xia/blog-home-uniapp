@@ -3,9 +3,12 @@ import type { CustomRequestOptions, IResponse } from '@/http/types'
 import { nextTick } from 'vue'
 import { useTokenStore } from '@/store/token'
 import { getPersistedAccessToken } from '@/utils/auth-token'
+import { markHttpToastShown } from '@/utils/biz-error'
+import { beginGlobalLoading, endGlobalLoading } from '@/utils/global-loading'
 import { isDoubleTokenMode } from '@/utils'
 import { toLoginPage } from '@/utils/toLoginPage'
 import { ResultEnum } from './tools/enum'
+import { toast } from '@/utils/toast'
 
 // 刷新 token 状态管理
 let refreshing = false // 防止重复刷新 token 标识
@@ -21,10 +24,15 @@ export function http<T>(options: CustomRequestOptions) {
     }
   }
 
+  // 自定义字段勿传给 uni.request
+  const { loading, hideErrorToast, ...requestOptions } = options
+
+  beginGlobalLoading(loading)
+
   // 1. 返回 Promise 对象
   return new Promise<T>((resolve, reject) => {
     uni.request({
-      ...options,
+      ...requestOptions,
       dataType: 'json',
       // #ifndef MP-WEIXIN
       responseType: 'json',
@@ -65,10 +73,7 @@ export function http<T>(options: CustomRequestOptions) {
               nextTick(() => {
                 // 关闭其他弹窗
                 uni.hideToast()
-                uni.showToast({
-                  title: 'token 刷新成功',
-                  icon: 'none',
-                })
+                toast('token 刷新成功')
               })
               // 将任务队列的所有任务重新请求
               taskQueue.forEach(task => task())
@@ -80,10 +85,7 @@ export function http<T>(options: CustomRequestOptions) {
               nextTick(() => {
                 // 关闭其他弹窗
                 uni.hideToast()
-                uni.showToast({
-                  title: '登录已过期，请重新登录',
-                  icon: 'none',
-                })
+                toast('登录已过期，请重新登录')
               })
               // 清除用户信息
               await tokenStore.logout()
@@ -103,32 +105,37 @@ export function http<T>(options: CustomRequestOptions) {
 
         // 处理其他成功状态（HTTP状态码200-299）
         if (res.statusCode >= 200 && res.statusCode < 300) {
-          // 处理业务逻辑错误
-          if (code !== ResultEnum.Success0 && code !== ResultEnum.Success200) {
-            uni.showToast({
-              icon: 'none',
-              title: responseData.msg || responseData.message || '请求错误',
-            })
-            return reject(responseData.data)
+          // 处理业务逻辑错误（兼容部分网关偶发缺 code：有 data 且无 message 时放行）
+          // 错误文案优先后端 msg/message；页面 catch 勿再写死「xxx失败」覆盖
+          const bizOk = code === ResultEnum.Success0 || code === ResultEnum.Success200
+          if (!bizOk && code !== undefined && code !== null) {
+            const errMsg = responseData.msg || responseData.message || '请求错误'
+            if (!hideErrorToast) {
+              toast(errMsg)
+              return reject(markHttpToastShown(responseData))
+            }
+            // hideErrorToast：不标记，便于页面 catch 自行 toast(getBizErrorMessage)
+            return reject(responseData)
           }
           return resolve(responseData.data)
         }
 
         // 处理其他错误
-        !options.hideErrorToast
-        && uni.showToast({
-          icon: 'none',
-          title: (res.data as any).msg || '请求错误',
-        })
-        reject(res)
+        if (!hideErrorToast) {
+          toast((res.data as any).msg || (res.data as any).message || '请求错误')
+          reject(markHttpToastShown(res))
+        }
+        else {
+          reject(res)
+        }
       },
       // 响应失败
       fail(err) {
-        uni.showToast({
-          icon: 'none',
-          title: '网络错误，换个网络试试',
-        })
-        reject(err)
+        toast('网络错误，换个网络试试')
+        reject(markHttpToastShown(err))
+      },
+      complete() {
+        endGlobalLoading(loading)
       },
     })
   })

@@ -8,7 +8,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.2-646CFF?logo=vite)](https://vitejs.dev/)
 
-> **三端说明**：本仓库为博客 **移动端 / 小程序** 前台，基于 [unibest](https://unibest.tech) 脚手架；与 [blog-home-nuxt](https://github.com/Jiang-Xia/blog-home-nuxt)（Web 前台）、[blog-admin](https://github.com/Jiang-Xia/blog-admin)（管理后台）配套；后端 **blog-server 闭源**。
+> **三端说明**：本仓库为博客 **移动端 / 小程序** 前台，基于 [unibest](https://unibest.tech) 脚手架；与 [blog-home-nuxt](https://github.com/Jiang-Xia/blog-home-nuxt)（Web 前台）、[blog-admin](https://github.com/Jiang-Xia/blog-admin)（管理后台）配套；后端默认 **blog-server-go**，Nest **blog-server** 为辅调。
 
 ## 项目简介
 
@@ -18,17 +18,30 @@ Blog Home UniApp 是博客三端架构中的**移动端前台**，目标对齐 b
 | --- | --- | --- |
 | Web 前台 | blog-home-nuxt | 5050 |
 | 管理后台 | blog-admin | 9856 |
-| 移动端 | **blog-home-uniapp** | 9000 |
-| 后端 API | blog-server | 5000 |
+| 移动端 | **blog-home-uniapp** | 8008 |
+| 后端 API（默认） | blog-server-go | 8000 |
+| 后端 API（辅调） | blog-server（Nest） | 5000 |
 
 ## 技术栈
 
 - **框架**：uni-app 3 + Vue 3 + TypeScript
 - **构建**：Vite 5 + `@dcloudio/vite-plugin-uni`
-- **样式**：UnoCSS + wot-ui
-- **状态**：Pinia + persistedstate
+- **样式**：UnoCSS + wot-ui + cyber / cyber-light 双主题（`--tech-*`）
+- **状态**：Pinia + persistedstate；主题偏好 `uni.storage`（`app-theme`）
 - **请求**：Alova / 自封装 HTTP
 - **工程化**：ESLint 9、Commitlint、Husky、lint-staged、EditorConfig
+
+### 主题（昼夜）
+
+对齐 blog-home-nuxt：`cyber`（夜间）↔ `cyber-light`（白天）。**默认跟随系统**深浅色。
+
+| 项 | 说明 |
+| --- | --- |
+| 默认 | `system`：系统深色 → cyber，系统浅色 → cyber-light |
+| 切换入口 | 「我的」→ 外观 →「跟随系统」/「浅色主题」 |
+| 令牌 | `src/style/cyber-theme.scss`、`wot-cyber-theme.scss` |
+| 逻辑 | `src/composables/use-theme.ts`（启动 `initTheme`，根节点 `App.ku.vue` 挂 `data-theme`；H5 `matchMedia` / 小程序 `onThemeChange`） |
+| 持久化 | `uni.setStorageSync('app-theme')`：`system` \| `cyber` \| `cyber-light` |
 
 ## 环境要求
 
@@ -40,25 +53,30 @@ Blog Home UniApp 是博客三端架构中的**移动端前台**，目标对齐 b
 
 ```bash
 pnpm install
-pnpm dev          # H5，默认 http://localhost:9000
+pnpm dev          # H5，默认联调本地 Go :8000 → http://localhost:8008
 pnpm dev:mp       # 微信小程序 → 导入 dist/dev/mp-weixin
 pnpm dev:app      # App（需 HBuilderX 或模拟器）
 ```
 
-联调本地 blog-server 时，在 `env/.env.development` 配置：
+默认 `env/.env.development` 已指向本地 Go（`http://localhost:8000/api/v1`）。辅调 Nest 时使用：
 
-```env
-VITE_SERVER_BASEURL = 'http://localhost:5000/api/v1'
+```bash
+pnpm dev:nest-local    # 本地 Nest :5000
+pnpm dev:nest-online   # 线上 Nest /x-blog/api/v1
 ```
 
 ## 常用命令
 
 | 命令 | 说明 |
 | --- | --- |
-| `pnpm dev` / `pnpm dev:h5` | H5 开发 |
-| `pnpm dev:mp` | 微信小程序开发 |
-| `pnpm build` | 生产构建（H5） |
+| `pnpm dev` / `pnpm dev:h5` | H5 开发（默认本地 Go） |
+| `pnpm dev:mp` | 微信小程序开发（默认本地 Go） |
+| `pnpm dev:nest-local` | H5 辅调本地 Nest |
+| `pnpm build` | 生产构建（H5，走线上 Go） |
 | `pnpm build:mp` | 微信小程序生产构建 |
+| `pnpm run deploy` | H5 一键部署到生产（见下方） |
+| `pnpm run rollback` | 回滚上一版 H5 静态包 |
+| Docker 本地试验 | 见 [deploy/docker/README.md](deploy/docker/README.md)（与 Go 单体 compose 联调） |
 | `pnpm lint` | ESLint 检查 |
 | `pnpm lint:fix` | ESLint 自动修复 |
 | `pnpm type-check` | Vue TSC 类型检查 |
@@ -76,6 +94,9 @@ blog-home-uniapp/
 │   ├── pages-tool/       # 分包：实用工具
 │   ├── api/              # 接口封装
 │   ├── http/             # 请求层
+│   ├── utils/toast.ts    # 统一 Toast（`toast` / `toastSuccess`，默认延后避免 hideLoading 冲突）
+│   ├── utils/biz-error.ts # 后端错误文案 + toastBizError（避免覆盖 http 已提示）
+│   ├── utils/global-loading.ts # 全局请求 Loading（引用计数 + 防闪烁）
 │   ├── store/            # Pinia
 │   ├── tabbar/           # 自定义 TabBar
 │   └── layouts/          # 布局
@@ -122,7 +143,7 @@ blog-home-uniapp/
 | `/pages/explore/explore` | 发现（站点浏览、社区互动与工具入口） |
 | `/pages/auth/login` | 登录 |
 | `/pages/auth/register` | 注册 |
-| `/pages/me/me` | 我的（账号卡片、个人中心功能菜单） |
+| `/pages/me/me` | 我的（账号卡片、昼夜主题切换、个人中心功能菜单） |
 | `/pages/rpg/entry` | RPG Tab 入口 |
 | `/pages-rpg/index/index` | 冒险中心（五 Tab） |
 | `/pages-rpg/guide/index` | RPG 玩法说明 |
@@ -139,18 +160,48 @@ blog-home-uniapp/
 | `/pages-blog/links/index` | 友链 |
 | `/pages-blog/open-source/index` | 开源与合作 |
 | `/pages-tool/index/index` | 工具箱 |
-| `/pages-tool/codes/index` | 编码转换 |
+| `/pages-tool/codes/index` | 条形/二维码 |
 | `/pages-tool/rsa/index` | RSA 加解密 |
 | `/pages-tool/crypto/index` | 对称加密（AES/DES） |
 | `/pages-tool/sm/index` | 国密 SM2 |
-| `/pages-tool/qrcode/index` | 二维码生成 |
+| `/pages-tool/qrcode/index` | 二维码（重定向至 codes） |
 | `/pages-tool/ai-summary/index` | AI 文章摘要 |
-| `/pages-tool/watermark/index` | 批量水印（H5） |
-| `/pages-tool/h5-web/index` | Web 工具跳转（光影边框/WebRTC 等） |
-| `/pages-tool/pdf/index` | PDF 预览（H5） |
+| `/pages-tool/ai/index` | AI 对话 |
+| `/pages-tool/watermark/index` | 批量水印 |
+| `/pages-tool/photos/index` | 光影边框 |
+| `/pages-tool/audio-visualized/index` | 音频可视化 |
+| `/pages-tool/upload-slice/index` | 切片上传 |
+| `/pages-tool/other/index` | 其他工具 |
+| `/pages-tool/test/index` | 开发测试 |
+| `/pages-tool/pdf/index` | PDF 电子签名 |
+| `/pages-tool/h5-web/index` | Web 工具外链兜底 |
 | `/pages/about/about` | 关于 |
 
 路由常量见 `src/router/routes.ts`；发现页分区见 `src/config/quick-entries.ts`，我的页菜单见 `src/config/me-menu.ts`。
+
+## 冒险中心（RPG）
+
+与 blog-home-nuxt `/rpg` 功能对齐，组件位于 `src/components/rpg/`：
+
+| Tab | 能力 |
+| --- | --- |
+| 状态 | 签到、等级奖励路线图、抽奖宝箱（单/五连动画）、任务分组、成就、Buff、赛季/天气 Banner、命中记录 |
+| 背包 | 类型筛选、穿戴称号/头像框、充值入口 |
+| 宠物 | 宠物蛋孵化、钻石兑换、出战/休息、改名 |
+| 公会 | 创建/加入/退出、成员列表 |
+| 排行 | 五维度 × 四周期、跳转公开主页 |
+
+全站 `RpgGlobalInit`（`App.vue`）登录后连接 Socket.IO，WS 庆祝动画（升级/成就/抽奖/社交等）与 Nuxt 同级。音效：`use-rpg-audio`（InnerAudioContext + H5 合成 fallback），冒险页可开 BGM；**音频 WAV 已提交在 `pages-rpg/static/audio/rpg/`**，仅改 `scripts/generate-rpg-audio.mjs` 后手动 `pnpm generate:rpg-audio`（`prebuild:mp*` 仍会生成）。WXSS 须遵守 `.cursor/rules/uniapp-21-wxss-forbidden-css.mdc`，改样式后请在微信开发者工具编译验证。
+
+## 一键部署（H5 生产）
+
+与 blog-admin 同机：`/opt/jxapp/front/blog-uniapp` → `https://go.jiang-xia.top/`（`go.jiang-xia.top.conf`）
+
+```powershell
+pnpm run deploy
+```
+
+build 读 `env/.env.production`；SSH 见 `deploy/pm2/deploy.local.env`（从 `deploy.local.env.example` 复制）。详见 [deploy/pm2/README.md](deploy/pm2/README.md)。
 
 ## Git 提交规范
 

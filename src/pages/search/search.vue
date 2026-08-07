@@ -2,6 +2,7 @@
 import { getArticleList } from '@/api/article'
 import type { ArticleItem } from '@/api/article'
 import ArticleCard from '@/components/article-card/article-card.vue'
+import { useTheme } from '@/composables/use-theme'
 
 definePage({
   style: { navigationBarTitleText: '搜索' },
@@ -10,6 +11,7 @@ definePage({
 const keyword = ref('')
 const articleList = ref<ArticleItem[]>([])
 const pagingRef = ref<any>(null)
+const { shellColor } = useTheme()
 
 async function queryList(pageNo: number, pageSize: number) {
   const kw = keyword.value.trim()
@@ -42,7 +44,7 @@ function doSearch() {
   <z-paging
     ref="pagingRef"
     v-model="articleList"
-    bg-color="#050505"
+    :bg-color="shellColor"
     :default-page-size="10"
     @query="queryList"
   >

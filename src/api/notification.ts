@@ -5,7 +5,7 @@ export function getNotificationList(params?: { page?: number, pageSize?: number,
 }
 
 export function getUnreadCount() {
-  return http.get<{ count: number }>('/notification/unread-count')
+  return http.get<{ count: number }>('/notification/unread-count', undefined, undefined, { loading: false })
 }
 
 export function markNotificationRead(ids: number[]) {
@@ -14,4 +14,15 @@ export function markNotificationRead(ids: number[]) {
 
 export function markAllNotificationsRead() {
   return http.patch<void>('/notification/read-all')
+}
+
+/** 断线补漏：拉 seq 之后错过的站内通知并回放 */
+export function getNotificationsSince(seq: number) {
+  return http.get<{
+    id: number
+    type: string
+    payload: Record<string, unknown>
+    read: number
+    createTime: string
+  }[]>('/notification/since', { seq }, undefined, { loading: false })
 }

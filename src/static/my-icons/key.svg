@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="key-g" x1="8" y1="8" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#fff176"/>
+      <stop offset="100%" stop-color="#ff9500"/>
+    </linearGradient>
+    <filter id="key-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2.2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <circle cx="18" cy="18" r="11" fill="#ffea00" opacity="0.2"/>
+  <circle cx="18" cy="18" r="9" fill="url(#key-g)" filter="url(#key-glow)"/>
+  <circle cx="18" cy="18" r="9" fill="none" stroke="#fff9c4" stroke-width="1" opacity="0.7"/>
+  <circle cx="18" cy="18" r="4" fill="#0f172a" opacity="0.3"/>
+  <path fill="#ffea00" filter="url(#key-glow)" d="M16 26h6v14h-6z"/>
+  <circle cx="34" cy="30" r="10" fill="#00f5ff" opacity="0.2"/>
+  <circle cx="34" cy="30" r="7" fill="#ffea00" filter="url(#key-glow)"/>
+  <rect x="30" y="28" width="8" height="10" rx="2" fill="#ff9500"/>
+  <rect x="32" y="32" width="2" height="4" rx="1" fill="#fff" opacity="0.8"/>
+</svg>

@@ -6,7 +6,9 @@
  */
 import type { LinkItem } from '@/api/link'
 import { createLink, getLinks } from '@/api/link'
+import { isValidHttpUrl, normalizeHttpUrl } from '@/utils/http-url'
 import { resolveStaticUrl } from '@/utils/static-url'
+import { toast } from '@/utils/toast'
 
 definePage({
   style: { navigationBarTitleText: '友链' },
@@ -50,18 +52,8 @@ function openUrl(url: string) {
   window.open(url, '_blank')
   // #endif
   // #ifndef H5
-  uni.setClipboardData({ data: url, success: () => uni.showToast({ title: '链接已复制', icon: 'none' }) })
+  uni.setClipboardData({ data: url, success: () => toast('链接已复制') })
   // #endif
-}
-
-function isValidUrl(url: string) {
-  try {
-    const parsed = new URL(url)
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
-  }
-  catch {
-    return false
-  }
 }
 
 function resetForm() {
@@ -81,28 +73,34 @@ async function submitApply() {
   if (submitting.value)
     return
   if (!linkForm.title.trim() || !linkForm.url.trim() || !linkForm.icon.trim() || !linkForm.desp.trim()) {
-    uni.showToast({ title: '请填写完整信息', icon: 'none' })
+    toast('请填写完整信息')
     return
   }
-  if (!isValidUrl(linkForm.url.trim())) {
-    uni.showToast({ title: '请输入有效的 http/https 网址', icon: 'none' })
+  // 无协议补 https；不用 new URL 以免小程序旧基础库误判
+  const url = normalizeHttpUrl(linkForm.url)
+  if (!isValidHttpUrl(url)) {
+    toast('请输入有效的 http/https 网址')
     return
   }
+  // 图标：站点相对路径原样提交；外链补协议（Nest 仅要求非空字符串）
+  const iconRaw = linkForm.icon.trim()
+  const iconLooksAbsolute = /^(?:https?:)?\/\//i.test(iconRaw) || /^[\w-]+\.[\w.-]+/.test(iconRaw)
+  const icon = iconLooksAbsolute ? normalizeHttpUrl(iconRaw) : iconRaw
   submitting.value = true
   try {
     await createLink({
       title: linkForm.title.trim(),
-      url: linkForm.url.trim(),
-      icon: linkForm.icon.trim(),
+      url,
+      icon,
       desp: linkForm.desp.trim(),
     })
     showApplyPopup.value = false
     resetForm()
     await reloadLinks()
-    uni.showToast({ title: '申请已提交，等待站长审核', icon: 'none', duration: 3000 })
+    toast('申请已提交，等待站长审核', { duration: 3000 })
   }
   catch {
-    uni.showToast({ title: '申请失败，请稍后重试', icon: 'none' })
+    // 失败文案已由 http 展示后端 message
   }
   finally {
     submitting.value = false

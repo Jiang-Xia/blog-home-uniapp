@@ -1,9 +1,9 @@
-import { getEnvBaseUrl } from '@/utils'
+import { getWsOrigin } from '@/utils/ws-origin'
 
 export const SiteTitle = '江夏的Blog'
 
-/** 工具箱数量（对齐 nuxt TOOL_LINKS） */
-export const TOOL_COUNT = 14
+/** 工具箱数量（对齐 nuxt TOOL_LINKS，WebRTC 暂未迁移） */
+export const TOOL_COUNT = 13
 
 const GUSHICI_FALLBACK = {
   content: '黄河远上白云间，一片孤城万仞山。',
@@ -17,12 +17,15 @@ export interface GushiciData {
   origin?: string
 }
 
-/** 每日古诗词 — 对齐 blog-home-nuxt api/index gushici */
+/** 每日古诗词 — zone-server 第三方接口，非 blog-server（对齐 blog-home-nuxt api/index gushici） */
 export async function gushici(): Promise<GushiciData> {
-  const origin = getEnvBaseUrl().replace(/\/api\/v1\/?$/, '')
+  const zonePath = '/x-zone/api/v1/third/gushici'
+  const origin = getWsOrigin()
   const urls = import.meta.env.DEV
-    ? [`${origin}/x-zone/api/v1/third/gushici`, 'https://jiang-xia.top/x-zone/api/v1/third/gushici']
-    : [`${origin}/x-zone/api/v1/third/gushici`]
+    ? import.meta.env.VITE_APP_PROXY_ENABLE === 'true'
+      ? [zonePath, `${origin}${zonePath}`]
+      : [`${origin}${zonePath}`, `https://jiang-xia.top${zonePath}`]
+    : [`${origin}${zonePath}`]
 
   for (const url of urls) {
     try {
