@@ -6,16 +6,29 @@
 pnpm run deploy
 ```
 
-静态目录：`/opt/jxapp/front/blog-uniapp` → 线上访问 `https://jiang-xia.top/blog-uniapp/`
+静态目录：`/opt/jxapp/front/blog-uniapp` → 线上入口 `https://go.jiang-xia.top/`（Nginx `go.jiang-xia.top.conf`）
+
+生产 build 使用 `VITE_APP_PUBLIC_BASE=/`，与 go 子域根路径一致。主域不再提供 `/blog-uniapp/`。
 
 ## 配置
 
 | 文件 | 说明 |
 |------|------|
-| `env/.env.production` | uni-app H5 生产 build，**直接读这个** |
+| `env/.env.production` | uni-app H5 / 小程序生产 build，**直接读这个**（API → `go.jiang-xia.top`） |
 | `deploy/pm2/deploy.local.env` | SSH（gitignore） |
 
 可选：`DEPLOY_BACKUP_KEEP=5`、`DEPLOY_RELEASE_KEEP=5`
+
+### 微信小程序合法域名
+
+在微信公众平台 → 开发 → 开发管理 → 服务器域名中，将以下域名加入：
+
+| 类型 | 域名 |
+|------|------|
+| request / uploadFile / downloadFile | `go.jiang-xia.top` |
+| socket | `go.jiang-xia.top` |
+
+Zone 相关接口若仍走主域 `/x-zone/`，无需改 zone 合法域名。
 
 ## 目录结构（方案 B，零停机）
 
@@ -27,16 +40,16 @@ pnpm run deploy
     backups/
 ```
 
-**Nginx**（主域 `jiang-xia.top.conf`，与 `/zone/` 同级）：
+**Nginx**（`go.jiang-xia.top.conf`）：
 
 ```nginx
-location /blog-uniapp/ {
-    alias /opt/jxapp/front/blog-uniapp/current/;
-    try_files $uri $uri/ /blog-uniapp/index.html;
+location / {
+    root /opt/jxapp/front/blog-uniapp/current;
+    try_files $uri $uri/ /index.html;
 }
 ```
 
-生产 build 须设 `env/.env.production` 中 `VITE_APP_PUBLIC_BASE=/blog-uniapp/`（与 location 前缀一致）。首次部署后若仍是扁平目录，脚本会自动迁移并创建 `current`。
+生产 build 须设 `env/.env.production` 中 `VITE_APP_PUBLIC_BASE=/`。首次部署后若仍是扁平目录，脚本会自动迁移并创建 `current`。
 
 ## 流程
 
@@ -64,3 +77,4 @@ FinalShell：`/opt/jxapp/front/blog-uniapp/releases/`
 | 生产 env | 根目录 `.env.production` | `env/.env.production` |
 | 构建命令 | `npm run build` | `pnpm run build:prod` |
 | 产物目录 | `dist/` | `dist/build/h5/` |
+| 线上入口 | `admin.jiang-xia.top` | `go.jiang-xia.top` |

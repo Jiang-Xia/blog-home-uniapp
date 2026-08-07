@@ -15,9 +15,9 @@ interface ImportMetaEnv {
   readonly VITE_SERVER_PORT: string
   /** 后台接口地址 */
   readonly VITE_SERVER_BASEURL: string
-  /** WebSocket origin（线上 https://jiang-xia.top） */
+  /** WebSocket origin（线上 https://go.jiang-xia.top） */
   readonly VITE_WS_ORIGIN?: string
-  /** 静态资源前缀（线上 /x-api/blog-server） */
+  /** 静态资源前缀（线上 /x-api/blog-server，挂 go 子域） */
   readonly VITE_STATIC_BASEURL?: string
   /** blog-home-nuxt 站点地址 */
   readonly VITE_NUXT_HOME_URL?: string

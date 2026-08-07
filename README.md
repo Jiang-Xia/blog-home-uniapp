@@ -195,7 +195,7 @@ blog-home-uniapp/
 
 ## 一键部署（H5 生产）
 
-与 blog-admin 同机：`/opt/jxapp/front/blog-uniapp` → 主域 `https://jiang-xia.top/blog-uniapp/`（Nginx 见 `blog-server/deploy/nginx/conf.d/jiang-xia.top.conf`）
+与 blog-admin 同机：`/opt/jxapp/front/blog-uniapp` → `https://go.jiang-xia.top/`（`go.jiang-xia.top.conf`）
 
 ```powershell
 pnpm run deploy

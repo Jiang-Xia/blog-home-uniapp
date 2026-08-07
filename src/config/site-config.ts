@@ -42,11 +42,10 @@ export const zoneDemoCards = [
 /** 项目演示链接（H5 浏览器打开；小程序/App 复制链接） */
 export function getProjectLinks() {
   const admin = getAdminUrl()
-  const nuxt = getNuxtHomeUrl().replace(/\/$/, '')
   return [
-    { title: 'Zone', desc: '多端 Zone 演示', url: `${nuxt}/zone/#/` },
+    { title: 'Zone', desc: '多端 Zone 演示', url: 'https://zone.jiang-xia.top/#/' },
     { title: 'Blog Admin', desc: '博客管理后台', url: admin },
     { title: 'Data Screen', desc: '数据大屏', url: `${admin}/datascreen` },
-    { title: 'Zone Admin', desc: 'Zone 管理端', url: `${admin}/admin/zone-admin/login` },
+    { title: 'Zone Admin', desc: 'Zone 管理端', url: 'https://zone.jiang-xia.top/admin/zone-admin/login' },
   ] as const
 }

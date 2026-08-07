@@ -142,4 +142,4 @@ Invoke-Remote $remoteCmd
 Write-Host '==> Verify'
 Invoke-Remote "test -f '$eRemoteDir/current/index.html' && echo 'index.html OK'"
 
-Write-Host '==> Deploy finished - https://jiang-xia.top/blog-uniapp/'
+Write-Host '==> Deploy finished - https://go.jiang-xia.top/'

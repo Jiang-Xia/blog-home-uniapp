@@ -10,5 +10,5 @@ docker run --rm -p 8008:80 blog-home-uniapp:local
 ```
 
 - 构建 env：`env/.env.docker`（`VITE_*` 指向 `http://localhost:8000`）
-- 静态站：nginx，根路径 `/`（非生产 `/blog-uniapp/`）
+- 静态站：nginx，根路径 `/`（与线上 `go.jiang-xia.top` 一致）
 - 生产部署仍用 [`../pm2/README.md`](../pm2/README.md) 的 `pnpm run deploy`
