@@ -4,10 +4,12 @@
  * - 单卡片内多行 cell，行间距由 margin-bottom 控制
  * - 未登录可见全部菜单，点击跳转登录并带 redirect
  * - 功能项由原个人中心六 Tab 拆出，详情仍在 profile 子页
+ * - 外观：默认跟随系统；可手动锁定 cyber / cyber-light（无需登录）
  */
 import { meMenuSections, resolveMeMenuRoute } from '@/config/me-menu'
 import type { MeMenuItem } from '@/config/me-menu'
 import { useSiteNotification } from '@/composables/use-site-notification'
+import { useTheme } from '@/composables/use-theme'
 import { storeToRefs } from 'pinia'
 import { LOGIN_PAGE, ROUTE_PROFILE } from '@/router/config'
 import { useUserStore } from '@/store'
@@ -21,6 +23,7 @@ const userStore = useUserStore()
 const tokenStore = useTokenStore()
 const { userInfo } = storeToRefs(userStore)
 const { unreadCount, fetchUnread } = useSiteNotification()
+const { isLight, followSystem, setFollowSystem, toggleTheme } = useTheme()
 
 onShow(async () => {
   if (!tokenStore.hasLogin) {
@@ -53,6 +56,24 @@ function goUserCard() {
     return
   }
   uni.navigateTo({ url: `${ROUTE_PROFILE}?tab=card` })
+}
+
+/** 跟随系统开关（wd-switch change 载荷为 { value }） */
+function onFollowSystemSwitch(e: { value: boolean } | boolean) {
+  const checked = typeof e === 'boolean' ? e : !!e?.value
+  if (checked === followSystem.value)
+    return
+  setFollowSystem(checked)
+}
+
+/** 手动浅色开关；跟随系统时由 disabled 拦截，此处再兜底 */
+function onThemeSwitch(e: { value: boolean } | boolean) {
+  if (followSystem.value)
+    return
+  const checked = typeof e === 'boolean' ? e : !!e?.value
+  if (checked === isLight.value)
+    return
+  toggleTheme()
 }
 
 function handleLogout() {
@@ -108,6 +129,56 @@ function handleLogout() {
         </cyber-card>
       </view>
 
+      <!-- 外观：默认跟随系统；可手动锁定昼夜（无需登录） -->
+      <view class="me-section">
+        <text class="me-section-title">外观</text>
+        <cyber-card class="cyber-card-pad-menu cyber-card-pad-menu--group">
+          <view class="cyber-menu-list cyber-menu-list--multi">
+            <view class="cyber-menu-list-row">
+              <view class="cyber-menu-item me-theme-row">
+                <view class="cyber-cell-main">
+                  <view class="cyber-cell-icon">
+                    <cyber-icon name="sparkle" size="60rpx" />
+                  </view>
+                  <view class="cyber-cell-text">
+                    <text class="cyber-cell-title">跟随系统</text>
+                    <text class="cyber-cell-desc">随手机深浅色自动切换昼夜主题</text>
+                  </view>
+                </view>
+                <view class="me-theme-switch" @tap.stop>
+                  <wd-switch :model-value="followSystem" size="22px" @change="onFollowSystemSwitch" />
+                </view>
+              </view>
+            </view>
+            <view class="cyber-menu-list-row">
+              <view class="cyber-menu-item me-theme-row">
+                <view class="cyber-cell-main">
+                  <view class="cyber-cell-icon">
+                    <cyber-icon name="bulb" size="60rpx" />
+                  </view>
+                  <view class="cyber-cell-text">
+                    <text class="cyber-cell-title">浅色主题</text>
+                    <text class="cyber-cell-desc">
+                      {{ followSystem
+                        ? (isLight ? '系统浅色 · 当前白天' : '系统深色 · 当前夜间')
+                        : (isLight ? '已锁定白天模式' : '已锁定夜间模式') }}
+                    </text>
+                  </view>
+                </view>
+                <view class="me-theme-switch" @tap.stop>
+                  <wd-switch
+                    :model-value="isLight"
+                    :disabled="followSystem"
+                    size="22px"
+                    @change="onThemeSwitch"
+                  />
+                </view>
+              </view>
+            </view>
+          </view>
+        </cyber-card>
+      </view>
+
       <!-- 功能菜单：分组单卡片，cell 下边距拉开行距 -->
       <view
         v-for="section in meMenuSections"
@@ -158,3 +229,16 @@ function handleLogout() {
     </view>
   </scroll-view>
 </template>
+
+<style scoped lang="scss">
+.me-theme-row {
+  width: 100%;
+}
+
+.me-theme-switch {
+  flex-shrink: 0;
+  margin-left: 16rpx;
+  display: flex;
+  align-items: center;
+}
+</style>

@@ -3,6 +3,7 @@ import { getArticleList } from '@/api/article'
 import type { ArticleItem } from '@/api/article'
 import { getTagById } from '@/api/tag'
 import ArticleCard from '@/components/article-card/article-card.vue'
+import { useTheme } from '@/composables/use-theme'
 import { apiDisplayLabel } from '@/utils/display-label'
 
 definePage({
@@ -13,6 +14,7 @@ const tagId = ref('')
 const tagName = ref('')
 const articleList = ref<ArticleItem[]>([])
 const pagingRef = ref<any>(null)
+const { shellColor } = useTheme()
 
 onLoad(async (query) => {
   tagId.value = String(query?.id ?? '')
@@ -42,7 +44,7 @@ async function queryList(pageNo: number, pageSize: number) {
 </script>
 
 <template>
-  <z-paging ref="pagingRef" v-model="articleList" bg-color="#050505" @query="queryList">
+  <z-paging ref="pagingRef" v-model="articleList" :bg-color="shellColor" @query="queryList">
     <view class="u-page-body py-3">
       <cyber-section-header
         v-if="tagName"

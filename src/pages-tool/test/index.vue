@@ -89,7 +89,7 @@ async function checkAiSummaryStatus() {
 
       <tool-card title="主题说明">
         <text class="text-sm text-tech-muted leading-relaxed">
-          本应用使用 cyber 暗色主题（--tech-* CSS 变量）。导航栏、卡片与工具页样式随全站主题配置生效；H5 与微信小程序共用同一套 cyber-theme.scss。
+          全站支持 cyber（夜间）与 cyber-light（白天），默认跟随系统深浅色（偏好 `system`）。在「我的 → 外观」可开关跟随或手动锁定；令牌见 cyber-theme.scss，导航栏与 Markdown 预览同步跟随。
         </text>
       </tool-card>
 

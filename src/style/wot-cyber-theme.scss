@@ -1,11 +1,11 @@
 /**
- * Wot UI Cyber 深色主题 — 对齐 cyber-theme.scss 的 --tech-* 设计令牌
- * wot 默认在 page 上同时注入 light/dark 语义色，light 会覆盖 dark；此处全局覆写为赛博深色。
- * 挂载点：page / .wot-theme-dark / H5 :root（portal 弹层继承）
+ * Wot UI Cyber 主题 — 对齐 cyber-theme.scss 的 --tech-* 设计令牌
+ * wot 默认在 page 上同时注入 light/dark 语义色，light 会覆盖 dark；此处全局覆写。
+ * 挂载点：page（默认夜间）/ .app-theme-root[data-theme] / .wot-theme-dark / H5 html[data-theme]
  */
 
 @mixin wot-cyber-theme-vars {
-  /* 主色阶：赛博青（对齐 --tech-primary #22d3ee） */
+  /* 主色阶：赛博青（对齐 --tech-primary） */
   --wot-primary-1: rgba(34, 211, 238, 0.1);
   --wot-primary-2: rgba(34, 211, 238, 0.18);
   --wot-primary-3: rgba(34, 211, 238, 0.28);
@@ -117,7 +117,7 @@
   --wot-cell-group-title-color: var(--tech-section-label);
   --wot-cell-group-value-color: var(--tech-fg-muted);
 
-  /* 按钮：实心 primary 用深字色（对齐 cyber-btn-primary） */
+  /* 按钮：实心 primary 字色跟随 --tech-btn-primary-fg */
   --wot-button-primary-bg: var(--tech-primary);
   --wot-button-primary-bg-active: #06b6d4;
   --wot-button-primary-color: var(--tech-primary);
@@ -128,7 +128,7 @@
   --wot-button-primary-plain-border-active: #06b6d4;
   --wot-button-primary-soft-bg: rgba(34, 211, 238, 0.1);
   --wot-button-primary-soft-bg-active: rgba(34, 211, 238, 0.18);
-  --wot-button-main-color: #0f172a;
+  --wot-button-main-color: var(--tech-btn-primary-fg);
   --wot-button-radius-main: 12px;
 
   --wot-button-info-bg: rgba(255, 255, 255, 0.06);
@@ -150,6 +150,144 @@
   --wot-toast-color: var(--tech-fg);
 }
 
+/** 白天 cyber-light：边框/填充改用深色半透明，主色对齐 --tech-primary #0891b2 */
+@mixin wot-cyber-light-theme-vars {
+  --wot-primary-1: rgba(8, 145, 178, 0.08);
+  --wot-primary-2: rgba(8, 145, 178, 0.14);
+  --wot-primary-3: rgba(8, 145, 178, 0.22);
+  --wot-primary-4: #0e7490;
+  --wot-primary-5: #0891b2;
+  --wot-primary-6: #0891b2;
+  --wot-primary-7: #0e7490;
+  --wot-primary-8: #155e75;
+  --wot-primary-9: #164e63;
+  --wot-primary-10: #083344;
+
+  --wot-danger-main: #e11d48;
+  --wot-danger-hover: #f43f5e;
+  --wot-danger-clicked: #be123c;
+  --wot-danger-disabled: rgba(225, 29, 72, 0.35);
+  --wot-danger-particular: rgba(225, 29, 72, 0.12);
+  --wot-danger-surface: rgba(225, 29, 72, 0.06);
+
+  --wot-success-main: var(--tech-success);
+  --wot-success-hover: #22c55e;
+  --wot-success-clicked: #15803d;
+  --wot-success-disabled: rgba(22, 163, 74, 0.35);
+  --wot-success-particular: rgba(22, 163, 74, 0.12);
+  --wot-success-surface: rgba(22, 163, 74, 0.06);
+
+  --wot-warning-main: var(--tech-rpg-amber);
+  --wot-warning-hover: #f59e0b;
+  --wot-warning-clicked: #b45309;
+  --wot-warning-disabled: rgba(217, 119, 6, 0.35);
+  --wot-warning-particular: rgba(217, 119, 6, 0.12);
+  --wot-warning-surface: rgba(217, 119, 6, 0.06);
+
+  --wot-text-main: var(--tech-fg);
+  --wot-text-secondary: var(--tech-fg-muted);
+  --wot-text-auxiliary: var(--tech-fg-subtle);
+  --wot-text-disabled: var(--tech-fg-faint);
+  --wot-text-placeholder: var(--tech-fg-subtle);
+  --wot-text-white: #ffffff;
+
+  --wot-icon-main: var(--tech-fg);
+  --wot-icon-secondary: var(--tech-fg-muted);
+  --wot-icon-auxiliary: var(--tech-fg-subtle);
+  --wot-icon-disabled: var(--tech-fg-faint);
+  --wot-icon-placeholder: var(--tech-fg-subtle);
+  --wot-icon-white: #ffffff;
+
+  --wot-border-extra-strong: rgba(15, 23, 42, 0.28);
+  --wot-border-strong: rgba(15, 23, 42, 0.18);
+  --wot-border-main: var(--tech-border);
+  --wot-border-light: rgba(15, 23, 42, 0.08);
+  --wot-border-white: #ffffff;
+  --wot-border-zero: transparent;
+
+  --wot-filled-extra-strong: rgba(15, 23, 42, 0.1);
+  --wot-filled-strong: rgba(15, 23, 42, 0.06);
+  --wot-filled-content: rgba(15, 23, 42, 0.04);
+  --wot-filled-bottom: var(--tech-shell);
+  --wot-filled-oppo: var(--tech-input-bg);
+  --wot-filled-zero: transparent;
+
+  --wot-divider-main: var(--tech-border);
+  --wot-divider-light: rgba(15, 23, 42, 0.08);
+  --wot-divider-strong: rgba(15, 23, 42, 0.16);
+  --wot-divider-white: #ffffff;
+
+  --wot-feedback-hover: rgba(15, 23, 42, 0.04);
+  --wot-feedback-active: rgba(15, 23, 42, 0.08);
+  --wot-feedback-accent: rgba(8, 145, 178, 0.1);
+
+  --wot-opacfilled-tooltip-toast-cover: rgba(15, 23, 42, 0.55);
+  --wot-opacfilled-main-cover: rgba(15, 23, 42, 0.4);
+  --wot-opacfilled-light-cover: rgba(15, 23, 42, 0.2);
+
+  --wot-picker-view-mask-start-color: rgba(240, 244, 249, 0.92);
+  --wot-picker-view-mask-end-color: rgba(240, 244, 249, 0.2);
+
+  --wot-input-bg: var(--tech-input-bg);
+  --wot-input-inner-color: var(--tech-fg);
+  --wot-input-inner-placeholder-color: var(--tech-fg-subtle);
+  --wot-input-icon-color: var(--tech-fg-subtle);
+  --wot-input-disabled-color: var(--tech-fg-faint);
+  --wot-input-count-color: var(--tech-fg-muted);
+
+  --wot-textarea-bg: var(--tech-input-bg);
+  --wot-textarea-inner-color: var(--tech-fg);
+  --wot-textarea-inner-placeholder-color: var(--tech-fg-subtle);
+  --wot-textarea-icon-color: var(--tech-fg-subtle);
+  --wot-textarea-disabled-color: var(--tech-fg-faint);
+  --wot-textarea-count-color: var(--tech-fg-muted);
+
+  --wot-cell-bg: transparent;
+  --wot-cell-bg-active: rgba(15, 23, 42, 0.04);
+  --wot-cell-tap-bg: rgba(15, 23, 42, 0.06);
+  --wot-cell-border-color: var(--tech-border);
+  --wot-cell-title-color: var(--tech-fg);
+  --wot-cell-label-color: var(--tech-fg-muted);
+  --wot-cell-value-color: var(--tech-fg-muted);
+  --wot-cell-placeholder-color: var(--tech-fg-subtle);
+  --wot-cell-arrow-color: var(--tech-fg-subtle);
+  --wot-cell-icon-color: var(--tech-fg-muted);
+  --wot-cell-theme-color: var(--tech-primary);
+
+  --wot-cell-group-bg: transparent;
+  --wot-cell-group-title-color: var(--tech-section-label);
+  --wot-cell-group-value-color: var(--tech-fg-muted);
+
+  --wot-button-primary-bg: var(--tech-primary);
+  --wot-button-primary-bg-active: #0e7490;
+  --wot-button-primary-color: var(--tech-primary);
+  --wot-button-primary-color-active: #0e7490;
+  --wot-button-primary-plain-bg: transparent;
+  --wot-button-primary-plain-bg-active: rgba(8, 145, 178, 0.1);
+  --wot-button-primary-plain-border: var(--tech-primary);
+  --wot-button-primary-plain-border-active: #0e7490;
+  --wot-button-primary-soft-bg: rgba(8, 145, 178, 0.1);
+  --wot-button-primary-soft-bg-active: rgba(8, 145, 178, 0.16);
+  --wot-button-main-color: var(--tech-btn-primary-fg);
+  --wot-button-radius-main: 12px;
+
+  --wot-button-info-bg: rgba(15, 23, 42, 0.04);
+  --wot-button-info-bg-active: rgba(15, 23, 42, 0.08);
+  --wot-button-info-color: var(--tech-fg);
+  --wot-button-info-color-active: var(--tech-fg-muted);
+  --wot-button-info-plain-border: var(--tech-btn-secondary-border);
+
+  --wot-popup-bg: var(--tech-dropdown-bg);
+  --wot-popup-close-color: var(--tech-fg-muted);
+  --wot-popup-radius: 16px;
+
+  --wot-overlay-bg: rgba(15, 23, 42, 0.4);
+
+  --wot-loading-color: var(--tech-primary);
+  --wot-toast-bg: var(--tech-dropdown-bg);
+  --wot-toast-color: var(--tech-fg);
+}
+
 page {
   @include wot-cyber-theme-vars;
 }
@@ -159,9 +297,24 @@ page {
   @include wot-cyber-theme-vars;
 }
 
+.app-theme-root[data-theme='cyber'],
+html[data-theme='cyber'] {
+  @include wot-cyber-theme-vars;
+}
+
+.app-theme-root[data-theme='cyber-light'],
+html[data-theme='cyber-light'],
+page[data-theme='cyber-light'] {
+  @include wot-cyber-light-theme-vars;
+}
+
 /* #ifdef H5 */
 :root {
   @include wot-cyber-theme-vars;
+}
+
+html[data-theme='cyber-light'] {
+  @include wot-cyber-light-theme-vars;
 }
 /* #endif */
 

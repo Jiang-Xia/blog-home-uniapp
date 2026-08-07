@@ -26,10 +26,22 @@ Blog Home UniApp 是博客三端架构中的**移动端前台**，目标对齐 b
 
 - **框架**：uni-app 3 + Vue 3 + TypeScript
 - **构建**：Vite 5 + `@dcloudio/vite-plugin-uni`
-- **样式**：UnoCSS + wot-ui
-- **状态**：Pinia + persistedstate
+- **样式**：UnoCSS + wot-ui + cyber / cyber-light 双主题（`--tech-*`）
+- **状态**：Pinia + persistedstate；主题偏好 `uni.storage`（`app-theme`）
 - **请求**：Alova / 自封装 HTTP
 - **工程化**：ESLint 9、Commitlint、Husky、lint-staged、EditorConfig
+
+### 主题（昼夜）
+
+对齐 blog-home-nuxt：`cyber`（夜间）↔ `cyber-light`（白天）。**默认跟随系统**深浅色。
+
+| 项 | 说明 |
+| --- | --- |
+| 默认 | `system`：系统深色 → cyber，系统浅色 → cyber-light |
+| 切换入口 | 「我的」→ 外观 →「跟随系统」/「浅色主题」 |
+| 令牌 | `src/style/cyber-theme.scss`、`wot-cyber-theme.scss` |
+| 逻辑 | `src/composables/use-theme.ts`（启动 `initTheme`，根节点 `App.ku.vue` 挂 `data-theme`；H5 `matchMedia` / 小程序 `onThemeChange`） |
+| 持久化 | `uni.setStorageSync('app-theme')`：`system` \| `cyber` \| `cyber-light` |
 
 ## 环境要求
 
@@ -131,7 +143,7 @@ blog-home-uniapp/
 | `/pages/explore/explore` | 发现（站点浏览、社区互动与工具入口） |
 | `/pages/auth/login` | 登录 |
 | `/pages/auth/register` | 注册 |
-| `/pages/me/me` | 我的（账号卡片、个人中心功能菜单） |
+| `/pages/me/me` | 我的（账号卡片、昼夜主题切换、个人中心功能菜单） |
 | `/pages/rpg/entry` | RPG Tab 入口 |
 | `/pages-rpg/index/index` | 冒险中心（五 Tab） |
 | `/pages-rpg/guide/index` | RPG 玩法说明 |

@@ -55,7 +55,8 @@
 - 使用 SCSS 预处理器
 - 样式文件使用 `lang="scss"` 和 `scoped` 属性
 - 遵循 BEM 命名规范
-- 全局主题与跨端工具类在 [src/style/cyber-theme.scss](mdc:src/style/cyber-theme.scss)
+- 全局主题与跨端工具类在 [src/style/cyber-theme.scss](mdc:src/style/cyber-theme.scss)（`cyber` / `cyber-light`，由 `use-theme` + `App.ku.vue` 的 `data-theme` 切换）
+- wot 语义色覆写见 [src/style/wot-cyber-theme.scss](mdc:src/style/wot-cyber-theme.scss)
 
 ## 样式组织
 - 全局样式在 [src/style/](mdc:src/style/) 目录下

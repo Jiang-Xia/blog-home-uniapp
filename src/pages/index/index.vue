@@ -4,6 +4,7 @@ import type { ArticleItem } from '@/api/article'
 import ArticleCard from '@/components/article-card/article-card.vue'
 import CyberBackTop from '@/components/cyber/cyber-back-top.vue'
 import { useAuthorRpgLevels } from '@/composables/use-author-rpg-levels'
+import { useTheme } from '@/composables/use-theme'
 import { gushici, TOOL_COUNT } from '@/config/site-constant'
 import { ROUTE_RPG_ENTRY, ROUTE_RPG_GUIDE, ROUTE_SEARCH } from '@/router/routes'
 
@@ -15,6 +16,7 @@ definePage({
 const articleList = ref<ArticleItem[]>([])
 const articleTotal = ref(0)
 const { fetchLevelsForUids } = useAuthorRpgLevels()
+const { shellColor } = useTheme()
 const pagingRef = ref<{ complete: (list: ArticleItem[]) => void, completeByTotal?: (list: ArticleItem[], total: number) => void, scrollToY?: (y: number) => void, scrollToTop?: (animate?: boolean) => void } | null>(null)
 const backTopRef = ref<InstanceType<typeof CyberBackTop> | null>(null)
 
@@ -105,7 +107,7 @@ watch(articleList, (list) => {
   <z-paging
     ref="pagingRef"
     v-model="articleList"
-    bg-color="#050505"
+    :bg-color="shellColor"
     :default-page-size="12"
     @query="queryList"
     @scroll-top-change="onScrollTopChange"
